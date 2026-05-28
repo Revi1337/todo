@@ -26,11 +26,11 @@ public interface TodoRepository extends JpaRepository<Todo, Long>, JpaSpecificat
     List<CategoryStat> findCategoryStats();
 
     @Query(value = """
-            SELECT DATE(completed_at) as date, COUNT(*) as count
+            SELECT completed_at::date AS date, COUNT(*) AS count
             FROM todos
-            WHERE completed = 1
-              AND DATE(completed_at) BETWEEN :from AND :to
-            GROUP BY DATE(completed_at)
+            WHERE completed = true
+              AND completed_at::date BETWEEN :from AND :to
+            GROUP BY completed_at::date
             """, nativeQuery = true)
     List<Object[]> findDailyCompletedBetween(@Param("from") LocalDate from, @Param("to") LocalDate to);
 }

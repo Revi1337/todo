@@ -138,8 +138,8 @@ Supabase가 클라우드에서 PostgreSQL을 관리한다. 별도 파일 백업 
 연결 정보는 환경변수로 주입한다. `.env`는 `.gitignore`에 추가.
 
 ```
-SPRING_DATASOURCE_URL=jdbc:postgresql://db.xxxx.supabase.co:5432/postgres
-SPRING_DATASOURCE_USERNAME=postgres
+SPRING_DATASOURCE_URL=jdbc:postgresql://aws-1-{region}.pooler.supabase.com:5432/postgres
+SPRING_DATASOURCE_USERNAME=postgres.{project_ref}
 SPRING_DATASOURCE_PASSWORD=your-password
 APP_PASSWORD=your-app-password
 ```

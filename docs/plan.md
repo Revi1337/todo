@@ -149,9 +149,9 @@ git init
 **의존 단계**: Phase 7 완료 후
 
 #### Tasks
-- [ ] `build.gradle` — `sqlite-jdbc`, `hibernate-community-dialects` 제거, `postgresql` 드라이버 추가
-- [ ] `application.yml` — datasource를 Supabase JDBC URL로 교체 (환경변수 `SPRING_DATASOURCE_URL` 등)
-- [ ] `StatsController` — SQLite `DATE()` 함수를 PostgreSQL `::date` 캐스트로 교체
+- [x] `build.gradle` — `sqlite-jdbc`, `hibernate-community-dialects` 제거, `postgresql` 드라이버 추가
+- [x] `application.yml` — datasource를 Supabase Session Pooler JDBC URL로 교체 (환경변수 `SPRING_DATASOURCE_URL` 등)
+- [x] `TodoRepository` — SQLite `DATE()` 함수를 PostgreSQL `::date` 캐스트로 교체
 
 ---
 
