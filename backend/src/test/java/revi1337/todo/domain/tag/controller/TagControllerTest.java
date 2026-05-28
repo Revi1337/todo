@@ -9,8 +9,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import revi1337.todo.domain.tag.controller.dto.TagCreateRequest;
-import revi1337.todo.domain.tag.entity.Tag;
-import revi1337.todo.domain.tag.repository.TagRepository;
+import revi1337.todo.domain.tag.service.TagService;
+import revi1337.todo.domain.tag.service.dto.TagResponse;
 
 import java.util.List;
 
@@ -31,12 +31,12 @@ class TagControllerTest {
     private ObjectMapper objectMapper;
 
     @MockitoBean
-    private TagRepository tagRepository;
+    private TagService tagService;
 
     @Test
     @DisplayName("POST /api/tags — Tag를 생성하고 201을 반환한다")
     void create() throws Exception {
-        given(tagRepository.save(any(Tag.class))).willReturn(new Tag("JPA", "#94a3b8"));
+        given(tagService.save(any(), any())).willReturn(new TagResponse(1L, "JPA", "#94a3b8"));
 
         mockMvc.perform(post("/api/tags")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -58,9 +58,9 @@ class TagControllerTest {
     @Test
     @DisplayName("GET /api/tags — 전체 목록을 반환한다")
     void findAll() throws Exception {
-        given(tagRepository.findAll()).willReturn(List.of(
-                new Tag("JPA", "#94a3b8"),
-                new Tag("Spring", "#6366f1")
+        given(tagService.findAll()).willReturn(List.of(
+                new TagResponse(1L, "JPA", "#94a3b8"),
+                new TagResponse(2L, "Spring", "#6366f1")
         ));
 
         mockMvc.perform(get("/api/tags"))

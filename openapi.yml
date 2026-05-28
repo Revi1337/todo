@@ -1,0 +1,475 @@
+openapi: 3.0.3
+info:
+  title: Todo API
+  description: Personal Todo application REST API
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+tags:
+  - name: todos
+    description: Todo management
+  - name: categories
+    description: Category management
+  - name: tags
+    description: Tag management
+  - name: stats
+    description: Statistics
+
+paths:
+  /api/todos:
+    post:
+      tags: [todos]
+      summary: Create a todo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponseBase'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TodoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+    get:
+      tags: [todos]
+      summary: List todos with optional filters
+      parameters:
+        - name: category
+          in: query
+          description: Filter by category ID
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: tag
+          in: query
+          description: Filter by tag ID
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: priority
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/Priority'
+        - name: completed
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: search
+          in: query
+          description: Keyword search on title and description
+          required: false
+          schema:
+            type: string
+        - name: dueDate
+          in: query
+          description: Filter by due date (ISO 8601 date)
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponseBase'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TodoResponse'
+
+  /api/todos/{id}:
+    put:
+      tags: [todos]
+      summary: Update a todo
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponseBase'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TodoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [todos]
+      summary: Delete a todo
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '204':
+          description: No Content
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/categories:
+    post:
+      tags: [categories]
+      summary: Create a category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponseBase'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/CategoryResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+    get:
+      tags: [categories]
+      summary: List all categories
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponseBase'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/CategoryResponse'
+
+  /api/categories/{id}:
+    delete:
+      tags: [categories]
+      summary: Delete a category
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '204':
+          description: No Content
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/tags:
+    post:
+      tags: [tags]
+      summary: Create a tag
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponseBase'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TagResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+    get:
+      tags: [tags]
+      summary: List all tags
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponseBase'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TagResponse'
+
+  /api/stats:
+    get:
+      tags: [stats]
+      summary: Get todo statistics
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponseBase'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/StatsResponse'
+
+components:
+  parameters:
+    IdPath:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+
+  schemas:
+    ApiResponseBase:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+          nullable: true
+
+    Priority:
+      type: string
+      enum: [HIGH, MEDIUM, LOW]
+
+    CategoryCreateRequest:
+      type: object
+      required: [name, color]
+      properties:
+        name:
+          type: string
+        color:
+          type: string
+          example: "#6366f1"
+
+    CategoryResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        color:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    TagCreateRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        color:
+          type: string
+          nullable: true
+          example: "#94a3b8"
+
+    TagResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        color:
+          type: string
+
+    TodoRequest:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        priority:
+          $ref: '#/components/schemas/Priority'
+        dueDate:
+          type: string
+          format: date
+          nullable: true
+        categoryId:
+          type: integer
+          format: int64
+          nullable: true
+        tagIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+          nullable: true
+        completed:
+          type: boolean
+          nullable: true
+
+    TodoResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        completed:
+          type: boolean
+        priority:
+          $ref: '#/components/schemas/Priority'
+        dueDate:
+          type: string
+          format: date
+          nullable: true
+        category:
+          allOf:
+            - $ref: '#/components/schemas/CategoryResponse'
+          nullable: true
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagResponse'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    StatsResponse:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          format: int64
+        completedCount:
+          type: integer
+          format: int64
+        completionRate:
+          type: number
+          format: double
+          description: Rounded to 1 decimal place (e.g. 66.7)
+        byCategory:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryStat'
+        weeklyTrend:
+          type: array
+          items:
+            $ref: '#/components/schemas/DailyStat'
+        monthlyTrend:
+          type: array
+          items:
+            $ref: '#/components/schemas/DailyStat'
+
+    CategoryStat:
+      type: object
+      properties:
+        categoryName:
+          type: string
+        total:
+          type: integer
+          format: int64
+        completed:
+          type: integer
+          format: int64
+
+    DailyStat:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        day:
+          type: string
+          nullable: true
+          description: Short weekday label for weekly trend (MON–SUN), null for monthly trend
+          example: MON
+        count:
+          type: integer
+          format: int64
+
+    ErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponseBase'
+        - type: object
+          properties:
+            data:
+              type: object
+              nullable: true
+
+  responses:
+    BadRequest:
+      description: Bad Request – validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
