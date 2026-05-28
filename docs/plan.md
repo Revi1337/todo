@@ -108,15 +108,15 @@ git init
 > **도메인 의존성**: Todo는 Category(FK)와 Tag(N:N)를 참조하므로 Phase 4, 5 이후에 작업.
 
 #### Tasks
-- [ ] `Priority` Enum 작성 (HIGH / MEDIUM / LOW)
-- [ ] `Todo` Entity 작성
+- [x] `Priority` Enum 작성 (HIGH / MEDIUM / LOW)
+- [x] `Todo` Entity 작성
   - Category FK (`@ManyToOne`, ON DELETE SET NULL)
   - Tags (`@ManyToMany` via `todo_tags` 중간 테이블, ON DELETE CASCADE)
   - completed, completedAt, dueDate, priority, createdAt, updatedAt
-- [ ] `TodoRepository` 작성 — 필터 쿼리 (dueDate, categoryId, tagId, priority, completed, 키워드 검색)
-- [ ] `TodoService` 작성
+- [x] `TodoRepository` 작성 — 필터 쿼리 (dueDate, categoryId, tagId, priority, completed, 키워드 검색)
+- [x] `TodoService` 작성
   - 완료 토글 로직: `completed=true` → `completedAt=now`, `false` → `completedAt=null`
-- [ ] `TodoController` 작성
+- [x] `TodoController` 작성
   - GET `/api/todos` — 목록 조회 (category, tag, priority, completed, search, dueDate 필터)
   - POST `/api/todos` — 생성
   - PUT `/api/todos/{id}` — 수정 (완료 토글 포함)
