@@ -1,3 +1,6 @@
+# 환경변수
+.env
+
 # DB 바이너리 (backup.sql, schema.sql은 git 추적)
 db/todo.db
 
