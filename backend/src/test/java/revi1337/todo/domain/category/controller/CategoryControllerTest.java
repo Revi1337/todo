@@ -9,7 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import revi1337.todo.domain.category.service.dto.CategoryCreateRequest;
-import revi1337.todo.domain.category.entity.Category;
+import revi1337.todo.domain.category.service.dto.CategoryResponse;
 import revi1337.todo.domain.category.service.CategoryService;
 
 import java.time.LocalDateTime;
@@ -36,8 +36,8 @@ class CategoryControllerTest {
     @Test
     @DisplayName("POST /api/categories — Category를 생성하고 201을 반환한다")
     void create() throws Exception {
-        Category category = new Category("개발", "#6366f1", LocalDateTime.now());
-        given(categoryService.save(any(), any())).willReturn(category);
+        given(categoryService.save(any(), any()))
+                .willReturn(new CategoryResponse(1L, "개발", "#6366f1", LocalDateTime.now()));
 
         mockMvc.perform(post("/api/categories")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -60,8 +60,8 @@ class CategoryControllerTest {
     @DisplayName("GET /api/categories — 전체 목록을 반환한다")
     void findAll() throws Exception {
         given(categoryService.findAll()).willReturn(List.of(
-                new Category("개발", "#6366f1", LocalDateTime.now()),
-                new Category("운동", "#f59e0b", LocalDateTime.now())
+                new CategoryResponse(1L, "개발", "#6366f1", LocalDateTime.now()),
+                new CategoryResponse(2L, "운동", "#f59e0b", LocalDateTime.now())
         ));
 
         mockMvc.perform(get("/api/categories"))

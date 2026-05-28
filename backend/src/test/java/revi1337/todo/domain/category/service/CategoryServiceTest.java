@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
-import revi1337.todo.domain.category.entity.Category;
+import revi1337.todo.domain.category.service.dto.CategoryResponse;
 
 import java.util.List;
 
@@ -23,12 +23,12 @@ class CategoryServiceTest {
     @Test
     @DisplayName("name과 color로 Category를 저장한다")
     void save() {
-        Category result = categoryService.save("개발", "#6366f1");
+        CategoryResponse result = categoryService.save("개발", "#6366f1");
 
-        assertThat(result.getId()).isNotNull();
-        assertThat(result.getName()).isEqualTo("개발");
-        assertThat(result.getColor()).isEqualTo("#6366f1");
-        assertThat(result.getCreatedAt()).isNotNull();
+        assertThat(result.id()).isNotNull();
+        assertThat(result.name()).isEqualTo("개발");
+        assertThat(result.color()).isEqualTo("#6366f1");
+        assertThat(result.createdAt()).isNotNull();
     }
 
     @Test
@@ -37,7 +37,7 @@ class CategoryServiceTest {
         categoryService.save("개발", "#6366f1");
         categoryService.save("운동", "#f59e0b");
 
-        List<Category> result = categoryService.findAll();
+        List<CategoryResponse> result = categoryService.findAll();
 
         assertThat(result).hasSize(2);
     }
@@ -45,9 +45,9 @@ class CategoryServiceTest {
     @Test
     @DisplayName("ID로 Category를 삭제하면 조회되지 않는다")
     void deleteById() {
-        Category saved = categoryService.save("개발", "#6366f1");
+        CategoryResponse saved = categoryService.save("개발", "#6366f1");
 
-        categoryService.deleteById(saved.getId());
+        categoryService.deleteById(saved.id());
 
         assertThat(categoryService.findAll()).isEmpty();
     }

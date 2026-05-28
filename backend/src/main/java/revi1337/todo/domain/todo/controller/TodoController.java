@@ -7,10 +7,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import revi1337.todo.common.ApiResponse;
 import revi1337.todo.domain.todo.entity.Priority;
-import revi1337.todo.domain.todo.entity.Todo;
 import revi1337.todo.domain.todo.service.TodoService;
 import revi1337.todo.domain.todo.service.dto.TodoFilterRequest;
 import revi1337.todo.domain.todo.service.dto.TodoRequest;
+import revi1337.todo.domain.todo.service.dto.TodoResponse;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,12 +24,12 @@ public class TodoController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponse<Todo> create(@RequestBody @Valid TodoRequest request) {
+    public ApiResponse<TodoResponse> create(@RequestBody @Valid TodoRequest request) {
         return ApiResponse.ok(todoService.create(request));
     }
 
     @GetMapping
-    public ApiResponse<List<Todo>> findAll(
+    public ApiResponse<List<TodoResponse>> findAll(
             @RequestParam(required = false) Long category,
             @RequestParam(required = false) Long tag,
             @RequestParam(required = false) Priority priority,
@@ -43,7 +43,7 @@ public class TodoController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<Todo> update(@PathVariable Long id, @RequestBody @Valid TodoRequest request) {
+    public ApiResponse<TodoResponse> update(@PathVariable Long id, @RequestBody @Valid TodoRequest request) {
         return ApiResponse.ok(todoService.update(id, request));
     }
 

@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import revi1337.todo.common.ApiResponse;
 import revi1337.todo.domain.category.service.dto.CategoryCreateRequest;
-import revi1337.todo.domain.category.entity.Category;
+import revi1337.todo.domain.category.service.dto.CategoryResponse;
 import revi1337.todo.domain.category.service.CategoryService;
 
 import java.util.List;
@@ -20,12 +20,12 @@ public class CategoryController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponse<Category> create(@RequestBody @Valid CategoryCreateRequest request) {
+    public ApiResponse<CategoryResponse> create(@RequestBody @Valid CategoryCreateRequest request) {
         return ApiResponse.ok(categoryService.save(request.name(), request.color()));
     }
 
     @GetMapping
-    public ApiResponse<List<Category>> findAll() {
+    public ApiResponse<List<CategoryResponse>> findAll() {
         return ApiResponse.ok(categoryService.findAll());
     }
 
