@@ -102,7 +102,9 @@ public class Todo {
     }
 
     private void toggleCompleted(boolean completed, LocalDateTime now) {
-        if (this.completed == completed) { return; }
+        if (this.completed == completed) {
+            return;
+        }
         this.completed = completed;
         if (completed) {
             this.completedAt = now;
