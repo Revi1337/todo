@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import revi1337.todo.domain.category.entity.Category;
 import revi1337.todo.domain.tag.entity.Tag;
 
+import org.springframework.util.ObjectUtils;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -60,7 +62,7 @@ public class Todo {
                 Category category, Set<Tag> tags, LocalDateTime createdAt) {
         this.title = Objects.requireNonNull(title, "title must not be null");
         this.description = description;
-        this.priority = priority != null ? priority : Priority.MEDIUM;
+        this.priority = ObjectUtils.isEmpty(priority) ? Priority.MEDIUM : priority;
         this.dueDate = dueDate;
         this.category = category;
         this.createdAt = Objects.requireNonNull(createdAt, "createdAt must not be null");
@@ -72,7 +74,7 @@ public class Todo {
                        Category category, Set<Tag> tags, boolean completed, LocalDateTime now) {
         this.title = Objects.requireNonNull(title, "title must not be null");
         this.description = description;
-        this.priority = priority != null ? priority : Priority.MEDIUM;
+        this.priority = ObjectUtils.isEmpty(priority) ? Priority.MEDIUM : priority;
         this.dueDate = dueDate;
         this.category = category;
         this.updatedAt = now;
@@ -86,7 +88,7 @@ public class Todo {
 
     private void applyTags(Set<Tag> tags) {
         this.todoTags.clear();
-        if (tags != null) {
+        if (!ObjectUtils.isEmpty(tags)) {
             tags.forEach(tag -> this.todoTags.add(new TodoTag(this, tag)));
         }
     }

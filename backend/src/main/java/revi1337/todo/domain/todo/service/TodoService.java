@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 import revi1337.todo.domain.category.entity.Category;
 import revi1337.todo.domain.category.repository.CategoryRepository;
 import revi1337.todo.domain.tag.entity.Tag;
@@ -70,13 +71,13 @@ public class TodoService {
     }
 
     private Category resolveCategory(Long categoryId) {
-        if (categoryId == null) return null;
+        if (ObjectUtils.isEmpty(categoryId)) return null;
         return categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new EntityNotFoundException("Category not found: " + categoryId));
     }
 
     private Set<Tag> resolveTags(List<Long> tagIds) {
-        if (tagIds == null || tagIds.isEmpty()) return new HashSet<>();
+        if (ObjectUtils.isEmpty(tagIds)) return new HashSet<>();
         return new HashSet<>(tagRepository.findAllById(tagIds));
     }
 }

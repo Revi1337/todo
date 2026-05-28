@@ -2,6 +2,8 @@ package revi1337.todo.domain.todo.repository;
 
 import jakarta.persistence.criteria.Join;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 import revi1337.todo.domain.todo.entity.Priority;
 import revi1337.todo.domain.todo.entity.Todo;
 
@@ -10,13 +12,13 @@ import java.time.LocalDate;
 public class TodoSpecification {
 
     public static Specification<Todo> hasCategory(Long categoryId) {
-        return (root, query, cb) -> categoryId == null ? null
+        return (root, query, cb) -> ObjectUtils.isEmpty(categoryId) ? null
                 : cb.equal(root.get("category").get("id"), categoryId);
     }
 
     public static Specification<Todo> hasTag(Long tagId) {
         return (root, query, cb) -> {
-            if (tagId == null) return null;
+            if (ObjectUtils.isEmpty(tagId)) return null;
             query.distinct(true);
             Join<Object, Object> todoTags = root.join("todoTags");
             Join<Object, Object> tag = todoTags.join("tag");
@@ -25,18 +27,18 @@ public class TodoSpecification {
     }
 
     public static Specification<Todo> hasPriority(Priority priority) {
-        return (root, query, cb) -> priority == null ? null
+        return (root, query, cb) -> ObjectUtils.isEmpty(priority) ? null
                 : cb.equal(root.get("priority"), priority);
     }
 
     public static Specification<Todo> isCompleted(Boolean completed) {
-        return (root, query, cb) -> completed == null ? null
+        return (root, query, cb) -> ObjectUtils.isEmpty(completed) ? null
                 : cb.equal(root.get("completed"), completed);
     }
 
     public static Specification<Todo> hasKeyword(String keyword) {
         return (root, query, cb) -> {
-            if (keyword == null || keyword.isBlank()) return null;
+            if (!StringUtils.hasText(keyword)) return null;
             String pattern = "%" + keyword + "%";
             return cb.or(
                     cb.like(root.get("title"), pattern),
@@ -46,7 +48,7 @@ public class TodoSpecification {
     }
 
     public static Specification<Todo> hasDueDate(LocalDate dueDate) {
-        return (root, query, cb) -> dueDate == null ? null
+        return (root, query, cb) -> ObjectUtils.isEmpty(dueDate) ? null
                 : cb.equal(root.get("dueDate"), dueDate);
     }
 }
