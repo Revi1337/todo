@@ -62,7 +62,11 @@ public class Todo {
                 Category category, Set<Tag> tags, LocalDateTime createdAt) {
         this.title = Objects.requireNonNull(title, "title must not be null");
         this.description = description;
-        this.priority = ObjectUtils.isEmpty(priority) ? Priority.MEDIUM : priority;
+        if (ObjectUtils.isEmpty(priority)) {
+            this.priority = Priority.MEDIUM;
+        } else {
+            this.priority = priority;
+        }
         this.dueDate = dueDate;
         this.category = category;
         this.createdAt = Objects.requireNonNull(createdAt, "createdAt must not be null");
@@ -74,7 +78,11 @@ public class Todo {
                        Category category, Set<Tag> tags, boolean completed, LocalDateTime now) {
         this.title = Objects.requireNonNull(title, "title must not be null");
         this.description = description;
-        this.priority = ObjectUtils.isEmpty(priority) ? Priority.MEDIUM : priority;
+        if (ObjectUtils.isEmpty(priority)) {
+            this.priority = Priority.MEDIUM;
+        } else {
+            this.priority = priority;
+        }
         this.dueDate = dueDate;
         this.category = category;
         this.updatedAt = now;
@@ -94,8 +102,12 @@ public class Todo {
     }
 
     private void toggleCompleted(boolean completed, LocalDateTime now) {
-        if (this.completed == completed) return;
+        if (this.completed == completed) { return; }
         this.completed = completed;
-        this.completedAt = completed ? now : null;
+        if (completed) {
+            this.completedAt = now;
+        } else {
+            this.completedAt = null;
+        }
     }
 }

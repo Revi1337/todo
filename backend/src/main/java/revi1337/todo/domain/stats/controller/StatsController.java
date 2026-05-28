@@ -28,8 +28,12 @@ public class StatsController {
     public ApiResponse<StatsResponse> stats() {
         long totalCount = todoRepository.count();
         long completedCount = todoRepository.countByCompleted(true);
-        double completionRate = totalCount == 0 ? 0.0
-                : Math.round((double) completedCount / totalCount * 1000.0) / 10.0;
+        double completionRate;
+        if (totalCount == 0) {
+            completionRate = 0.0;
+        } else {
+            completionRate = Math.round((double) completedCount / totalCount * 1000.0) / 10.0;
+        }
 
         List<CategoryStat> byCategory = todoRepository.findCategoryStats();
         List<DailyStat> weeklyTrend = buildWeeklyTrend();

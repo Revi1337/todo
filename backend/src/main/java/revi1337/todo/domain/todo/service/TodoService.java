@@ -71,13 +71,13 @@ public class TodoService {
     }
 
     private Category resolveCategory(Long categoryId) {
-        if (ObjectUtils.isEmpty(categoryId)) return null;
+        if (ObjectUtils.isEmpty(categoryId)) { return null; }
         return categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new EntityNotFoundException("Category not found: " + categoryId));
     }
 
     private Set<Tag> resolveTags(List<Long> tagIds) {
-        if (ObjectUtils.isEmpty(tagIds)) return new HashSet<>();
+        if (ObjectUtils.isEmpty(tagIds)) { return new HashSet<>(); }
         return new HashSet<>(tagRepository.findAllById(tagIds));
     }
 }

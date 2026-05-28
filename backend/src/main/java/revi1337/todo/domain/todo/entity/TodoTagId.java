@@ -20,8 +20,8 @@ public class TodoTagId implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof TodoTagId that)) return false;
+        if (this == o) { return true; }
+        if (!(o instanceof TodoTagId that)) { return false; }
         return Objects.equals(todoId, that.todoId) && Objects.equals(tagId, that.tagId);
     }
 
