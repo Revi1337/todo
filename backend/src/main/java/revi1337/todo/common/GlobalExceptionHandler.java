@@ -16,6 +16,7 @@ public class GlobalExceptionHandler {
         String message = ex.getBindingResult().getFieldErrors().stream()
                 .map(e -> e.getField() + ": " + e.getDefaultMessage())
                 .findFirst().orElse("Validation failed");
+
         return ApiResponse.error(message);
     }
 

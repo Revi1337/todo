@@ -26,6 +26,7 @@ public class TodoTagId implements Serializable {
         if (!(o instanceof TodoTagId that)) {
             return false;
         }
+
         return Objects.equals(todoId, that.todoId) && Objects.equals(tagId, that.tagId);
     }
 

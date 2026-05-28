@@ -57,6 +57,7 @@ public class StatsController {
         for (int i = 0; i < 7; i++) {
             result.add(makeDailyStat(monday.plusDays(i), days[i], dbData));
         }
+
         return result;
     }
 
@@ -69,6 +70,7 @@ public class StatsController {
         for (LocalDate d = first; !d.isAfter(last); d = d.plusDays(1)) {
             result.add(makeDailyStat(d, null, dbData));
         }
+
         return result;
     }
 
@@ -79,6 +81,7 @@ public class StatsController {
 
     private DailyStat makeDailyStat(LocalDate date, String day, Map<String, Long> data) {
         String dateStr = date.format(DateTimeFormatter.ISO_LOCAL_DATE);
+
         return new DailyStat(dateStr, day, data.getOrDefault(dateStr, 0L));
     }
 }

@@ -30,6 +30,7 @@ public record TodoResponse(
         Set<TagResponse> tags = todo.getTags().stream()
                 .map(TagResponse::from)
                 .collect(Collectors.toSet());
+
         return new TodoResponse(
                 todo.getId(), todo.getTitle(), todo.getDescription(),
                 todo.isCompleted(), todo.getPriority(), todo.getDueDate(),

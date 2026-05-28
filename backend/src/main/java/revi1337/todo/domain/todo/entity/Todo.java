@@ -90,6 +90,7 @@ public class Todo {
         if (ObjectUtils.isEmpty(priority)) {
             return Priority.MEDIUM;
         }
+
         return priority;
     }
 

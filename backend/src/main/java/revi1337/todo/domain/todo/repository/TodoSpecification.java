@@ -16,6 +16,7 @@ public class TodoSpecification {
             if (ObjectUtils.isEmpty(categoryId)) {
                 return null;
             }
+
             return cb.equal(root.get("category").get("id"), categoryId);
         };
     }
@@ -28,6 +29,7 @@ public class TodoSpecification {
             query.distinct(true);
             Join<Object, Object> todoTags = root.join("todoTags");
             Join<Object, Object> tag = todoTags.join("tag");
+
             return cb.equal(tag.get("id"), tagId);
         };
     }
@@ -37,6 +39,7 @@ public class TodoSpecification {
             if (ObjectUtils.isEmpty(priority)) {
                 return null;
             }
+
             return cb.equal(root.get("priority"), priority);
         };
     }
@@ -46,6 +49,7 @@ public class TodoSpecification {
             if (ObjectUtils.isEmpty(completed)) {
                 return null;
             }
+
             return cb.equal(root.get("completed"), completed);
         };
     }
@@ -56,6 +60,7 @@ public class TodoSpecification {
                 return null;
             }
             String pattern = "%" + keyword + "%";
+
             return cb.or(
                     cb.like(root.get("title"), pattern),
                     cb.like(root.get("description"), pattern)
@@ -68,6 +73,7 @@ public class TodoSpecification {
             if (ObjectUtils.isEmpty(dueDate)) {
                 return null;
             }
+
             return cb.equal(root.get("dueDate"), dueDate);
         };
     }

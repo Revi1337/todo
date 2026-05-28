@@ -39,6 +39,7 @@ public class TodoService {
                 request.title(), request.description(), request.priority(),
                 request.dueDate(), category, tags, LocalDateTime.now()
         ));
+
         return TodoResponse.from(todo);
     }
 
@@ -49,6 +50,7 @@ public class TodoService {
                 .and(TodoSpecification.isCompleted(filter.completed()))
                 .and(TodoSpecification.hasKeyword(filter.search()))
                 .and(TodoSpecification.hasDueDate(filter.dueDate()));
+
         return todoRepository.findAll(spec).stream()
                 .map(TodoResponse::from)
                 .toList();
@@ -63,6 +65,7 @@ public class TodoService {
         boolean completed = request.completed() != null && request.completed();
         todo.update(request.title(), request.description(), request.priority(),
                 request.dueDate(), category, tags, completed, LocalDateTime.now());
+
         return TodoResponse.from(todo);
     }
 
@@ -78,6 +81,7 @@ public class TodoService {
         if (ObjectUtils.isEmpty(categoryId)) {
             return null;
         }
+
         return categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new EntityNotFoundException("Category not found: " + categoryId));
     }
@@ -86,6 +90,7 @@ public class TodoService {
         if (ObjectUtils.isEmpty(tagIds)) {
             return new HashSet<>();
         }
+
         return new HashSet<>(tagRepository.findAllById(tagIds));
     }
 }
