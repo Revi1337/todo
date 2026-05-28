@@ -50,8 +50,7 @@ git init
 #### Tasks
 - [x] Spring Initializr API(`start.spring.io`)로 `backend/` 프로젝트 생성 (web, data-jpa, validation, lombok 포함), `build.gradle`에 sqlite-jdbc, hibernate-community-dialects 수동 추가
 - [x] `application.yml` DB 설정 (`jdbc:sqlite:./db/todo.db`)
-- [x] `backend/db/` 디렉토리 생성, `schema.sql` 작성
-- [x] 앱 기동 시 `backend/db/todo.db` 자동 생성 확인
+- [x] 앱 기동 시 DB 연결 확인
 
 ---
 
@@ -153,7 +152,6 @@ git init
 - [ ] `build.gradle` — `sqlite-jdbc`, `hibernate-community-dialects` 제거, `postgresql` 드라이버 추가
 - [ ] `application.yml` — datasource를 Supabase JDBC URL로 교체 (환경변수 `SPRING_DATASOURCE_URL` 등)
 - [ ] `StatsController` — SQLite `DATE()` 함수를 PostgreSQL `::date` 캐스트로 교체
-- [ ] `backend/db/schema.sql` — SQLite 문법 → PostgreSQL 문법으로 재작성 (BIGSERIAL, TIMESTAMP, DEFAULT false 등)
 
 ---
 
