@@ -62,11 +62,7 @@ public class Todo {
                 Category category, Set<Tag> tags, LocalDateTime createdAt) {
         this.title = Objects.requireNonNull(title, "title must not be null");
         this.description = description;
-        if (ObjectUtils.isEmpty(priority)) {
-            this.priority = Priority.MEDIUM;
-        } else {
-            this.priority = priority;
-        }
+        this.priority = resolvePriority(priority);
         this.dueDate = dueDate;
         this.category = category;
         this.createdAt = Objects.requireNonNull(createdAt, "createdAt must not be null");
@@ -78,11 +74,7 @@ public class Todo {
                        Category category, Set<Tag> tags, boolean completed, LocalDateTime now) {
         this.title = Objects.requireNonNull(title, "title must not be null");
         this.description = description;
-        if (ObjectUtils.isEmpty(priority)) {
-            this.priority = Priority.MEDIUM;
-        } else {
-            this.priority = priority;
-        }
+        this.priority = resolvePriority(priority);
         this.dueDate = dueDate;
         this.category = category;
         this.updatedAt = now;
@@ -92,6 +84,13 @@ public class Todo {
 
     public Set<Tag> getTags() {
         return todoTags.stream().map(TodoTag::getTag).collect(Collectors.toSet());
+    }
+
+    private Priority resolvePriority(Priority priority) {
+        if (ObjectUtils.isEmpty(priority)) {
+            return Priority.MEDIUM;
+        }
+        return priority;
     }
 
     private void applyTags(Set<Tag> tags) {

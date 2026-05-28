@@ -14,7 +14,9 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -48,16 +50,12 @@ public class StatsController {
     private List<DailyStat> buildWeeklyTrend() {
         LocalDate monday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate sunday = monday.plusDays(6);
-
-        Map<String, Long> dbData = todoRepository.findDailyCompletedBetween(monday, sunday)
-                .stream().collect(Collectors.toMap(r -> (String) r[0], r -> (Long) r[1]));
+        Map<String, Long> dbData = toDailyMap(monday, sunday);
 
         String[] days = {"MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"};
         List<DailyStat> result = new ArrayList<>();
         for (int i = 0; i < 7; i++) {
-            LocalDate date = monday.plusDays(i);
-            String dateStr = date.format(DateTimeFormatter.ISO_LOCAL_DATE);
-            result.add(new DailyStat(dateStr, days[i], dbData.getOrDefault(dateStr, 0L)));
+            result.add(makeDailyStat(monday.plusDays(i), days[i], dbData));
         }
         return result;
     }
@@ -65,15 +63,22 @@ public class StatsController {
     private List<DailyStat> buildMonthlyTrend() {
         LocalDate first = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth());
         LocalDate last = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth());
-
-        Map<String, Long> dbData = todoRepository.findDailyCompletedBetween(first, last)
-                .stream().collect(Collectors.toMap(r -> (String) r[0], r -> (Long) r[1]));
+        Map<String, Long> dbData = toDailyMap(first, last);
 
         List<DailyStat> result = new ArrayList<>();
         for (LocalDate d = first; !d.isAfter(last); d = d.plusDays(1)) {
-            String dateStr = d.format(DateTimeFormatter.ISO_LOCAL_DATE);
-            result.add(new DailyStat(dateStr, null, dbData.getOrDefault(dateStr, 0L)));
+            result.add(makeDailyStat(d, null, dbData));
         }
         return result;
+    }
+
+    private Map<String, Long> toDailyMap(LocalDate from, LocalDate to) {
+        return todoRepository.findDailyCompletedBetween(from, to)
+                .stream().collect(Collectors.toMap(r -> (String) r[0], r -> (Long) r[1]));
+    }
+
+    private DailyStat makeDailyStat(LocalDate date, String day, Map<String, Long> data) {
+        String dateStr = date.format(DateTimeFormatter.ISO_LOCAL_DATE);
+        return new DailyStat(dateStr, day, data.getOrDefault(dateStr, 0L));
     }
 }
