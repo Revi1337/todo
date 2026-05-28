@@ -1,33 +1,9 @@
 # 가이드라인 문서
 guidelines/
 
-# DB 바이너리 (backup.sql, schema.sql은 git 추적)
-backend/db/todo.db
-
-# Gradle
-backend/.gradle/
-backend/build/
-backend/out/
-
-# IDE — IntelliJ IDEA / JetBrains
-.idea/
-*.iml
-*.iws
-*.ipr
-
-# IDE — Antigravity (JetBrains plugin)
+# IDE
 .antigravity/
-
-# IDE — VS Code
-.vscode/
-
-# IDE — Eclipse
-.classpath
-.project
-.settings/
-
-# IDE — NetBeans
-nbproject/
+.idea
 
 # Node / Nuxt
 frontend/node_modules/

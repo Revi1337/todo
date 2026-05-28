@@ -52,10 +52,10 @@ git init
 **의존 단계**: Phase 1 완료 후
 
 #### Tasks
-- [ ] Spring Initializr API(`start.spring.io`)로 `backend/` 프로젝트 생성 (web, data-jpa, validation, lombok 포함), `build.gradle`에 sqlite-jdbc, hibernate-community-dialects 수동 추가
-- [ ] `application.yml` DB 설정 (`jdbc:sqlite:./db/todo.db`)
-- [ ] `backend/db/` 디렉토리 생성, `schema.sql` 작성
-- [ ] 앱 기동 시 `backend/db/todo.db` 자동 생성 확인
+- [x] Spring Initializr API(`start.spring.io`)로 `backend/` 프로젝트 생성 (web, data-jpa, validation, lombok 포함), `build.gradle`에 sqlite-jdbc, hibernate-community-dialects 수동 추가
+- [x] `application.yml` DB 설정 (`jdbc:sqlite:./db/todo.db`)
+- [x] `backend/db/` 디렉토리 생성, `schema.sql` 작성
+- [x] 앱 기동 시 `backend/db/todo.db` 자동 생성 확인
 
 ---
 
