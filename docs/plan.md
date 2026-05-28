@@ -64,8 +64,8 @@ git init
 **의존 단계**: Phase 2 완료 후
 
 #### Tasks
-- [ ] `ApiResponse<T>` 작성 — `{ success, data, message }`
-- [ ] `WebConfig` 작성 — `localhost:3000` CORS 허용
+- [x] `ApiResponse<T>` 작성 — `{ success, data, message }`
+- [x] `WebConfig` 작성 — `localhost:3000` CORS 허용
 
 ---
 
