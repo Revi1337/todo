@@ -33,21 +33,6 @@ class TodoControllerTest {
 
     private static final LocalDateTime NOW = LocalDateTime.of(2026, 5, 28, 0, 0);
 
-    private Todo sampleTodo() {
-        return new Todo("스프링 공부", "JPA 챕터", Priority.HIGH, null, null, null, NOW);
-    }
-
-    @Test
-    @DisplayName("GET /api/todos — 전체 목록을 반환한다")
-    void findAll() throws Exception {
-        given(todoService.findAll(any(TodoFilterRequest.class))).willReturn(List.of(sampleTodo()));
-
-        mockMvc.perform(get("/api/todos"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.length()").value(1));
-    }
-
     @Test
     @DisplayName("POST /api/todos — Todo를 생성하고 201을 반환한다")
     void create() throws Exception {
@@ -69,6 +54,17 @@ class TodoControllerTest {
                         .content(objectMapper.writeValueAsString(
                                 new TodoRequest("", null, null, null, null, null, null))))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("GET /api/todos — 전체 목록을 반환한다")
+    void findAll() throws Exception {
+        given(todoService.findAll(any(TodoFilterRequest.class))).willReturn(List.of(sampleTodo()));
+
+        mockMvc.perform(get("/api/todos"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.length()").value(1));
     }
 
     @Test
@@ -99,5 +95,9 @@ class TodoControllerTest {
 
         mockMvc.perform(delete("/api/todos/999"))
                 .andExpect(status().isNotFound());
+    }
+
+    private Todo sampleTodo() {
+        return new Todo("스프링 공부", "JPA 챕터", Priority.HIGH, null, null, null, NOW);
     }
 }

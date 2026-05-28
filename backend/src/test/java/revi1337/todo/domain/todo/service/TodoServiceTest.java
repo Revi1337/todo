@@ -41,6 +41,17 @@ class TodoServiceTest {
     }
 
     @Test
+    @DisplayName("필터 없이 전체 목록을 조회한다")
+    void findAll_noFilter() {
+        todoService.create(new TodoRequest("Todo1", null, null, null, null, null, null));
+        todoService.create(new TodoRequest("Todo2", null, null, null, null, null, null));
+
+        List<Todo> result = todoService.findAll(new TodoFilterRequest(null, null, null, null, null, null));
+
+        assertThat(result).hasSize(2);
+    }
+
+    @Test
     @DisplayName("Todo를 완료 처리하면 completedAt이 설정된다")
     void update_complete() {
         Todo created = todoService.create(new TodoRequest("스프링 공부", null, null, null, null, null, null));
@@ -68,16 +79,5 @@ class TodoServiceTest {
     void delete_notFound_throws() {
         assertThatThrownBy(() -> todoService.delete(999L))
                 .isInstanceOf(EntityNotFoundException.class);
-    }
-
-    @Test
-    @DisplayName("필터 없이 전체 목록을 조회한다")
-    void findAll_noFilter() {
-        todoService.create(new TodoRequest("Todo1", null, null, null, null, null, null));
-        todoService.create(new TodoRequest("Todo2", null, null, null, null, null, null));
-
-        List<Todo> result = todoService.findAll(new TodoFilterRequest(null, null, null, null, null, null));
-
-        assertThat(result).hasSize(2);
     }
 }

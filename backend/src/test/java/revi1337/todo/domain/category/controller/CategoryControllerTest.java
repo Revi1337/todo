@@ -34,20 +34,6 @@ class CategoryControllerTest {
     private CategoryService categoryService;
 
     @Test
-    @DisplayName("GET /api/categories — 전체 목록을 반환한다")
-    void findAll() throws Exception {
-        given(categoryService.findAll()).willReturn(List.of(
-                new Category("개발", "#6366f1", LocalDateTime.now()),
-                new Category("운동", "#f59e0b", LocalDateTime.now())
-        ));
-
-        mockMvc.perform(get("/api/categories"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.length()").value(2));
-    }
-
-    @Test
     @DisplayName("POST /api/categories — Category를 생성하고 201을 반환한다")
     void create() throws Exception {
         Category category = new Category("개발", "#6366f1", LocalDateTime.now());
@@ -68,6 +54,20 @@ class CategoryControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new CategoryCreateRequest("", "#6366f1"))))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("GET /api/categories — 전체 목록을 반환한다")
+    void findAll() throws Exception {
+        given(categoryService.findAll()).willReturn(List.of(
+                new Category("개발", "#6366f1", LocalDateTime.now()),
+                new Category("운동", "#f59e0b", LocalDateTime.now())
+        ));
+
+        mockMvc.perform(get("/api/categories"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.length()").value(2));
     }
 
     @Test

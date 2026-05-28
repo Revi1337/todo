@@ -21,17 +21,6 @@ class CategoryServiceTest {
     private CategoryService categoryService;
 
     @Test
-    @DisplayName("전체 Category 목록을 반환한다")
-    void findAll() {
-        categoryService.save("개발", "#6366f1");
-        categoryService.save("운동", "#f59e0b");
-
-        List<Category> result = categoryService.findAll();
-
-        assertThat(result).hasSize(2);
-    }
-
-    @Test
     @DisplayName("name과 color로 Category를 저장한다")
     void save() {
         Category result = categoryService.save("개발", "#6366f1");
@@ -40,6 +29,17 @@ class CategoryServiceTest {
         assertThat(result.getName()).isEqualTo("개발");
         assertThat(result.getColor()).isEqualTo("#6366f1");
         assertThat(result.getCreatedAt()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("전체 Category 목록을 반환한다")
+    void findAll() {
+        categoryService.save("개발", "#6366f1");
+        categoryService.save("운동", "#f59e0b");
+
+        List<Category> result = categoryService.findAll();
+
+        assertThat(result).hasSize(2);
     }
 
     @Test

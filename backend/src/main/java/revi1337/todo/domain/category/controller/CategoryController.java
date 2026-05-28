@@ -18,15 +18,15 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
-    @GetMapping
-    public ApiResponse<List<Category>> findAll() {
-        return ApiResponse.ok(categoryService.findAll());
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<Category> create(@RequestBody @Valid CategoryCreateRequest request) {
         return ApiResponse.ok(categoryService.save(request.name(), request.color()));
+    }
+
+    @GetMapping
+    public ApiResponse<List<Category>> findAll() {
+        return ApiResponse.ok(categoryService.findAll());
     }
 
     @DeleteMapping("/{id}")

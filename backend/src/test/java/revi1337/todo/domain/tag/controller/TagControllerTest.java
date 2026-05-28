@@ -34,20 +34,6 @@ class TagControllerTest {
     private TagRepository tagRepository;
 
     @Test
-    @DisplayName("GET /api/tags — 전체 목록을 반환한다")
-    void findAll() throws Exception {
-        given(tagRepository.findAll()).willReturn(List.of(
-                new Tag("JPA", "#94a3b8"),
-                new Tag("Spring", "#6366f1")
-        ));
-
-        mockMvc.perform(get("/api/tags"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.length()").value(2));
-    }
-
-    @Test
     @DisplayName("POST /api/tags — Tag를 생성하고 201을 반환한다")
     void create() throws Exception {
         given(tagRepository.save(any(Tag.class))).willReturn(new Tag("JPA", "#94a3b8"));
@@ -67,5 +53,19 @@ class TagControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new TagCreateRequest("", null))))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("GET /api/tags — 전체 목록을 반환한다")
+    void findAll() throws Exception {
+        given(tagRepository.findAll()).willReturn(List.of(
+                new Tag("JPA", "#94a3b8"),
+                new Tag("Spring", "#6366f1")
+        ));
+
+        mockMvc.perform(get("/api/tags"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.length()").value(2));
     }
 }

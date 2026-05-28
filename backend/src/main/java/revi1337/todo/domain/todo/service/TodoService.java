@@ -30,16 +30,6 @@ public class TodoService {
     private final CategoryRepository categoryRepository;
     private final TagRepository tagRepository;
 
-    public List<Todo> findAll(TodoFilterRequest filter) {
-        Specification<Todo> spec = TodoSpecification.hasCategory(filter.category())
-                .and(TodoSpecification.hasTag(filter.tag()))
-                .and(TodoSpecification.hasPriority(filter.priority()))
-                .and(TodoSpecification.isCompleted(filter.completed()))
-                .and(TodoSpecification.hasKeyword(filter.search()))
-                .and(TodoSpecification.hasDueDate(filter.dueDate()));
-        return todoRepository.findAll(spec);
-    }
-
     @Transactional
     public Todo create(TodoRequest request) {
         Category category = resolveCategory(request.categoryId());
@@ -48,6 +38,16 @@ public class TodoService {
                 request.title(), request.description(), request.priority(),
                 request.dueDate(), category, tags, LocalDateTime.now()
         ));
+    }
+
+    public List<Todo> findAll(TodoFilterRequest filter) {
+        Specification<Todo> spec = TodoSpecification.hasCategory(filter.category())
+                .and(TodoSpecification.hasTag(filter.tag()))
+                .and(TodoSpecification.hasPriority(filter.priority()))
+                .and(TodoSpecification.isCompleted(filter.completed()))
+                .and(TodoSpecification.hasKeyword(filter.search()))
+                .and(TodoSpecification.hasDueDate(filter.dueDate()));
+        return todoRepository.findAll(spec);
     }
 
     @Transactional

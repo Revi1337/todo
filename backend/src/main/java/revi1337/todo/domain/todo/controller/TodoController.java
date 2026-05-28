@@ -22,6 +22,12 @@ public class TodoController {
 
     private final TodoService todoService;
 
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<Todo> create(@RequestBody @Valid TodoRequest request) {
+        return ApiResponse.ok(todoService.create(request));
+    }
+
     @GetMapping
     public ApiResponse<List<Todo>> findAll(
             @RequestParam(required = false) Long category,
@@ -34,12 +40,6 @@ public class TodoController {
         return ApiResponse.ok(todoService.findAll(
                 new TodoFilterRequest(category, tag, priority, completed, search, dueDate)
         ));
-    }
-
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponse<Todo> create(@RequestBody @Valid TodoRequest request) {
-        return ApiResponse.ok(todoService.create(request));
     }
 
     @PutMapping("/{id}")

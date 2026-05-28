@@ -18,14 +18,14 @@ public class TagController {
 
     private final TagRepository tagRepository;
 
-    @GetMapping
-    public ApiResponse<List<Tag>> findAll() {
-        return ApiResponse.ok(tagRepository.findAll());
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<Tag> create(@RequestBody @Valid TagCreateRequest request) {
         return ApiResponse.ok(tagRepository.save(new Tag(request.name(), request.color())));
+    }
+
+    @GetMapping
+    public ApiResponse<List<Tag>> findAll() {
+        return ApiResponse.ok(tagRepository.findAll());
     }
 }

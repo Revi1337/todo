@@ -16,13 +16,13 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    public List<Category> findAll() {
-        return categoryRepository.findAll();
-    }
-
     @Transactional
     public Category save(String name, String color) {
         return categoryRepository.save(new Category(name, color, LocalDateTime.now()));
+    }
+
+    public List<Category> findAll() {
+        return categoryRepository.findAll();
     }
 
     @Transactional
