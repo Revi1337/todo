@@ -76,10 +76,10 @@ git init
 > **도메인 의존성**: Category는 다른 도메인에 의존하지 않는 가장 낮은 단계.
 
 #### Tasks
-- [ ] `Category` Entity 작성 (`@Entity`, id/name/color/createdAt)
-- [ ] `CategoryRepository` 작성 (JpaRepository 상속)
-- [ ] `CategoryService` 작성 (findAll, save, deleteById)
-- [ ] `CategoryController` 작성
+- [x] `Category` Entity 작성 (`@Entity`, id/name/color/createdAt)
+- [x] `CategoryRepository` 작성 (JpaRepository 상속)
+- [x] `CategoryService` 작성 (findAll, save, deleteById)
+- [x] `CategoryController` 작성
   - GET `/api/categories` — 전체 조회
   - POST `/api/categories` — 생성 (name, color)
   - DELETE `/api/categories/{id}` — 삭제
