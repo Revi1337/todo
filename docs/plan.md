@@ -142,11 +142,10 @@ git init
 **의존 단계**: Phase 4 완료 후 (Phase 5~7과 병렬 진행 가능)
 
 #### Tasks
-- [ ] `frontend/` 디렉토리에 Nuxt 3 프로젝트 생성
-- [ ] Tailwind CSS, `@nuxtjs/color-mode` 설치/설정
-- [ ] `lucide-vue-next`, `dayjs` 설치
-- [ ] `nuxt.config.ts` — `/api/**` → `localhost:8080` 프록시 설정
-- [ ] 라이트/다크 모드 기본 레이아웃 작성
+- [x] `frontend/` 디렉토리에 Nuxt 3 프로젝트 생성
+- [x] Tailwind CSS 설치/설정
+- [x] `lucide-vue-next`, `dayjs` 설치
+- [x] `nuxt.config.ts` — `/api/**` → `localhost:8080` 프록시 설정
 
 ---
 
@@ -192,12 +191,11 @@ git init
 ---
 
 ### Phase 12. UI 마무리
-**목적**: 디자인 일관성, 반응형, 다크모드를 완성한다.
+**목적**: 디자인 일관성과 반응형을 완성한다.
 **의존 단계**: Phase 9, Phase 10, Phase 11 완료 후
 
 #### Tasks
 - [ ] 우선순위 색상 통일 (HIGH: 빨강, MEDIUM: 노랑, LOW: 회색)
-- [ ] 다크모드 전환 토글 버튼 추가
 - [ ] 모바일 반응형 레이아웃 확인 (사이드바 접기/펼치기)
 - [ ] 빈 상태 UI — Todo가 없을 때 안내 문구/일러스트
 - [ ] 로딩 상태 처리 (스켈레톤 또는 스피너)
