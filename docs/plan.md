@@ -93,9 +93,9 @@ git init
 > **도메인 의존성**: Tag도 다른 도메인에 의존하지 않는 독립 도메인.
 
 #### Tasks
-- [ ] `Tag` Entity 작성 (id/name/color)
-- [ ] `TagRepository` 작성
-- [ ] `TagController` 작성 — Service 없이 Repository 직접 사용
+- [x] `Tag` Entity 작성 (id/name/color)
+- [x] `TagRepository` 작성
+- [x] `TagController` 작성 — Service 없이 Repository 직접 사용
   - GET `/api/tags` — 전체 조회
   - POST `/api/tags` — 생성 (name, color)
 
