@@ -155,17 +155,14 @@ git init
 
 ---
 
-### Phase 10. 인증 구현
-**목적**: 배포 환경에서 나만 접근할 수 있도록 단일 비밀번호 인증을 추가한다.
+### Phase 10. 백엔드 인증 구현
+**목적**: 배포 환경에서 나만 접근할 수 있도록 단일 비밀번호 인증을 백엔드에 추가한다.
 **의존 단계**: Phase 9 완료 후
 
 #### Tasks
 - [ ] `AuthFilter.java` (OncePerRequestFilter) — GET 요청 및 `/api/auth/**`는 통과, 나머지 메서드(POST/PUT/DELETE)는 세션 체크 후 미인증 시 401
 - [ ] `AuthController.java` — `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`
 - [ ] `WebConfig.java` — CORS 출처를 배포 도메인으로 업데이트, `AuthFilter` 등록
-- [ ] `frontend/app/composables/useAuth.ts` — login/logout/me API 호출
-- [ ] `frontend/app/middleware/auth.ts` — 미인증 시 `/login` 리다이렉트
-- [ ] `frontend/app/pages/login.vue` — 로그인 폼
 
 ---
 
@@ -192,7 +189,18 @@ git init
 
 ---
 
-### Phase 13. 캘린더 페이지 (`/calendar`) 구현
+### Phase 13. 프론트엔드 인증 구현
+**목적**: 백엔드 인증 API와 연동하는 프론트엔드 인증 레이어를 추가한다.
+**의존 단계**: Phase 10, Phase 12 완료 후
+
+#### Tasks
+- [ ] `frontend/app/composables/useAuth.ts` — login/logout/me API 호출
+- [ ] `frontend/app/middleware/auth.ts` — 미인증 시 `/login` 리다이렉트
+- [ ] `frontend/app/pages/login.vue` — 로그인 폼
+
+---
+
+### Phase 14. 캘린더 페이지 (`/calendar`) 구현
 **목적**: 날짜별 Todo 시각화 및 날짜 클릭 시 CRUD 기능을 완성한다.
 **의존 단계**: Phase 6, Phase 11 완료 후
 
@@ -206,7 +214,7 @@ git init
 
 ---
 
-### Phase 14. 통계 페이지 (`/stats`) 구현
+### Phase 15. 통계 페이지 (`/stats`) 구현
 **목적**: 완료율, 카테고리별 현황, 주간/월간 추이 차트를 완성한다.
 **의존 단계**: Phase 7, Phase 11 완료 후
 
@@ -220,9 +228,9 @@ git init
 
 ---
 
-### Phase 15. UI 마무리
+### Phase 16. UI 마무리
 **목적**: 디자인 일관성과 반응형을 완성한다.
-**의존 단계**: Phase 12, Phase 13, Phase 14 완료 후
+**의존 단계**: Phase 13, Phase 14, Phase 15 완료 후
 
 #### Tasks
 - [ ] 우선순위 색상 통일 (HIGH: 빨강, MEDIUM: 노랑, LOW: 회색)
