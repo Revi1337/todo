@@ -29,20 +29,16 @@
 ---
 
 ### Phase 1. 모노레포 뼈대 구성
-**목적**: 전체 프로젝트 폴더 구조, git 설정, DB 백업 스크립트를 준비한다.
+**목적**: 전체 프로젝트 폴더 구조와 git 설정을 준비한다.
 **의존 단계**: 없음
 
 #### Tasks
-- [x] 루트 `.gitignore` 작성 (`.db` 파일 제외)
-- [x] `scripts/db-backup.sh` 작성 — `todo.db` → `backup.sql` 덤프
-- [x] `scripts/db-restore.sh` 작성 — `backup.sql` → `todo.db` 복원
-- [x] `.git/hooks/pre-commit` 작성 — 커밋 전 자동 백업
+- [x] 루트 `.gitignore` 작성
+- [x] `.git/hooks/pre-commit` 작성
 
 #### 검증
 ```bash
-chmod +x scripts/db-backup.sh scripts/db-restore.sh
 git init
-# pre-commit hook 동작 확인
 ```
 
 ---
@@ -149,9 +145,35 @@ git init
 
 ---
 
-### Phase 9. 기본 레이아웃 작성
+### Phase 9. Supabase 마이그레이션
+**목적**: DB를 SQLite에서 Supabase(PostgreSQL)로 전환한다.
+**의존 단계**: Phase 7 완료 후
+
+#### Tasks
+- [ ] `build.gradle` — `sqlite-jdbc`, `hibernate-community-dialects` 제거, `postgresql` 드라이버 추가
+- [ ] `application.yml` — datasource를 Supabase JDBC URL로 교체 (환경변수 `SPRING_DATASOURCE_URL` 등)
+- [ ] `StatsController` — SQLite `DATE()` 함수를 PostgreSQL `::date` 캐스트로 교체
+- [ ] `backend/db/schema.sql` — SQLite 문법 → PostgreSQL 문법으로 재작성 (BIGSERIAL, TIMESTAMP, DEFAULT false 등)
+
+---
+
+### Phase 10. 인증 구현
+**목적**: 배포 환경에서 나만 접근할 수 있도록 단일 비밀번호 인증을 추가한다.
+**의존 단계**: Phase 9 완료 후
+
+#### Tasks
+- [ ] `AuthFilter.java` (OncePerRequestFilter) — GET 요청 및 `/api/auth/**`는 통과, 나머지 메서드(POST/PUT/DELETE)는 세션 체크 후 미인증 시 401
+- [ ] `AuthController.java` — `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`
+- [ ] `WebConfig.java` — CORS 출처를 배포 도메인으로 업데이트, `AuthFilter` 등록
+- [ ] `frontend/app/composables/useAuth.ts` — login/logout/me API 호출
+- [ ] `frontend/app/middleware/auth.ts` — 미인증 시 `/login` 리다이렉트
+- [ ] `frontend/app/pages/login.vue` — 로그인 폼
+
+---
+
+### Phase 11. 기본 레이아웃 작성
 **목적**: 모든 페이지가 공유하는 네비게이션 레이아웃을 구성한다.
-**의존 단계**: Phase 8 완료 후
+**의존 단계**: Phase 10 완료 후
 
 #### Tasks
 - [ ] `layouts/default.vue` — 상단 네비게이션 바 (`/`, `/calendar`, `/stats` 링크)
@@ -159,9 +181,9 @@ git init
 
 ---
 
-### Phase 10. 메인 페이지 (`/`) 구현
+### Phase 12. 메인 페이지 (`/`) 구현
 **목적**: Todo 목록 조회, 생성/수정/삭제, 필터 기능을 가진 메인 화면을 완성한다.
-**의존 단계**: Phase 6, Phase 9 완료 후
+**의존 단계**: Phase 6, Phase 11 완료 후
 
 #### Tasks
 - [ ] `useTodos` composable 작성 — API 호출, 상태 관리
@@ -172,9 +194,9 @@ git init
 
 ---
 
-### Phase 11. 캘린더 페이지 (`/calendar`) 구현
+### Phase 13. 캘린더 페이지 (`/calendar`) 구현
 **목적**: 날짜별 Todo 시각화 및 날짜 클릭 시 CRUD 기능을 완성한다.
-**의존 단계**: Phase 6, Phase 9 완료 후
+**의존 단계**: Phase 6, Phase 11 완료 후
 
 #### Tasks
 - [ ] `v-calendar` 설치 및 월간 캘린더 렌더링
@@ -186,9 +208,9 @@ git init
 
 ---
 
-### Phase 12. 통계 페이지 (`/stats`) 구현
+### Phase 14. 통계 페이지 (`/stats`) 구현
 **목적**: 완료율, 카테고리별 현황, 주간/월간 추이 차트를 완성한다.
-**의존 단계**: Phase 7, Phase 9 완료 후
+**의존 단계**: Phase 7, Phase 11 완료 후
 
 #### Tasks
 - [ ] `chart.js` + `vue-chartjs` 설치
@@ -200,9 +222,9 @@ git init
 
 ---
 
-### Phase 13. UI 마무리
+### Phase 15. UI 마무리
 **목적**: 디자인 일관성과 반응형을 완성한다.
-**의존 단계**: Phase 10, Phase 11, Phase 12 완료 후
+**의존 단계**: Phase 12, Phase 13, Phase 14 완료 후
 
 #### Tasks
 - [ ] 우선순위 색상 통일 (HIGH: 빨강, MEDIUM: 노랑, LOW: 회색)
@@ -212,23 +234,13 @@ git init
 
 ---
 
-### Phase 14. DB 백업 및 git 설정 마무리
-**목적**: pre-commit hook을 활성화하고 초기 backup.sql을 생성한다.
-**의존 단계**: Phase 2 완료 후 언제든 진행 가능
-
-#### Tasks
-- [ ] `backend/db/schema.sql` 최종 정리 (실제 생성된 스키마 기준)
-- [ ] `./scripts/db-backup.sh` 실행 → `backend/db/backup.sql` 생성
-- [ ] pre-commit hook 실행 권한 확인 (`chmod +x .git/hooks/pre-commit`)
-- [ ] 테스트 커밋 → `backup.sql` 자동 갱신 확인
-
----
-
 ## 4. 위험 요소 & 대응
 
 | 위험 | 가능성 | 대응 |
 |------|--------|------|
-| Hibernate + SQLite Dialect 호환 문제 | 중 | Phase 2에서 Hello World 수준 PoC 먼저 확인 |
+| Supabase 연결 정보 누락/오류 | 중 | 환경변수 설정 후 `bootRun` 전 연결 확인 |
+| PostgreSQL 타입 변경으로 JPA 매핑 오류 | 중 | Phase 9 직후 앱 기동 및 CRUD 동작 확인 |
+| 세션 쿠키가 배포 도메인에서 전달 안 됨 | 중 | CORS `allowCredentials`, `SameSite` 설정 확인 |
 | `v-calendar` + Nuxt 3 버전 충돌 | 낮 | 설치 전 호환 버전 확인 |
 | 주간 통계 월요일 기준 계산 오류 | 중 | 다양한 요일에서 테스트 |
 | 월간 통계 빈 날짜 처리 누락 | 중 | 응답에 0인 날짜도 포함되는지 확인 |
