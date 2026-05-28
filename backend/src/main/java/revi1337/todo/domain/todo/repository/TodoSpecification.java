@@ -18,8 +18,9 @@ public class TodoSpecification {
         return (root, query, cb) -> {
             if (tagId == null) return null;
             query.distinct(true);
-            Join<Object, Object> tags = root.join("tags");
-            return cb.equal(tags.get("id"), tagId);
+            Join<Object, Object> todoTags = root.join("todoTags");
+            Join<Object, Object> tag = todoTags.join("tag");
+            return cb.equal(tag.get("id"), tagId);
         };
     }
 

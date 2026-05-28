@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "todos")
@@ -43,13 +44,8 @@ public class Todo {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(
-            name = "todo_tags",
-            joinColumns = @JoinColumn(name = "todo_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id")
-    )
-    private Set<Tag> tags = new HashSet<>();
+    @OneToMany(mappedBy = "todo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<TodoTag> todoTags = new HashSet<>();
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -67,9 +63,9 @@ public class Todo {
         this.priority = priority != null ? priority : Priority.MEDIUM;
         this.dueDate = dueDate;
         this.category = category;
-        this.tags = tags != null ? tags : new HashSet<>();
         this.createdAt = Objects.requireNonNull(createdAt, "createdAt must not be null");
         this.updatedAt = createdAt;
+        applyTags(tags);
     }
 
     public void update(String title, String description, Priority priority, LocalDate dueDate,
@@ -79,9 +75,20 @@ public class Todo {
         this.priority = priority != null ? priority : Priority.MEDIUM;
         this.dueDate = dueDate;
         this.category = category;
-        this.tags = tags != null ? tags : new HashSet<>();
         this.updatedAt = now;
+        applyTags(tags);
         toggleCompleted(completed, now);
+    }
+
+    public Set<Tag> getTags() {
+        return todoTags.stream().map(TodoTag::getTag).collect(Collectors.toSet());
+    }
+
+    private void applyTags(Set<Tag> tags) {
+        this.todoTags.clear();
+        if (tags != null) {
+            tags.forEach(tag -> this.todoTags.add(new TodoTag(this, tag)));
+        }
     }
 
     private void toggleCompleted(boolean completed, LocalDateTime now) {
