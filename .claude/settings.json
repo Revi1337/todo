@@ -1,21 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "Bash(curl https://start.spring.io*)",
-      "Bash(curl http://localhost*)",
-      "Bash(unzip *)",
-      "Bash(./gradlew *)",
-      "Bash(npm *)",
-      "Bash(npx *)",
-      "Bash(sqlite3 *)",
-      "Bash(./scripts/*)",
-      "Bash(chmod *)",
-      "Bash(mkdir *)",
-      "Bash(git *)",
-      "Bash(gh *)",
-      "Bash(java *)",
-      "Bash(node *)",
-      "Bash(tar *)"
+      "Bash(*)"
     ]
   }
 }
