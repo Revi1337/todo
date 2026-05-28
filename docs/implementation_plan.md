@@ -247,11 +247,12 @@ dependencies {
 2. **Spring Boot 백엔드** — 프로젝트 초기화, SQLite 연동, JPA Entity 작성
 3. **API 구현** — Categories → Tags → Todos CRUD → Stats
 4. **Nuxt 3 프론트엔드** — 프로젝트 초기화, Tailwind CSS, API proxy 설정
-5. **메인 페이지** (`/`) — Todo 목록, 생성/수정 모달, 필터 사이드바
-6. **캘린더 페이지** (`/calendar`) — v-calendar로 날짜별 Todo 표시, 날짜 클릭 시 해당 날짜 Todo 목록 + 생성/수정/삭제 전체 CRUD 지원 (생성 시 클릭한 날짜가 마감일로 자동 설정)
-7. **통계 페이지** (`/stats`) — 전체 완료율, 카테고리별 현황, 이번 주 완료 추이 (월요일 시작 고정 주간), 이번 달 완료 추이 (1일~말일 일별 바차트)
-8. **UI 마무리** — D-day 뱃지, 우선순위 색상, 반응형
-9. **git 설정** — pre-commit hook 등록, `backup.sql` 초기화
+5. **기본 레이아웃** — 네비게이션 바, NuxtLayout/NuxtPage 연결
+6. **메인 페이지** (`/`) — Todo 목록, 생성/수정 모달, 필터 사이드바
+7. **캘린더 페이지** (`/calendar`) — v-calendar로 날짜별 Todo 표시, 날짜 클릭 시 해당 날짜 Todo 목록 + 생성/수정/삭제 전체 CRUD 지원 (생성 시 클릭한 날짜가 마감일로 자동 설정)
+8. **통계 페이지** (`/stats`) — 전체 완료율, 카테고리별 현황, 이번 주 완료 추이 (월요일 시작 고정 주간), 이번 달 완료 추이 (1일~말일 일별 바차트)
+9. **UI 마무리** — D-day 뱃지, 우선순위 색상, 반응형
+10. **git 설정** — pre-commit hook 등록, `backup.sql` 초기화
 
 ---
 

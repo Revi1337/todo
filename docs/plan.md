@@ -149,9 +149,19 @@ git init
 
 ---
 
-### Phase 9. 메인 페이지 (`/`) 구현
+### Phase 9. 기본 레이아웃 작성
+**목적**: 모든 페이지가 공유하는 네비게이션 레이아웃을 구성한다.
+**의존 단계**: Phase 8 완료 후
+
+#### Tasks
+- [ ] `layouts/default.vue` — 상단 네비게이션 바 (`/`, `/calendar`, `/stats` 링크)
+- [ ] `app.vue` — NuxtLayout, NuxtPage 연결
+
+---
+
+### Phase 10. 메인 페이지 (`/`) 구현
 **목적**: Todo 목록 조회, 생성/수정/삭제, 필터 기능을 가진 메인 화면을 완성한다.
-**의존 단계**: Phase 6, Phase 8 완료 후
+**의존 단계**: Phase 6, Phase 9 완료 후
 
 #### Tasks
 - [ ] `useTodos` composable 작성 — API 호출, 상태 관리
@@ -162,9 +172,9 @@ git init
 
 ---
 
-### Phase 10. 캘린더 페이지 (`/calendar`) 구현
+### Phase 11. 캘린더 페이지 (`/calendar`) 구현
 **목적**: 날짜별 Todo 시각화 및 날짜 클릭 시 CRUD 기능을 완성한다.
-**의존 단계**: Phase 6, Phase 8 완료 후
+**의존 단계**: Phase 6, Phase 9 완료 후
 
 #### Tasks
 - [ ] `v-calendar` 설치 및 월간 캘린더 렌더링
@@ -176,9 +186,9 @@ git init
 
 ---
 
-### Phase 11. 통계 페이지 (`/stats`) 구현
+### Phase 12. 통계 페이지 (`/stats`) 구현
 **목적**: 완료율, 카테고리별 현황, 주간/월간 추이 차트를 완성한다.
-**의존 단계**: Phase 7, Phase 8 완료 후
+**의존 단계**: Phase 7, Phase 9 완료 후
 
 #### Tasks
 - [ ] `chart.js` + `vue-chartjs` 설치
@@ -190,9 +200,9 @@ git init
 
 ---
 
-### Phase 12. UI 마무리
+### Phase 13. UI 마무리
 **목적**: 디자인 일관성과 반응형을 완성한다.
-**의존 단계**: Phase 9, Phase 10, Phase 11 완료 후
+**의존 단계**: Phase 10, Phase 11, Phase 12 완료 후
 
 #### Tasks
 - [ ] 우선순위 색상 통일 (HIGH: 빨강, MEDIUM: 노랑, LOW: 회색)
@@ -202,7 +212,7 @@ git init
 
 ---
 
-### Phase 13. DB 백업 및 git 설정 마무리
+### Phase 14. DB 백업 및 git 설정 마무리
 **목적**: pre-commit hook을 활성화하고 초기 backup.sql을 생성한다.
 **의존 단계**: Phase 2 완료 후 언제든 진행 가능
 
