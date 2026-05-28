@@ -110,8 +110,8 @@ git init
 #### Tasks
 - [x] `Priority` Enum 작성 (HIGH / MEDIUM / LOW)
 - [x] `Todo` Entity 작성
-  - Category FK (`@ManyToOne`, ON DELETE SET NULL)
-  - Tags (`@ManyToMany` via `todo_tags` 중간 테이블, ON DELETE CASCADE)
+  - Category FK (`@ManyToOne`)
+  - Tags (`@ManyToMany` via `todo_tags` 중간 테이블)
   - completed, completedAt, dueDate, priority, createdAt, updatedAt
 - [x] `TodoRepository` 작성 — 필터 쿼리 (dueDate, categoryId, tagId, priority, completed, 키워드 검색)
 - [x] `TodoService` 작성

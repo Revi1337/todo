@@ -98,7 +98,7 @@ categories ──< todos >──< todo_tags >── tags
 | completed | BOOLEAN | NOT NULL, DEFAULT 0 | 완료 여부 |
 | priority | TEXT | CHECK(HIGH/MEDIUM/LOW), DEFAULT 'MEDIUM' | 우선순위 |
 | due_date | DATE | nullable | 마감일 |
-| category_id | INTEGER | FK → categories.id, ON DELETE SET NULL | 카테고리 |
+| category_id | INTEGER | FK → categories.id, nullable | 카테고리 |
 | created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | |
 | updated_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | |
 | completed_at | DATETIME | nullable | 완료 처리 시각 |
@@ -106,8 +106,8 @@ categories ──< todos >──< todo_tags >── tags
 **todo_tags** (중간 테이블)
 | 컬럼 | 타입 | 제약 |
 |------|------|------|
-| todo_id | INTEGER | FK → todos.id, ON DELETE CASCADE |
-| tag_id | INTEGER | FK → tags.id, ON DELETE CASCADE |
+| todo_id | INTEGER | FK → todos.id |
+| tag_id | INTEGER | FK → tags.id |
 | PK | | (todo_id, tag_id) 복합키 |
 
 ### 인덱스 전략
