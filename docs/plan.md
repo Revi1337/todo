@@ -161,8 +161,8 @@ git init
 
 #### Tasks
 - [x] `AuthFilter.java` (OncePerRequestFilter) — GET 요청 및 `/api/auth/**`는 통과, 나머지 메서드(POST/PUT/DELETE)는 세션 체크 후 미인증 시 401
-- [ ] `AuthController.java` — `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`
-- [ ] `WebConfig.java` — CORS 출처를 배포 도메인으로 업데이트, `AuthFilter` 등록
+- [x] `AuthController.java` — `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`
+- [x] `WebConfig.java` — CORS 출처를 배포 도메인으로 업데이트, `AuthFilter` 등록
 
 ---
 

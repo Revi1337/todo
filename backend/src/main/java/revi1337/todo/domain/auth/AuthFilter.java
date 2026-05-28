@@ -5,13 +5,17 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
 public class AuthFilter extends OncePerRequestFilter {
 
-    static final String SESSION_KEY = "authenticated";
+    public static final String SESSION_KEY = "authenticated";
+    private static final String AUTH_PATH_PREFIX = "/api/auth/";
+    private static final String UNAUTHORIZED_BODY = "{\"success\":false,\"message\":\"Unauthorized\",\"data\":null}";
+    private static final String CONTENT_TYPE = "application/json;charset=UTF-8";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -20,7 +24,7 @@ public class AuthFilter extends OncePerRequestFilter {
         String method = request.getMethod();
         String path = request.getRequestURI();
 
-        if ("GET".equalsIgnoreCase(method) || path.startsWith("/api/auth/")) {
+        if (HttpMethod.GET.name().equalsIgnoreCase(method) || path.startsWith(AUTH_PATH_PREFIX)) {
             chain.doFilter(request, response);
             return;
         }
@@ -32,7 +36,7 @@ public class AuthFilter extends OncePerRequestFilter {
         }
 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType("application/json;charset=UTF-8");
-        response.getWriter().write("{\"success\":false,\"message\":\"Unauthorized\",\"data\":null}");
+        response.setContentType(CONTENT_TYPE);
+        response.getWriter().write(UNAUTHORIZED_BODY);
     }
 }
