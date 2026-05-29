@@ -2,9 +2,8 @@
 
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Moon, Sun, Search, CheckSquare, Menu } from "lucide-react"
+import { Moon, Sun, CheckSquare, Menu } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { SidebarNav } from "./Sidebar"
@@ -44,15 +43,7 @@ export function Header() {
         </div>
       </div>
 
-      <div className="flex-1 max-w-xl mx-auto px-2 lg:px-6 hidden lg:block">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="검색어를 입력하세요..."
-            className="w-full pl-10 bg-background/50 border-border/50 focus-visible:ring-primary backdrop-blur-md rounded-full"
-          />
-        </div>
-      </div>
+
 
       <div className="flex items-center gap-2 md:gap-4 ml-auto">
         {mounted && (

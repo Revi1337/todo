@@ -9,8 +9,8 @@ const invalidateTodos = () =>
 
 export function useTodos(queryParams = '') {
   const { data, error, isLoading, mutate } = useSWR<Todo[]>(
-    `/api/todos${queryParams}`, 
-    fetcher, 
+    `/api/todos${queryParams}`,
+    fetcher,
     { keepPreviousData: true }
   )
 
@@ -34,14 +34,14 @@ export function useTodos(queryParams = '') {
     await invalidateTodos()
   }
 
-  return { 
-    todos: data || emptyTodos, 
-    isLoading, 
-    isError: error, 
-    mutate, 
-    createTodo, 
-    updateTodo, 
-    deleteTodo, 
-    toggleTodo 
+  return {
+    todos: data || emptyTodos,
+    isLoading,
+    isError: error,
+    mutate,
+    createTodo,
+    updateTodo,
+    deleteTodo,
+    toggleTodo
   }
 }

@@ -73,7 +73,7 @@ export function TodoFormDialog({ open, onClose, todo, defaultDueDate }: Props) {
         title: title.trim(),
         description: description.trim() || undefined,
         priority,
-        dueDate: dueDate || undefined,
+        dueDate: dueDate || (!todo ? dayjs().format("YYYY-MM-DD") : undefined),
         categoryId: categoryId ? Number(categoryId) : undefined,
         tagIds: selectedTagIds,
       }

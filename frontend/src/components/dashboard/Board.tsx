@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus, Search, Clock, Ban, Pencil, Trash2 } from "lucide-react"
+import { Plus, Search, Clock, Ban, Trash2 } from "lucide-react"
 import dayjs from "dayjs"
 import { Todo, Priority, TodoFilter } from "@/types"
 import { TodoFormDialog } from "./TodoFormDialog"
@@ -39,7 +39,9 @@ export function Board() {
   }, [swrTodos])
 
   const activeTodos = localTodos.filter(t => !t.completed)
-  const completedTodos = localTodos.filter(t => t.completed)
+  const completedTodos = localTodos
+    .filter(t => t.completed)
+    .sort((a, b) => new Date(b.completedAt || 0).getTime() - new Date(a.completedAt || 0).getTime())
 
   const onDragStart = (start: any) => setDraggingFromId(start.source.droppableId)
 
@@ -98,10 +100,11 @@ export function Board() {
         <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
           <div className="flex-1 grid grid-rows-2 gap-6 h-full min-h-0 overflow-hidden">
             <Column title="할 일" id="ACTIVE" todos={activeTodos}
-              onToggle={handleToggle} onEdit={openEdit} onDelete={handleDelete} scrollable />
+              onToggle={handleToggle} onEdit={openEdit} onDelete={handleDelete} scrollable
+              draggingFromId={draggingFromId} />
             <Column title="완료됨" id="COMPLETED" todos={completedTodos}
-              onToggle={handleToggle} onEdit={openEdit} onDelete={handleDelete}
-              isDropDisabled={draggingFromId === "ACTIVE"} isDragActive={draggingFromId === "ACTIVE"} scrollable />
+              onToggle={handleToggle} onEdit={openEdit} onDelete={handleDelete} scrollable
+              draggingFromId={draggingFromId} />
           </div>
         </DragDropContext>
 
@@ -110,8 +113,8 @@ export function Board() {
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-bold tracking-tight">대시보드</h2>
-              <button 
-                onClick={() => { setFilter({}); setSearch(""); }} 
+              <button
+                onClick={() => { setFilter({}); setSearch(""); }}
                 className="text-xs font-semibold text-muted-foreground hover:text-primary transition-colors px-2 py-1"
               >
                 필터 초기화
@@ -225,89 +228,89 @@ interface ColumnProps {
   onEdit: (todo: Todo) => void
   onDelete: (id: number) => void
   scrollable?: boolean
-  isDropDisabled?: boolean
-  isDragActive?: boolean
+  draggingFromId?: string | null
 }
 
-function Column({ title, id, todos, onToggle, onEdit, onDelete, scrollable, isDropDisabled, isDragActive }: ColumnProps) {
-  const showBlocked = isDropDisabled && isDragActive
+function Column({ title, id, todos, onToggle, onEdit, onDelete, scrollable, draggingFromId }: ColumnProps) {
   return (
-    <div className={`relative flex flex-col gap-4 bg-muted/40 rounded-[24px] p-5 border h-full min-h-0 overflow-hidden transition-all duration-200 ${showBlocked ? "border-red-500/40 opacity-60" : "border-border/60"}`}>
-      {showBlocked && (
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 rounded-[24px] bg-background/40 backdrop-blur-[2px] pointer-events-none">
-          <Ban className="w-8 h-8 text-red-400" />
-          <span className="text-sm font-medium text-red-400">체크박스로 완료 처리하세요</span>
-        </div>
-      )}
-      <div className="flex items-center justify-between px-1 shrink-0">
-        <h3 className="font-semibold">{title}</h3>
-        <Badge variant="secondary" className="rounded-full bg-background/80">{todos.length}</Badge>
-      </div>
+    <Droppable droppableId={id}>
+      {(provided, snapshot) => {
+        const showBlocked = id === "COMPLETED" && draggingFromId === "ACTIVE" && snapshot.isDraggingOver
+        return (
+          <div className={`relative flex flex-col gap-4 bg-muted/40 rounded-[24px] p-5 border h-full min-h-0 overflow-hidden transition-all duration-200 ${showBlocked ? "border-red-500/40" : "border-border/60"}`}>
+            {showBlocked && (
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 rounded-[24px] bg-background/60 backdrop-blur-[4px]">
+                <Ban className="w-8 h-8 text-red-400" />
+                <span className="text-sm font-bold text-red-400">체크박스로 처리하세요</span>
+              </div>
+            )}
+            <div className="flex items-center justify-between px-1 shrink-0">
+              <h3 className="font-semibold">{title}</h3>
+              <Badge variant="secondary" className="rounded-full bg-background/80">{todos.length}</Badge>
+            </div>
 
-      <Droppable droppableId={id} isDropDisabled={isDropDisabled}>
-        {provided => (
-          <div className={`flex-1 min-h-0 p-1 -m-1 ${scrollable ? "overflow-y-auto scrollbar-hide" : "overflow-visible"}`}>
-            <div {...provided.droppableProps} ref={provided.innerRef} className="flex flex-col min-h-full pr-2">
-              {todos.map((todo, index) => (
-                <Draggable key={todo.id} draggableId={todo.id.toString()} index={index}>
-                  {(provided, snapshot) => (
-                    <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}
-                      onClick={() => onEdit(todo)}
-                      className={`cursor-pointer group bg-card text-card-foreground p-3 rounded-xl shadow-sm border border-border/80 flex flex-col mb-2 last:mb-0 transition-[box-shadow,opacity] duration-200 ${snapshot.isDragging ? "ring-2 ring-primary shadow-xl opacity-95" : "hover:ring-2 hover:ring-primary"}`}>
-                      <div className="flex items-start gap-3 w-full">
-                        <div 
-                          onPointerDown={(e) => e.stopPropagation()} 
-                          onMouseDown={(e) => e.stopPropagation()} 
-                          onClick={(e) => e.stopPropagation()}
-                          className="shrink-0"
-                        >
-                          <Checkbox checked={todo.completed} onCheckedChange={() => onToggle(todo.id)}
-                            className="mt-1 w-5 h-5 rounded-[4px]" />
-                        </div>
-                        <div className="flex flex-col gap-2 min-w-0 flex-1">
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="flex flex-col gap-1 min-w-0">
-                              <span className={`font-medium leading-tight truncate ${todo.completed ? "line-through text-muted-foreground" : ""}`}>
-                                {todo.title}
-                              </span>
-                            </div>
+            <div className={`flex-1 min-h-0 p-1 -m-1 ${scrollable ? "overflow-y-auto scrollbar-hide" : "overflow-visible"}`}>
+              <div {...provided.droppableProps} ref={provided.innerRef} className="flex flex-col min-h-full pr-2">
+                {todos.map((todo, index) => (
+                  <Draggable key={todo.id} draggableId={todo.id.toString()} index={index}>
+                    {(provided, snapshot) => (
+                      <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}
+                        onClick={() => onEdit(todo)}
+                        className={`cursor-pointer group bg-card text-card-foreground p-3 rounded-xl shadow-sm border border-border/80 flex flex-col mb-2 last:mb-0 transition-[box-shadow,opacity] duration-200 ${snapshot.isDragging ? "ring-2 ring-primary shadow-xl opacity-95" : "hover:ring-2 hover:ring-primary"}`}>
+                        <div className="flex items-center gap-3 w-full">
+                          <div
+                            onPointerDown={(e) => e.stopPropagation()}
+                            onMouseDown={(e) => e.stopPropagation()}
+                            onClick={(e) => e.stopPropagation()}
+                            className="shrink-0 flex items-center"
+                          >
+                            <Checkbox checked={todo.completed} onCheckedChange={() => onToggle(todo.id)}
+                              className="w-5 h-5 rounded-[4px]" />
+                          </div>
+
+                          <div className="flex flex-row items-center gap-3 min-w-0 flex-1">
+                            <span className={`font-medium leading-tight truncate ${todo.completed ? "line-through text-muted-foreground" : ""}`}>
+                              {todo.title}
+                            </span>
+                          </div>
+
+                          {/* 우측 메타 정보 및 삭제 버튼 */}
+                          <div className="flex items-center gap-2 shrink-0 ml-auto">
+                            {todo.category && (
+                              <div className="flex items-center gap-1 text-[10px] font-medium text-muted-foreground bg-muted/30 px-2 py-0.5 rounded-full">
+                                <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: todo.category.color }} />
+                                {todo.category.name}
+                              </div>
+                            )}
+                            {todo.dueDate && (
+                              <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[10px] text-muted-foreground bg-background/50 border-border/50 gap-1 flex items-center">
+                                <Clock className="w-3 h-3" />
+                                {dayjs(todo.dueDate).format("MM.DD")}
+                              </Badge>
+                            )}
+                            <Badge variant="outline" className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${priorityColors[todo.priority]}`}>
+                              {todo.priority === "HIGH" ? "긴급" : todo.priority === "MEDIUM" ? "보통" : "낮음"}
+                            </Badge>
+                            
                             {/* 삭제 */}
-                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                            <div className="flex opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-1">
                               <button onClick={e => { e.stopPropagation(); onDelete(todo.id) }}
                                 className="p-1 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors">
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
                             </div>
                           </div>
-                          {/* Horizontal Breadcrumbs Container */}
-                          <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
-                            <Badge variant="outline" className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${priorityColors[todo.priority]}`}>
-                              {todo.priority === "HIGH" ? "긴급" : todo.priority === "MEDIUM" ? "보통" : "낮음"}
-                            </Badge>
-                            {todo.dueDate && (
-                              <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[10px] text-muted-foreground bg-background/50 border-border/50 gap-1">
-                                <Clock className="w-3 h-3" />
-                                {dayjs(todo.dueDate).format("MM.DD")}
-                              </Badge>
-                            )}
-                            {todo.category && (
-                              <div className="flex items-center gap-1 text-[10px] font-medium text-muted-foreground bg-muted/30 px-2 py-0.5 rounded-full">
-                                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: todo.category.color }} />
-                                {todo.category.name}
-                              </div>
-                            )}
-                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
             </div>
           </div>
-        )}
-      </Droppable>
-    </div>
+        )
+      }}
+    </Droppable>
   )
 }
