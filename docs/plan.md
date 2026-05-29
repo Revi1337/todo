@@ -177,7 +177,7 @@ git init
 **의존 단계**: Phase 10 완료 후
 
 #### Tasks
-- [ ] `src/app/layout.tsx` — 상단 네비게이션 바 (`/`, `/calendar`, `/stats`, `/login` 링크) 포함 루트 레이아웃
+- [x] `src/app/layout.tsx` — 상단 네비게이션 바 (`/`, `/calendar`, `/stats`, `/login` 링크) 포함 루트 레이아웃
 
 ---
 
