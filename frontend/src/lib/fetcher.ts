@@ -29,6 +29,7 @@ export const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
     dispatchUnauthorized()
     throw new Error('Unauthorized')
   }
+  if (res.status === 204) return null
   const data = await res.json()
   if (!res.ok || !data.success) {
     throw new Error(data.message || 'Error executing request')

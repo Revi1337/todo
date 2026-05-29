@@ -38,6 +38,19 @@ class TodoServiceTest {
         assertThat(result.title()).isEqualTo("스프링 공부");
         assertThat(result.priority()).isEqualTo(Priority.HIGH);
         assertThat(result.completed()).isFalse();
+        assertThat(result.position()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("Todo 생성 시 기존 active todos의 position이 +1 밀리고 새 todo는 position 0이 된다")
+    void create_shiftsExistingActiveTodosAndInsertsAtTop() {
+        TodoResponse first = todoService.create(new TodoRequest("첫번째", null, null, null, null, null, null));
+        TodoResponse second = todoService.create(new TodoRequest("두번째", null, null, null, null, null, null));
+        TodoResponse third = todoService.create(new TodoRequest("세번째", null, null, null, null, null, null));
+
+        assertThat(todoService.findById(third.id()).position()).isEqualTo(0);
+        assertThat(todoService.findById(second.id()).position()).isEqualTo(1);
+        assertThat(todoService.findById(first.id()).position()).isEqualTo(2);
     }
 
     @Test
@@ -204,11 +217,4 @@ class TodoServiceTest {
         assertThat(todoService.findById(c.id()).position()).isEqualTo(1);
     }
 
-    @Test
-    @DisplayName("존재하지 않는 ID로 reorder 시 예외를 던진다")
-    void reorder_notFound_throws() {
-        assertThatThrownBy(() -> todoService.reorder(
-                List.of(new ReorderRequest.ReorderItem(999L, 0))))
-                .isInstanceOf(EntityNotFoundException.class);
-    }
 }

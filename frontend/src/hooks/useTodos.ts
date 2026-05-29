@@ -8,7 +8,7 @@ const invalidateTodos = () =>
   globalMutate((key: unknown) => typeof key === 'string' && key.startsWith('/api/todos'))
 
 export function useTodos(queryParams = '') {
-  const { data, error, isLoading, mutate } = useSWR<Todo[]>(
+  const { data, error, isLoading, isValidating, mutate } = useSWR<Todo[]>(
     `/api/todos${queryParams}`,
     fetcher,
     { keepPreviousData: true }
@@ -41,6 +41,7 @@ export function useTodos(queryParams = '') {
   return {
     todos: data || emptyTodos,
     isLoading,
+    isValidating,
     isError: error,
     mutate,
     createTodo,

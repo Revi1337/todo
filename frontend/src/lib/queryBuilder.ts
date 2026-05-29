@@ -7,6 +7,7 @@ export function buildQuery(filter: TodoFilter & { search?: string }): string {
   if (filter.priority !== undefined) p.set("priority", filter.priority)
   if (filter.completed !== undefined) p.set("completed", String(filter.completed))
   if (filter.search) p.set("search", filter.search)
+  if (filter.dueDate) p.set("dueDate", filter.dueDate)
   const qs = p.toString()
   return qs ? `?${qs}` : ""
 }

@@ -1,7 +1,7 @@
 package revi1337.todo.domain.todo.service;
 
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -12,6 +12,7 @@ import revi1337.todo.domain.category.repository.CategoryRepository;
 import revi1337.todo.domain.tag.entity.Tag;
 import revi1337.todo.domain.tag.repository.TagRepository;
 import revi1337.todo.domain.todo.entity.Todo;
+import revi1337.todo.domain.todo.repository.TodoJdbcRepository;
 import revi1337.todo.domain.todo.repository.TodoRepository;
 import revi1337.todo.domain.todo.repository.TodoSpecification;
 import revi1337.todo.domain.todo.service.dto.ReorderRequest;
@@ -28,18 +29,30 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class TodoService {
 
     private final TodoRepository todoRepository;
+    private final TodoJdbcRepository todoJdbcRepository;
     private final CategoryRepository categoryRepository;
     private final TagRepository tagRepository;
+    private final EntityManager entityManager;
+
+    public TodoService(TodoRepository todoRepository, TodoJdbcRepository todoJdbcRepository,
+            CategoryRepository categoryRepository, TagRepository tagRepository,
+            EntityManager entityManager) {
+        this.todoRepository = todoRepository;
+        this.todoJdbcRepository = todoJdbcRepository;
+        this.categoryRepository = categoryRepository;
+        this.tagRepository = tagRepository;
+        this.entityManager = entityManager;
+    }
 
     @Transactional
     public TodoResponse create(TodoRequest request) {
         Category category = resolveCategory(request.categoryId());
         Set<Tag> tags = resolveTags(request.tagIds());
+        todoRepository.incrementPositions(false);
         Todo todo = todoRepository.save(new Todo(
                 request.title(), request.description(), request.priority(),
                 request.dueDate(), category, tags, LocalDateTime.now()));
@@ -109,7 +122,8 @@ public class TodoService {
             throw new EntityNotFoundException("일부 Todo를 찾을 수 없습니다");
         }
 
-        todos.forEach(todo -> todo.updatePosition(positionById.get(todo.getId())));
+        todoJdbcRepository.bulkUpdatePositions(items);
+        entityManager.clear();
     }
 
     @Transactional

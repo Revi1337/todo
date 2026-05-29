@@ -1,6 +1,7 @@
 package revi1337.todo.domain.todo.repository;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -148,6 +149,25 @@ class TodoRepositoryTest {
         todoRepository.flush();
 
         assertThat(todoRepository.findById(a.getId()).get().getPosition()).isEqualTo(0);
+        assertThat(todoRepository.findById(b.getId()).get().getPosition()).isEqualTo(0);
+        assertThat(todoRepository.findById(c.getId()).get().getPosition()).isEqualTo(1);
+    }
+
+    @Test
+    @Disabled("PostgreSQL unnest 전용 — H2에서 실행 불가")
+    @DisplayName("bulkUpdatePositions는 단일 쿼리로 여러 todo의 position을 갱신한다")
+    void bulkUpdatePositions() {
+        Todo a = todoRepository.save(new Todo("A", null, null, null, null, null, NOW));
+        Todo b = todoRepository.save(new Todo("B", null, null, null, null, null, NOW));
+        Todo c = todoRepository.save(new Todo("C", null, null, null, null, null, NOW));
+        todoRepository.flush();
+
+        todoRepository.bulkUpdatePositions(
+                new Long[]{a.getId(), b.getId(), c.getId()},
+                new int[]{2, 0, 1}
+        );
+
+        assertThat(todoRepository.findById(a.getId()).get().getPosition()).isEqualTo(2);
         assertThat(todoRepository.findById(b.getId()).get().getPosition()).isEqualTo(0);
         assertThat(todoRepository.findById(c.getId()).get().getPosition()).isEqualTo(1);
     }

@@ -151,7 +151,7 @@ paths:
 
     patch:
       tags: [todos]
-      summary: Partially update a todo (e.g. toggle completed)
+      summary: Toggle completed status of a todo
       parameters:
         - $ref: "#/components/parameters/IdPath"
       requestBody:
@@ -185,6 +185,20 @@ paths:
           description: No Content
         "404":
           $ref: "#/components/responses/NotFound"
+
+  /api/todos/reorder:
+    patch:
+      tags: [todos]
+      summary: Bulk reorder todos by updating positions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReorderRequest"
+      responses:
+        "204":
+          description: No Content
 
   /api/categories:
     post:
@@ -463,31 +477,25 @@ components:
     TodoPatchRequest:
       type: object
       properties:
-        title:
-          type: string
-          nullable: true
-        description:
-          type: string
-          nullable: true
-        priority:
-          $ref: "#/components/schemas/Priority"
-        dueDate:
-          type: string
-          format: date
-          nullable: true
-        categoryId:
-          type: integer
-          format: int64
-          nullable: true
-        tagIds:
-          type: array
-          items:
-            type: integer
-            format: int64
-          nullable: true
         completed:
           type: boolean
           nullable: true
+
+    ReorderRequest:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [id, position]
+            properties:
+              id:
+                type: integer
+                format: int64
+              position:
+                type: integer
 
     TodoRequest:
       type: object
@@ -555,6 +563,9 @@ components:
           type: string
           format: date-time
           nullable: true
+        position:
+          type: integer
+          description: Order within the completed/active group (0-based)
 
     StatsResponse:
       type: object

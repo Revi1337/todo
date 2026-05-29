@@ -42,4 +42,12 @@ public interface TodoRepository extends JpaRepository<Todo, Long>, JpaSpecificat
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Todo t SET t.position = t.position - 1 WHERE t.completed = :completed AND t.position > :afterPosition")
     void decrementPositionsAfter(@Param("completed") boolean completed, @Param("afterPosition") int afterPosition);
+
+    @Modifying
+    @Query(value = """
+            UPDATE todos SET position = data.pos
+            FROM unnest(:ids, :positions) AS data(id bigint, pos int)
+            WHERE todos.id = data.id
+            """, nativeQuery = true)
+    void bulkUpdatePositions(@Param("ids") Long[] ids, @Param("positions") int[] positions);
 }

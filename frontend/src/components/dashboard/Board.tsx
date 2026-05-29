@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react"
 import { DragDropContext, type DragStart, type DropResult } from "@hello-pangea/dnd"
+import { ChevronLeft, ChevronRight } from "lucide-react"
+import dayjs, { Dayjs } from "dayjs"
 import { useTodos } from "@/hooks/useTodos"
 import { useCategories } from "@/hooks/useCategories"
 import { useTags } from "@/hooks/useTags"
@@ -11,16 +13,31 @@ import { Column } from "./Column"
 import { FilterPanel } from "./FilterPanel"
 import { TodoFormDialog } from "./TodoFormDialog"
 
+function formatDateLabel(date: Dayjs): string {
+  const today = dayjs().startOf("day")
+  const diff = date.startOf("day").diff(today, "day")
+  const formatted = date.format("M월 D일")
+  if (diff === -1) return `어제 (${formatted})`
+  if (diff === 0) return `오늘 (${formatted})`
+  if (diff === 1) return `내일 (${formatted})`
+  return formatted
+}
+
 export function Board() {
+  const [selectedDate, setSelectedDate] = useState<Dayjs>(() => dayjs())
   const [filter, setFilter] = useState<TodoFilter>({})
   const [search, setSearch] = useState("")
 
   const queryParams = useMemo(
-    () => buildQuery({ ...filter, search: search || undefined }),
-    [filter, search]
+    () => buildQuery({
+      ...filter,
+      dueDate: selectedDate.format("YYYY-MM-DD"),
+      search: search || undefined,
+    }),
+    [filter, search, selectedDate]
   )
 
-  const { todos: swrTodos, toggleTodo, deleteTodo, reorderTodos, isLoading } = useTodos(queryParams)
+  const { todos: swrTodos, toggleTodo, deleteTodo, reorderTodos } = useTodos(queryParams)
   const { categories } = useCategories()
   const { tags } = useTags()
 
@@ -34,10 +51,7 @@ export function Board() {
   }, [swrTodos])
 
   const activeTodos = useMemo(() => localTodos.filter(t => !t.completed), [localTodos])
-  const completedTodos = useMemo(
-    () => localTodos.filter(t => t.completed),
-    [localTodos]
-  )
+  const completedTodos = useMemo(() => localTodos.filter(t => t.completed), [localTodos])
 
   const onDragStart = useCallback((start: DragStart) => {
     setDraggingFromId(start.source.droppableId)
@@ -50,39 +64,40 @@ export function Board() {
     if (source.droppableId !== destination.droppableId) return
     if (source.index === destination.index) return
 
-    let reorderItems: { id: number; position: number }[] = []
+    const isCompleted = source.droppableId === "COMPLETED"
+    const col = localTodos.filter(t => t.completed === isCompleted)
+    const other = localTodos.filter(t => t.completed !== isCompleted)
+    const newCol = [...col]
+    const [moved] = newCol.splice(source.index, 1)
+    newCol.splice(destination.index, 0, moved)
 
-    setLocalTodos(prev => {
-      const todos = [...prev]
-      const isCompleted = source.droppableId === "COMPLETED"
-      const col = todos.filter(t => t.completed === isCompleted)
-      const other = todos.filter(t => t.completed !== isCompleted)
-      const [moved] = col.splice(source.index, 1)
-      col.splice(destination.index, 0, moved)
-      reorderItems = col.map((t, i) => ({ id: t.id, position: i }))
-      return isCompleted ? [...other, ...col] : [...col, ...other]
-    })
+    const reorderItems = newCol.map((t, i) => ({ id: t.id, position: i }))
+    const newTodos = isCompleted ? [...other, ...newCol] : [...newCol, ...other]
 
-    if (reorderItems.length > 0) {
-      reorderTodos(reorderItems).catch(() => {
-        setLocalTodos(swrTodos)
-      })
-    }
-  }, [reorderTodos, swrTodos])
+    setLocalTodos(newTodos)
+    reorderTodos(reorderItems).catch(() => setLocalTodos(swrTodos))
+  }, [localTodos, reorderTodos, swrTodos])
 
   const handleToggle = useCallback(async (id: number) => {
+    const snapshot = localTodos
     const todo = localTodos.find(t => t.id === id)
     if (!todo) return
     const next = !todo.completed
-    setLocalTodos(prev => prev.map(t =>
-      t.id === id ? { ...t, completed: next, completedAt: next ? new Date().toISOString() : null } : t
-    ))
+
+    setLocalTodos(prev => {
+      const toggled = { ...todo, completed: next, completedAt: next ? new Date().toISOString() : null }
+      const others = prev.filter(t => t.id !== id)
+      const activeGroup = others.filter(t => !t.completed)
+      const completedGroup = others.filter(t => t.completed)
+      return next
+        ? [...activeGroup, toggled, ...completedGroup]
+        : [toggled, ...activeGroup, ...completedGroup]
+    })
+
     try {
       await toggleTodo(id, next)
     } catch {
-      setLocalTodos(prev => prev.map(t =>
-        t.id === id ? { ...t, completed: todo.completed, completedAt: todo.completedAt } : t
-      ))
+      setLocalTodos(snapshot)
     }
   }, [localTodos, toggleTodo])
 
@@ -101,21 +116,39 @@ export function Board() {
   const handleReset = useCallback(() => { setFilter({}); setSearch("") }, [])
   const handleClose = useCallback(() => setDialogOpen(false), [])
 
-  if (isLoading) return <div className="p-8 flex justify-center text-muted-foreground">로딩 중...</div>
-
   return (
     <>
       <div className="flex gap-8 h-full">
-        <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
-          <div className="flex-1 grid grid-rows-2 gap-6 h-full min-h-0 overflow-hidden">
-            <Column title="할 일" id="ACTIVE" todos={activeTodos}
-              onToggle={handleToggle} onEdit={openEdit} onDelete={handleDelete} scrollable
-              draggingFromId={draggingFromId} />
-            <Column title="완료됨" id="COMPLETED" todos={completedTodos}
-              onToggle={handleToggle} onEdit={openEdit} onDelete={handleDelete} scrollable
-              draggingFromId={draggingFromId} />
+        <div className="flex-1 flex flex-col gap-4 min-h-0">
+          <div className="flex items-center justify-center gap-3 shrink-0">
+            <button
+              onClick={() => setSelectedDate(d => d.subtract(1, "day"))}
+              className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <span className="text-base font-semibold w-44 text-center">
+              {formatDateLabel(selectedDate)}
+            </span>
+            <button
+              onClick={() => setSelectedDate(d => d.add(1, "day"))}
+              className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
           </div>
-        </DragDropContext>
+
+          <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+            <div className="flex-1 grid grid-rows-2 gap-6 min-h-0 overflow-hidden">
+              <Column title="할 일" id="ACTIVE" todos={activeTodos}
+                onToggle={handleToggle} onEdit={openEdit} onDelete={handleDelete} scrollable
+                draggingFromId={draggingFromId} />
+              <Column title="완료됨" id="COMPLETED" todos={completedTodos}
+                onToggle={handleToggle} onEdit={openEdit} onDelete={handleDelete} scrollable
+                draggingFromId={draggingFromId} />
+            </div>
+          </DragDropContext>
+        </div>
 
         <FilterPanel
           filter={filter}
@@ -129,7 +162,12 @@ export function Board() {
         />
       </div>
 
-      <TodoFormDialog open={dialogOpen} onClose={handleClose} todo={editingTodo} />
+      <TodoFormDialog
+        open={dialogOpen}
+        onClose={handleClose}
+        todo={editingTodo}
+        defaultDueDate={selectedDate.format("YYYY-MM-DD")}
+      />
     </>
   )
 }
