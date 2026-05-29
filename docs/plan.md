@@ -256,11 +256,11 @@ git init
 **의존 단계**: Phase 17 완료 후
 
 #### Tasks
-- [ ] `src/hooks/useTodos.ts` — `GET/POST/PUT/DELETE /api/todos` 호출, 상태 관리
-- [ ] `src/hooks/useCategories.ts` — `GET/POST/DELETE /api/categories` 호출
-- [ ] `src/hooks/useTags.ts` — `GET/POST /api/tags` 호출
-- [ ] 메인 페이지 컴포넌트에서 `src/mocks/todos.ts` 제거, 위 훅으로 교체
-- [ ] mutation 훅에 401 응답 처리 추가 (→ `/login` 리다이렉트)
+- [x] `src/hooks/useTodos.ts` — `GET/POST/PUT/DELETE /api/todos` 호출, 상태 관리
+- [x] `src/hooks/useCategories.ts` — `GET/POST/DELETE /api/categories` 호출
+- [x] `src/hooks/useTags.ts` — `GET/POST /api/tags` 호출
+- [x] 메인 페이지 컴포넌트에서 `src/mocks/todos.ts` 제거, 위 훅으로 교체
+- [x] mutation 훅에 401 응답 처리 추가 (→ `/login` 리다이렉트)
 
 ---
 

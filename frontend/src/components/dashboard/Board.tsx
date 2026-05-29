@@ -2,7 +2,7 @@
 
 import React, { useState } from "react"
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd"
-import { mockTodos } from "@/mocks/todos"
+import { useTodos } from "@/hooks/useTodos"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -18,40 +18,58 @@ const priorityColors = {
 }
 
 export function Board() {
-  const [todos, setTodos] = useState(mockTodos)
+  const { todos: swrTodos, toggleTodo, updateTodo, isLoading } = useTodos()
+  const [localTodos, setLocalTodos] = useState<Todo[]>([])
   const [search, setSearch] = useState("")
 
-  const activeTodos = todos.filter(t => !t.completed && t.title.toLowerCase().includes(search.toLowerCase()))
-  const completedTodos = todos.filter(t => t.completed && t.title.toLowerCase().includes(search.toLowerCase()))
+  React.useEffect(() => {
+    if (swrTodos) setLocalTodos(swrTodos)
+  }, [swrTodos])
 
-  const onDragEnd = (result: any) => {
+  const activeTodos = localTodos.filter(t => !t.completed && t.title.toLowerCase().includes(search.toLowerCase()))
+  const completedTodos = localTodos.filter(t => t.completed && t.title.toLowerCase().includes(search.toLowerCase()))
+
+  const onDragEnd = async (result: any) => {
     if (!result.destination) return
     const { source, destination, draggableId } = result
 
     if (source.droppableId !== destination.droppableId) {
-      setTodos(prev => prev.map(t => {
+      const isCompleted = destination.droppableId === "COMPLETED"
+      
+      // Optimistic update
+      setLocalTodos(prev => prev.map(t => {
         if (t.id.toString() === draggableId) {
-          return { ...t, completed: destination.droppableId === "COMPLETED", completedAt: destination.droppableId === "COMPLETED" ? new Date().toISOString() : null }
+          return { ...t, completed: isCompleted, completedAt: isCompleted ? new Date().toISOString() : null }
         }
         return t
       }))
+
+      // API Call
+      await toggleTodo(Number(draggableId), isCompleted)
     }
   }
 
-  const toggleTodo = (id: number) => {
-    setTodos(prev => prev.map(t => {
+  const handleToggleTodo = async (id: number) => {
+    const todo = localTodos.find(t => t.id === id)
+    if (!todo) return
+    const nextCompleted = !todo.completed
+    
+    // Optimistic update
+    setLocalTodos(prev => prev.map(t => {
       if (t.id === id) {
-        const nextCompleted = !t.completed;
         return { ...t, completed: nextCompleted, completedAt: nextCompleted ? new Date().toISOString() : null }
       }
       return t
     }))
+
+    // API Call
+    await toggleTodo(id, nextCompleted)
   }
 
   // To prevent hydration mismatch with dnd, we should normally wait for mount, but for this mock we'll just render
   const [mounted, setMounted] = React.useState(false)
   React.useEffect(() => setMounted(true), [])
-  if (!mounted) return null
+  if (!mounted || isLoading) return <div className="p-8 flex justify-center text-muted-foreground">로딩 중...</div>
 
   return (
     <div className="flex gap-8 h-full">
@@ -89,8 +107,8 @@ export function Board() {
       {/* Kanban Board */}
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="flex-1 grid grid-cols-2 gap-6 items-start h-full">
-          <Column title="할 일" id="ACTIVE" todos={activeTodos} toggleTodo={toggleTodo} />
-          <Column title="완료됨" id="COMPLETED" todos={completedTodos} toggleTodo={toggleTodo} />
+          <Column title="할 일" id="ACTIVE" todos={activeTodos} toggleTodo={handleToggleTodo} />
+          <Column title="완료됨" id="COMPLETED" todos={completedTodos} toggleTodo={handleToggleTodo} />
         </div>
       </DragDropContext>
     </div>
