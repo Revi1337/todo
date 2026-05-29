@@ -1,26 +1,24 @@
-import useSWR from 'swr'
-import { fetcher, fetchWithAuth } from '@/lib/fetcher'
+import { mutate as globalMutate } from 'swr'
 import { Category } from '@/types'
+import { useResource } from './useResource'
+
+const invalidateTodos = () =>
+  globalMutate((key: unknown) => typeof key === 'string' && key.startsWith('/api/todos'))
 
 export function useCategories() {
-  const { data, error, isLoading, mutate } = useSWR<Category[]>('/api/categories', fetcher)
-
-  const createCategory = async (categoryData: Partial<Category>) => {
-    await fetchWithAuth('/api/categories', { method: 'POST', body: JSON.stringify(categoryData) })
-    mutate()
-  }
+  const { data, isLoading, isError, mutate, create, remove } = useResource<Category>('/api/categories')
 
   const deleteCategory = async (id: number) => {
-    await fetchWithAuth(`/api/categories/${id}`, { method: 'DELETE' })
-    mutate()
+    await remove(id)
+    await invalidateTodos()
   }
 
-  return { 
-    categories: data || [], 
-    isLoading, 
-    isError: error, 
-    mutate, 
-    createCategory, 
-    deleteCategory 
+  return {
+    categories: data,
+    isLoading,
+    isError,
+    mutate,
+    createCategory: create,
+    deleteCategory,
   }
 }

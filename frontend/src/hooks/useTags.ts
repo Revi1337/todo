@@ -1,20 +1,14 @@
-import useSWR from 'swr'
-import { fetcher, fetchWithAuth } from '@/lib/fetcher'
 import { Tag } from '@/types'
+import { useResource } from './useResource'
 
 export function useTags() {
-  const { data, error, isLoading, mutate } = useSWR<Tag[]>('/api/tags', fetcher)
+  const { data, isLoading, isError, mutate, create } = useResource<Tag>('/api/tags')
 
-  const createTag = async (tagData: Partial<Tag>) => {
-    await fetchWithAuth('/api/tags', { method: 'POST', body: JSON.stringify(tagData) })
-    mutate()
-  }
-
-  return { 
-    tags: data || [], 
-    isLoading, 
-    isError: error, 
-    mutate, 
-    createTag
+  return {
+    tags: data,
+    isLoading,
+    isError,
+    mutate,
+    createTag: create,
   }
 }
