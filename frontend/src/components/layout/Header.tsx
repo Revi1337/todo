@@ -3,13 +3,15 @@
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Moon, Sun, CheckSquare, Menu } from "lucide-react"
+import { Moon, Sun, CheckSquare, Menu, LogOut } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { SidebarNav } from "./Sidebar"
+import { useAuth } from "@/hooks/useAuth"
 
 export function Header() {
   const { setTheme, theme } = useTheme()
+  const { logout } = useAuth()
   const [mounted, setMounted] = useState(false)
   const [open, setOpen] = useState(false)
 
@@ -24,14 +26,14 @@ export function Header() {
           <SheetTrigger render={<Button variant="ghost" size="icon" className="lg:hidden" />}>
             <Menu className="w-5 h-5" />
           </SheetTrigger>
-          <SheetContent side="left" className="w-[260px] p-0 glass">
-            <SheetHeader className="p-4 border-b border-border/50 text-left">
+          <SheetContent side="left" className="w-[260px] p-0 glass flex flex-col">
+            <SheetHeader className="p-4 border-b border-border/50 text-left shrink-0">
               <SheetTitle className="flex items-center gap-2">
                 <CheckSquare className="w-5 h-5 text-primary" />
                 <span className="leading-none pt-[2px]">Todo</span>
               </SheetTitle>
             </SheetHeader>
-            <div className="p-4">
+            <div className="p-4 flex-1 min-h-0 overflow-y-auto">
               <SidebarNav onItemClick={() => setOpen(false)} />
             </div>
           </SheetContent>
@@ -46,12 +48,22 @@ export function Header() {
 
 
       <div className="flex items-center gap-2 md:gap-4 ml-auto">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={logout}
+          className="rounded-full text-muted-foreground hover:text-foreground"
+          title="로그아웃"
+        >
+          <LogOut className="w-5 h-5" />
+        </Button>
         {mounted && (
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setTheme(theme === "light" ? "dark" : "light")}
             className="rounded-full"
+            title="테마 변경"
           >
             {theme === "light" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
           </Button>
