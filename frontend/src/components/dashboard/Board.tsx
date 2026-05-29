@@ -67,12 +67,22 @@ export function Board() {
     setLocalTodos(prev => prev.map(t =>
       t.id === id ? { ...t, completed: next, completedAt: next ? new Date().toISOString() : null } : t
     ))
-    await toggleTodo(id, next)
+    try {
+      await toggleTodo(id, next)
+    } catch {
+      setLocalTodos(prev => prev.map(t =>
+        t.id === id ? { ...t, completed: todo.completed, completedAt: todo.completedAt } : t
+      ))
+    }
   }
 
   const handleDelete = async (id: number) => {
     setLocalTodos(prev => prev.filter(t => t.id !== id))
-    await deleteTodo(id)
+    try {
+      await deleteTodo(id)
+    } catch {
+      setLocalTodos(swrTodos)
+    }
   }
 
   const openCreate = () => { setEditingTodo(null); setDialogOpen(true) }

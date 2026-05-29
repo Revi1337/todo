@@ -30,7 +30,11 @@ export function CalendarView() {
     : []
 
   const handleToggle = async (todo: Todo) => {
-    await toggleTodo(todo.id, !todo.completed)
+    try {
+      await toggleTodo(todo.id, !todo.completed)
+    } catch {
+      // 에러는 fetcher가 처리 (401 → 로그인 리다이렉트)
+    }
   }
 
   const openCreate = () => { setEditingTodo(null); setDialogOpen(true) }

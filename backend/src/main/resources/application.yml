@@ -2,6 +2,11 @@ app:
   password: ${APP_PASSWORD}
   cors-origin: ${APP_CORS_ORIGIN:http://localhost:3000}
 
+server:
+  servlet:
+    session:
+      timeout: 24h
+
 spring:
   datasource:
     url: ${SPRING_DATASOURCE_URL}
