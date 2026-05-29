@@ -29,4 +29,9 @@ public class Tag {
         this.name = Objects.requireNonNull(name, "name must not be null");
         this.color = Objects.requireNonNullElse(color, DEFAULT_COLOR);
     }
+
+    public void update(String name, String color) {
+        this.name = Objects.requireNonNull(name, "name must not be null");
+        this.color = Objects.requireNonNullElse(color, DEFAULT_COLOR);
+    }
 }
