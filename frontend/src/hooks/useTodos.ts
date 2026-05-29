@@ -34,6 +34,10 @@ export function useTodos(queryParams = '') {
     await invalidateTodos()
   }
 
+  const reorderTodos = async (items: { id: number; position: number }[]) => {
+    await fetchWithAuth('/api/todos/reorder', { method: 'PATCH', body: JSON.stringify({ items }) })
+  }
+
   return {
     todos: data || emptyTodos,
     isLoading,
@@ -42,6 +46,7 @@ export function useTodos(queryParams = '') {
     createTodo,
     updateTodo,
     deleteTodo,
-    toggleTodo
+    toggleTodo,
+    reorderTodos
   }
 }

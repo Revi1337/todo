@@ -20,7 +20,7 @@ export function Board() {
     [filter, search]
   )
 
-  const { todos: swrTodos, toggleTodo, deleteTodo, isLoading } = useTodos(queryParams)
+  const { todos: swrTodos, toggleTodo, deleteTodo, reorderTodos, isLoading } = useTodos(queryParams)
   const { categories } = useCategories()
   const { tags } = useTags()
 
@@ -35,9 +35,7 @@ export function Board() {
 
   const activeTodos = useMemo(() => localTodos.filter(t => !t.completed), [localTodos])
   const completedTodos = useMemo(
-    () => localTodos
-      .filter(t => t.completed)
-      .sort((a, b) => new Date(b.completedAt || 0).getTime() - new Date(a.completedAt || 0).getTime()),
+    () => localTodos.filter(t => t.completed),
     [localTodos]
   )
 
@@ -50,6 +48,9 @@ export function Board() {
     if (!result.destination) return
     const { source, destination } = result
     if (source.droppableId !== destination.droppableId) return
+    if (source.index === destination.index) return
+
+    let reorderItems: { id: number; position: number }[] = []
 
     setLocalTodos(prev => {
       const todos = [...prev]
@@ -58,9 +59,16 @@ export function Board() {
       const other = todos.filter(t => t.completed !== isCompleted)
       const [moved] = col.splice(source.index, 1)
       col.splice(destination.index, 0, moved)
+      reorderItems = col.map((t, i) => ({ id: t.id, position: i }))
       return isCompleted ? [...other, ...col] : [...col, ...other]
     })
-  }, [])
+
+    if (reorderItems.length > 0) {
+      reorderTodos(reorderItems).catch(() => {
+        setLocalTodos(swrTodos)
+      })
+    }
+  }, [reorderTodos, swrTodos])
 
   const handleToggle = useCallback(async (id: number) => {
     const todo = localTodos.find(t => t.id === id)

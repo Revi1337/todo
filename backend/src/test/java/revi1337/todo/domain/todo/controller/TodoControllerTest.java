@@ -11,6 +11,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import revi1337.todo.domain.todo.entity.Priority;
 import revi1337.todo.domain.todo.service.TodoService;
+import revi1337.todo.domain.todo.service.dto.ReorderRequest;
 import revi1337.todo.domain.todo.service.dto.TodoFilterRequest;
 import revi1337.todo.domain.todo.service.dto.TodoPatchRequest;
 import revi1337.todo.domain.todo.service.dto.TodoRequest;
@@ -116,12 +117,11 @@ class TodoControllerTest {
     @DisplayName("PATCH /api/todos/{id} — 부분 수정하고 200을 반환한다")
     void patchTodo() throws Exception {
         given(todoService.patch(any(), any(TodoPatchRequest.class)))
-                .willReturn(new TodoResponse(1L, "스프링 공부", null, true, Priority.HIGH, null, null, Set.of(), NOW, NOW, NOW));
+                .willReturn(new TodoResponse(1L, "스프링 공부", null, true, Priority.HIGH, null, null, Set.of(), NOW, NOW, NOW, 0));
 
         mockMvc.perform(patch("/api/todos/1").session(authSession())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(
-                                new TodoPatchRequest(null, null, null, null, null, null, true))))
+                        .content(objectMapper.writeValueAsString(new TodoPatchRequest(true))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.completed").value(true));
     }
@@ -134,8 +134,7 @@ class TodoControllerTest {
 
         mockMvc.perform(patch("/api/todos/999").session(authSession())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(
-                                new TodoPatchRequest(null, null, null, null, null, null, true))))
+                        .content(objectMapper.writeValueAsString(new TodoPatchRequest(true))))
                 .andExpect(status().isNotFound());
     }
 
@@ -156,7 +155,21 @@ class TodoControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    @DisplayName("PATCH /api/todos/reorder — position을 변경하고 204를 반환한다")
+    void reorder() throws Exception {
+        ReorderRequest request = new ReorderRequest(List.of(
+                new ReorderRequest.ReorderItem(1L, 0),
+                new ReorderRequest.ReorderItem(2L, 1)
+        ));
+
+        mockMvc.perform(patch("/api/todos/reorder").session(authSession())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNoContent());
+    }
+
     private TodoResponse sampleTodoResponse() {
-        return new TodoResponse(1L, "스프링 공부", "JPA 챕터", false, Priority.HIGH, null, null, Set.of(), NOW, NOW, null);
+        return new TodoResponse(1L, "스프링 공부", "JPA 챕터", false, Priority.HIGH, null, null, Set.of(), NOW, NOW, null, 0);
     }
 }

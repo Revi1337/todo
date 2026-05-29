@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import revi1337.todo.common.ApiResponse;
 import revi1337.todo.domain.todo.entity.Priority;
 import revi1337.todo.domain.todo.service.TodoService;
+import revi1337.todo.domain.todo.service.dto.ReorderRequest;
 import revi1337.todo.domain.todo.service.dto.TodoFilterRequest;
 import revi1337.todo.domain.todo.service.dto.TodoPatchRequest;
 import revi1337.todo.domain.todo.service.dto.TodoRequest;
@@ -36,11 +37,9 @@ public class TodoController {
             @RequestParam(required = false) Priority priority,
             @RequestParam(required = false) Boolean completed,
             @RequestParam(required = false) String search,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDate
-    ) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDate) {
         return ApiResponse.ok(todoService.findAll(
-                new TodoFilterRequest(category, tag, priority, completed, search, dueDate)
-        ));
+                new TodoFilterRequest(category, tag, priority, completed, search, dueDate)));
     }
 
     @GetMapping("/{id}")
@@ -56,6 +55,12 @@ public class TodoController {
     @PatchMapping("/{id}")
     public ApiResponse<TodoResponse> patch(@PathVariable Long id, @RequestBody TodoPatchRequest request) {
         return ApiResponse.ok(todoService.patch(id, request));
+    }
+
+    @PatchMapping("/reorder")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void reorder(@RequestBody ReorderRequest request) {
+        todoService.reorder(request.items());
     }
 
     @DeleteMapping("/{id}")
