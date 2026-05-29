@@ -34,7 +34,7 @@ export function useAuth() {
     } catch (err) {
       console.error(err)
     } finally {
-      window.location.href = '/login'
+      window.location.replace('/login')
     }
   }
 
