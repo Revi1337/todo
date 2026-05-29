@@ -208,10 +208,10 @@ git init
 **의존 단계**: Phase 11 완료 후
 
 #### Tasks
-- [ ] dayjs + Tailwind로 월간 캘린더 직접 구현
-- [ ] 날짜별 Todo 뱃지 표시 (mock 데이터 기반 Todo 수)
-- [ ] 날짜 클릭 → 해당 날짜 Todo 목록 패널/모달 표시 (mock 데이터)
-- [ ] 날짜 패널에서 Todo 생성/수정/삭제 UI (폼만, 실제 저장 없음)
+- [x] dayjs + Tailwind로 월간 캘린더 직접 구현
+- [x] 날짜별 Todo 뱃지 표시 (mock 데이터 기반 Todo 수)
+- [x] 날짜 클릭 → 해당 날짜 Todo 목록 패널/모달 표시 (mock 데이터)
+- [x] 날짜 패널에서 Todo 생성/수정/삭제 UI (폼만, 실제 저장 없음)
 
 ---
 
