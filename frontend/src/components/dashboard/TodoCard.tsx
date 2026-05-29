@@ -24,8 +24,9 @@ export function TodoCard({ todo, index, onToggle, onEdit, onDelete }: TodoCardPr
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
+          style={{ ...provided.draggableProps.style, cursor: 'default' }}
           onClick={() => onEdit(todo)}
-          className={`cursor-pointer group bg-card text-card-foreground p-3 rounded-xl shadow-sm border border-border/80 flex flex-col mb-2 last:mb-0 transition-[box-shadow,opacity] duration-200 ${snapshot.isDragging ? "ring-2 ring-primary shadow-xl opacity-95" : "hover:ring-2 hover:ring-primary"}`}
+          className={`group bg-card text-card-foreground p-3 rounded-xl shadow-sm border border-border/80 flex flex-col mb-2 last:mb-0 transition-[box-shadow,opacity] duration-200 ${snapshot.isDragging ? "ring-2 ring-primary shadow-xl opacity-95" : "hover:ring-2 hover:ring-primary"}`}
         >
           <div className="flex items-center gap-3 w-full">
             <div
