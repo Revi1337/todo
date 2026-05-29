@@ -2,8 +2,9 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Calendar, BarChart3 } from "lucide-react"
+import { LayoutDashboard, Calendar, BarChart3, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/hooks/useAuth"
 
 const navItems = [
   { title: "대시보드", href: "/", icon: LayoutDashboard },
@@ -13,7 +14,8 @@ const navItems = [
 
 export function SidebarNav({ onItemClick }: { onItemClick?: () => void }) {
   const pathname = usePathname()
-  
+  const { logout } = useAuth()
+
   return (
     <nav className="flex flex-col gap-2">
       {navItems.map((item) => {
@@ -25,8 +27,8 @@ export function SidebarNav({ onItemClick }: { onItemClick?: () => void }) {
             onClick={onItemClick}
             className={cn(
               "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
-              isActive 
-                ? "bg-primary text-primary-foreground shadow-sm" 
+              isActive
+                ? "bg-primary text-primary-foreground shadow-sm"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             )}
           >
@@ -35,6 +37,14 @@ export function SidebarNav({ onItemClick }: { onItemClick?: () => void }) {
           </Link>
         )
       })}
+
+      <button
+        onClick={() => { onItemClick?.(); logout() }}
+        className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 text-muted-foreground hover:bg-muted hover:text-foreground mt-2"
+      >
+        <LogOut className="w-5 h-5" />
+        로그아웃
+      </button>
     </nav>
   )
 }
