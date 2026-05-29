@@ -269,9 +269,9 @@ git init
 **의존 단계**: Phase 18 완료 후
 
 #### Tasks
-- [ ] 캘린더 컴포넌트에서 `src/mocks/todos.ts` 제거, `useTodos` 훅으로 교체
-- [ ] 날짜 클릭 패널 — `GET /api/todos?dueDate={date}` 실제 호출
-- [ ] 날짜 패널 Todo 생성 시 클릭한 날짜를 `dueDate`로 자동 설정하여 실제 저장
+- [x] 캘린더 컴포넌트에서 `src/mocks/todos.ts` 제거, `useTodos` 훅으로 교체
+- [x] 날짜 클릭 패널 — `GET /api/todos?dueDate={date}` 실제 호출
+- [x] 날짜 패널 Todo 생성 시 클릭한 날짜를 `dueDate`로 자동 설정하여 실제 저장
 
 ---
 

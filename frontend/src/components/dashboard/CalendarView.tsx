@@ -2,7 +2,7 @@
 
 import React, { useState } from "react"
 import dayjs from "dayjs"
-import { mockTodos } from "@/mocks/todos"
+import { useTodos } from "@/hooks/useTodos"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -11,6 +11,8 @@ import { ChevronLeft, ChevronRight, Plus, Clock } from "lucide-react"
 export function CalendarView() {
   const [currentDate, setCurrentDate] = useState(dayjs())
   const [selectedDate, setSelectedDate] = useState<dayjs.Dayjs | null>(dayjs())
+
+  const { todos, isLoading } = useTodos()
 
   const startOfMonth = currentDate.startOf("month")
   const endOfMonth = currentDate.endOf("month")
@@ -21,9 +23,11 @@ export function CalendarView() {
   for (let i = 0; i < startDay; i++) calendarDays.push(null)
   for (let i = 1; i <= daysInMonth; i++) calendarDays.push(currentDate.date(i))
 
-  const selectedTodos = selectedDate 
-    ? mockTodos.filter(t => dayjs(t.dueDate).isSame(selectedDate, "day"))
+  const selectedTodos = selectedDate && todos
+    ? todos.filter(t => dayjs(t.dueDate).isSame(selectedDate, "day"))
     : []
+
+  if (isLoading) return <div className="p-8 flex justify-center text-muted-foreground">로딩 중...</div>
 
   return (
     <div className="flex gap-8 h-full items-start">
@@ -51,7 +55,7 @@ export function CalendarView() {
             const date = currentDate.date(dateNum)
             const isToday = date.isSame(dayjs(), "day")
             const isSelected = selectedDate && date.isSame(selectedDate, "day")
-            const dayTodos = mockTodos.filter(t => dayjs(t.dueDate).isSame(date, "day"))
+            const dayTodos = todos.filter(t => dayjs(t.dueDate).isSame(date, "day"))
             
             return (
               <div 
