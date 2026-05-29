@@ -1,31 +1,33 @@
-import useSWR from 'swr'
+import useSWR, { mutate as globalMutate } from 'swr'
 import { fetcher, fetchWithAuth } from '@/lib/fetcher'
 import { Todo } from '@/types'
 
 const emptyTodos: Todo[] = []
+
+const invalidateTodos = () =>
+  globalMutate((key: unknown) => typeof key === 'string' && key.startsWith('/api/todos'), undefined, { revalidate: true })
 
 export function useTodos(queryParams = '') {
   const { data, error, isLoading, mutate } = useSWR<Todo[]>(`/api/todos${queryParams}`, fetcher)
 
   const createTodo = async (todoData: Partial<Todo>) => {
     await fetchWithAuth('/api/todos', { method: 'POST', body: JSON.stringify(todoData) })
-    mutate()
+    await invalidateTodos()
   }
 
   const updateTodo = async (id: number, updates: Partial<Todo>) => {
-    // Optimistic UI could be implemented here
     await fetchWithAuth(`/api/todos/${id}`, { method: 'PUT', body: JSON.stringify(updates) })
-    mutate()
+    await invalidateTodos()
   }
 
   const deleteTodo = async (id: number) => {
     await fetchWithAuth(`/api/todos/${id}`, { method: 'DELETE' })
-    mutate()
+    await invalidateTodos()
   }
 
   const toggleTodo = async (id: number, completed: boolean) => {
     await fetchWithAuth(`/api/todos/${id}`, { method: 'PATCH', body: JSON.stringify({ completed }) })
-    mutate()
+    await invalidateTodos()
   }
 
   return { 
