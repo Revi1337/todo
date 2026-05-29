@@ -23,7 +23,7 @@ export default function LoginPage() {
           <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center mb-4">
             <CheckSquare className="w-6 h-6 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">Vibe Todo 로그인</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Todo 로그인</h1>
           <p className="text-sm text-muted-foreground mt-2">나만의 생산성 갤러리에 오신 것을 환영합니다.</p>
         </div>
 

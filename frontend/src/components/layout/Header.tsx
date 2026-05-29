@@ -29,7 +29,7 @@ export function Header() {
             <SheetHeader className="p-4 border-b border-border/50 text-left">
               <SheetTitle className="flex items-center gap-2">
                 <CheckSquare className="w-5 h-5 text-primary" />
-                Vibe Todo
+                <span className="leading-none pt-[2px]">Todo</span>
               </SheetTitle>
             </SheetHeader>
             <div className="p-4">
@@ -40,7 +40,7 @@ export function Header() {
         
         <div className="flex items-center gap-2 hidden md:flex">
           <CheckSquare className="w-6 h-6 text-primary" />
-          <span className="font-bold text-lg tracking-tight">Vibe Todo</span>
+          <span className="font-bold text-lg tracking-tight leading-none pt-[2px]">Todo</span>
         </div>
       </div>
       

@@ -2,6 +2,8 @@ import useSWR from 'swr'
 import { fetcher, fetchWithAuth } from '@/lib/fetcher'
 import { Todo } from '@/types'
 
+const emptyTodos: Todo[] = []
+
 export function useTodos(queryParams = '') {
   const { data, error, isLoading, mutate } = useSWR<Todo[]>(`/api/todos${queryParams}`, fetcher)
 
@@ -27,7 +29,7 @@ export function useTodos(queryParams = '') {
   }
 
   return { 
-    todos: data || [], 
+    todos: data || emptyTodos, 
     isLoading, 
     isError: error, 
     mutate, 
