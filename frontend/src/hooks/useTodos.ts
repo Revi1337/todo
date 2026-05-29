@@ -24,7 +24,7 @@ export function useTodos(queryParams = '') {
   }
 
   const toggleTodo = async (id: number, completed: boolean) => {
-    await fetchWithAuth(`/api/todos/${id}`, { method: 'PUT', body: JSON.stringify({ completed }) })
+    await fetchWithAuth(`/api/todos/${id}`, { method: 'PATCH', body: JSON.stringify({ completed }) })
     mutate()
   }
 

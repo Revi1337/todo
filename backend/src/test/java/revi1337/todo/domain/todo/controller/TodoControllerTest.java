@@ -12,8 +12,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import revi1337.todo.domain.todo.entity.Priority;
 import revi1337.todo.domain.todo.service.TodoService;
 import revi1337.todo.domain.todo.service.dto.TodoFilterRequest;
+import revi1337.todo.domain.todo.service.dto.TodoPatchRequest;
 import revi1337.todo.domain.todo.service.dto.TodoRequest;
 import revi1337.todo.domain.todo.service.dto.TodoResponse;
+
+import org.springframework.mock.web.MockHttpSession;
+import revi1337.todo.domain.auth.AuthFilter;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,12 +38,18 @@ class TodoControllerTest {
 
     private static final LocalDateTime NOW = LocalDateTime.of(2026, 5, 28, 0, 0);
 
+    private MockHttpSession authSession() {
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(AuthFilter.SESSION_KEY, true);
+        return session;
+    }
+
     @Test
     @DisplayName("POST /api/todos — Todo를 생성하고 201을 반환한다")
     void create() throws Exception {
         given(todoService.create(any(TodoRequest.class))).willReturn(sampleTodoResponse());
 
-        mockMvc.perform(post("/api/todos")
+        mockMvc.perform(post("/api/todos").session(authSession())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 new TodoRequest("스프링 공부", null, Priority.HIGH, null, null, null, null))))
@@ -50,7 +60,7 @@ class TodoControllerTest {
     @Test
     @DisplayName("POST /api/todos — title이 blank면 400을 반환한다")
     void create_blankTitle_returns400() throws Exception {
-        mockMvc.perform(post("/api/todos")
+        mockMvc.perform(post("/api/todos").session(authSession())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 new TodoRequest("", null, null, null, null, null, null))))
@@ -73,7 +83,7 @@ class TodoControllerTest {
     void updateTodo() throws Exception {
         given(todoService.update(any(), any(TodoRequest.class))).willReturn(sampleTodoResponse());
 
-        mockMvc.perform(put("/api/todos/1")
+        mockMvc.perform(put("/api/todos/1").session(authSession())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 new TodoRequest("스프링 공부", null, Priority.HIGH, null, null, null, true))))
@@ -82,9 +92,57 @@ class TodoControllerTest {
     }
 
     @Test
+    @DisplayName("GET /api/todos/{id} — 단건 조회하고 200을 반환한다")
+    void findById() throws Exception {
+        given(todoService.findById(1L)).willReturn(sampleTodoResponse());
+
+        mockMvc.perform(get("/api/todos/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.id").value(1));
+    }
+
+    @Test
+    @DisplayName("GET /api/todos/{id} — 존재하지 않으면 404를 반환한다")
+    void findById_notFound_returns404() throws Exception {
+        given(todoService.findById(999L))
+                .willThrow(new EntityNotFoundException("Todo not found: 999"));
+
+        mockMvc.perform(get("/api/todos/999"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("PATCH /api/todos/{id} — 부분 수정하고 200을 반환한다")
+    void patchTodo() throws Exception {
+        given(todoService.patch(any(), any(TodoPatchRequest.class)))
+                .willReturn(new TodoResponse(1L, "스프링 공부", null, true, Priority.HIGH, null, null, Set.of(), NOW, NOW, NOW));
+
+        mockMvc.perform(patch("/api/todos/1").session(authSession())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(
+                                new TodoPatchRequest(null, null, null, null, null, null, true))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.completed").value(true));
+    }
+
+    @Test
+    @DisplayName("PATCH /api/todos/{id} — 존재하지 않으면 404를 반환한다")
+    void patchTodo_notFound_returns404() throws Exception {
+        given(todoService.patch(any(), any(TodoPatchRequest.class)))
+                .willThrow(new EntityNotFoundException("Todo not found: 999"));
+
+        mockMvc.perform(patch("/api/todos/999").session(authSession())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(
+                                new TodoPatchRequest(null, null, null, null, null, null, true))))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     @DisplayName("DELETE /api/todos/{id} — 삭제 후 204를 반환한다")
     void deleteTodo() throws Exception {
-        mockMvc.perform(delete("/api/todos/1"))
+        mockMvc.perform(delete("/api/todos/1").session(authSession()))
                 .andExpect(status().isNoContent());
     }
 
@@ -94,7 +152,7 @@ class TodoControllerTest {
         willThrow(new EntityNotFoundException("Todo not found: 999"))
                 .given(todoService).delete(999L);
 
-        mockMvc.perform(delete("/api/todos/999"))
+        mockMvc.perform(delete("/api/todos/999").session(authSession()))
                 .andExpect(status().isNotFound());
     }
 

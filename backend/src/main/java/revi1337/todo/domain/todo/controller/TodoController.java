@@ -9,6 +9,7 @@ import revi1337.todo.common.ApiResponse;
 import revi1337.todo.domain.todo.entity.Priority;
 import revi1337.todo.domain.todo.service.TodoService;
 import revi1337.todo.domain.todo.service.dto.TodoFilterRequest;
+import revi1337.todo.domain.todo.service.dto.TodoPatchRequest;
 import revi1337.todo.domain.todo.service.dto.TodoRequest;
 import revi1337.todo.domain.todo.service.dto.TodoResponse;
 
@@ -42,9 +43,19 @@ public class TodoController {
         ));
     }
 
+    @GetMapping("/{id}")
+    public ApiResponse<TodoResponse> findById(@PathVariable Long id) {
+        return ApiResponse.ok(todoService.findById(id));
+    }
+
     @PutMapping("/{id}")
     public ApiResponse<TodoResponse> update(@PathVariable Long id, @RequestBody @Valid TodoRequest request) {
         return ApiResponse.ok(todoService.update(id, request));
+    }
+
+    @PatchMapping("/{id}")
+    public ApiResponse<TodoResponse> patch(@PathVariable Long id, @RequestBody TodoPatchRequest request) {
+        return ApiResponse.ok(todoService.patch(id, request));
     }
 
     @DeleteMapping("/{id}")

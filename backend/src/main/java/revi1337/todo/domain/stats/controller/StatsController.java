@@ -76,7 +76,7 @@ public class StatsController {
 
     private Map<String, Long> toDailyMap(LocalDate from, LocalDate to) {
         return todoRepository.findDailyCompletedBetween(from, to)
-                .stream().collect(Collectors.toMap(r -> (String) r[0], r -> (Long) r[1]));
+                .stream().collect(Collectors.toMap(r -> r[0].toString(), r -> (Long) r[1]));
     }
 
     private DailyStat makeDailyStat(LocalDate date, String day, Map<String, Long> data) {

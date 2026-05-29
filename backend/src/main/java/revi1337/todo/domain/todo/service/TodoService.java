@@ -10,13 +10,16 @@ import revi1337.todo.domain.category.entity.Category;
 import revi1337.todo.domain.category.repository.CategoryRepository;
 import revi1337.todo.domain.tag.entity.Tag;
 import revi1337.todo.domain.tag.repository.TagRepository;
+import revi1337.todo.domain.todo.entity.Priority;
 import revi1337.todo.domain.todo.entity.Todo;
 import revi1337.todo.domain.todo.repository.TodoRepository;
 import revi1337.todo.domain.todo.repository.TodoSpecification;
 import revi1337.todo.domain.todo.service.dto.TodoFilterRequest;
+import revi1337.todo.domain.todo.service.dto.TodoPatchRequest;
 import revi1337.todo.domain.todo.service.dto.TodoRequest;
 import revi1337.todo.domain.todo.service.dto.TodoResponse;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -66,6 +69,27 @@ public class TodoService {
         todo.update(request.title(), request.description(), request.priority(),
                 request.dueDate(), category, tags, completed, LocalDateTime.now());
 
+        return TodoResponse.from(todo);
+    }
+
+    public TodoResponse findById(Long id) {
+        Todo todo = todoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Todo not found: " + id));
+        return TodoResponse.from(todo);
+    }
+
+    @Transactional
+    public TodoResponse patch(Long id, TodoPatchRequest request) {
+        Todo todo = todoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Todo not found: " + id));
+        String title = request.title() != null ? request.title() : todo.getTitle();
+        String description = request.description() != null ? request.description() : todo.getDescription();
+        Priority priority = request.priority() != null ? request.priority() : todo.getPriority();
+        LocalDate dueDate = request.dueDate() != null ? request.dueDate() : todo.getDueDate();
+        Category category = request.categoryId() != null ? resolveCategory(request.categoryId()) : todo.getCategory();
+        Set<Tag> tags = request.tagIds() != null ? resolveTags(request.tagIds()) : todo.getTags();
+        boolean completed = request.completed() != null ? request.completed() : todo.isCompleted();
+        todo.update(title, description, priority, dueDate, category, tags, completed, LocalDateTime.now());
         return TodoResponse.from(todo);
     }
 

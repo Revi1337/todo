@@ -101,6 +101,26 @@ paths:
                           $ref: "#/components/schemas/TodoResponse"
 
   /api/todos/{id}:
+    get:
+      tags: [todos]
+      summary: Get a single todo
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponseBase"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/TodoResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
     put:
       tags: [todos]
       summary: Update a todo
@@ -126,6 +146,32 @@ paths:
                         $ref: "#/components/schemas/TodoResponse"
         "400":
           $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    patch:
+      tags: [todos]
+      summary: Partially update a todo (e.g. toggle completed)
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TodoPatchRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponseBase"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/TodoResponse"
         "404":
           $ref: "#/components/responses/NotFound"
 
@@ -324,6 +370,35 @@ components:
           type: string
         color:
           type: string
+
+    TodoPatchRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        priority:
+          $ref: "#/components/schemas/Priority"
+        dueDate:
+          type: string
+          format: date
+          nullable: true
+        categoryId:
+          type: integer
+          format: int64
+          nullable: true
+        tagIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+          nullable: true
+        completed:
+          type: boolean
+          nullable: true
 
     TodoRequest:
       type: object

@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import revi1337.todo.domain.todo.entity.Priority;
 import revi1337.todo.domain.todo.service.dto.TodoFilterRequest;
+import revi1337.todo.domain.todo.service.dto.TodoPatchRequest;
 import revi1337.todo.domain.todo.service.dto.TodoRequest;
 import revi1337.todo.domain.todo.service.dto.TodoResponse;
 
@@ -76,6 +77,60 @@ class TodoServiceTest {
     @DisplayName("존재하지 않는 Todo 삭제 시 예외를 던진다")
     void delete_notFound_throws() {
         assertThatThrownBy(() -> todoService.delete(999L))
+                .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("ID로 단건 조회한다")
+    void findById() {
+        TodoResponse created = todoService.create(new TodoRequest("단건 조회 테스트", null, null, null, null, null, null));
+
+        TodoResponse result = todoService.findById(created.id());
+
+        assertThat(result.id()).isEqualTo(created.id());
+        assertThat(result.title()).isEqualTo("단건 조회 테스트");
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 ID 조회 시 예외를 던진다")
+    void findById_notFound_throws() {
+        assertThatThrownBy(() -> todoService.findById(999L))
+                .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("PATCH로 completed만 변경하면 나머지 필드는 유지된다")
+    void patch_onlyCompleted() {
+        TodoResponse created = todoService.create(
+                new TodoRequest("패치 테스트", "설명", Priority.HIGH, LocalDate.of(2026, 6, 1), null, null, null));
+
+        TodoResponse result = todoService.patch(created.id(),
+                new TodoPatchRequest(null, null, null, null, null, null, true));
+
+        assertThat(result.completed()).isTrue();
+        assertThat(result.completedAt()).isNotNull();
+        assertThat(result.title()).isEqualTo("패치 테스트");
+        assertThat(result.priority()).isEqualTo(Priority.HIGH);
+    }
+
+    @Test
+    @DisplayName("PATCH로 title만 변경하면 completed는 유지된다")
+    void patch_onlyTitle() {
+        TodoResponse created = todoService.create(
+                new TodoRequest("원래 제목", null, null, null, null, null, null));
+
+        TodoResponse result = todoService.patch(created.id(),
+                new TodoPatchRequest("새 제목", null, null, null, null, null, null));
+
+        assertThat(result.title()).isEqualTo("새 제목");
+        assertThat(result.completed()).isFalse();
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 Todo PATCH 시 예외를 던진다")
+    void patch_notFound_throws() {
+        assertThatThrownBy(() -> todoService.patch(999L,
+                new TodoPatchRequest(null, null, null, null, null, null, true)))
                 .isInstanceOf(EntityNotFoundException.class);
     }
 }

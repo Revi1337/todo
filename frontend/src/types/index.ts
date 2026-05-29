@@ -60,6 +60,7 @@ export interface CategoryStat {
 
 export interface DailyStat {
   date: string;
+  day: string | null;
   count: number;
 }
 
