@@ -1,7 +1,13 @@
+const dispatchUnauthorized = () => {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('unauthorized'))
+  }
+}
+
 export const fetcher = async (url: string) => {
   const res = await fetch(url)
   if (res.status === 401) {
-    if (typeof window !== 'undefined') window.location.href = '/login'
+    dispatchUnauthorized()
     throw new Error('Unauthorized')
   }
   const data = await res.json()
@@ -20,7 +26,7 @@ export const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
     },
   })
   if (res.status === 401) {
-    if (typeof window !== 'undefined') window.location.href = '/login'
+    dispatchUnauthorized()
     throw new Error('Unauthorized')
   }
   const data = await res.json()

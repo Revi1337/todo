@@ -17,8 +17,14 @@ export function AuthGuard() {
           .catch(() => router.replace("/login"))
       }
     }
+    const handleUnauthorized = () => router.replace("/login")
+
     window.addEventListener("pageshow", handlePageShow)
-    return () => window.removeEventListener("pageshow", handlePageShow)
+    window.addEventListener("unauthorized", handleUnauthorized)
+    return () => {
+      window.removeEventListener("pageshow", handlePageShow)
+      window.removeEventListener("unauthorized", handleUnauthorized)
+    }
   }, [router])
 
   return null

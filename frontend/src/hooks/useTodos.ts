@@ -5,7 +5,7 @@ import { Todo } from '@/types'
 const emptyTodos: Todo[] = []
 
 const invalidateTodos = () =>
-  globalMutate((key: unknown) => typeof key === 'string' && key.startsWith('/api/todos'), undefined, { revalidate: true })
+  globalMutate((key: unknown) => typeof key === 'string' && key.startsWith('/api/todos'))
 
 export function useTodos(queryParams = '') {
   const { data, error, isLoading, mutate } = useSWR<Todo[]>(
