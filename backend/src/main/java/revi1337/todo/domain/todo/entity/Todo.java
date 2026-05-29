@@ -29,7 +29,7 @@ public class Todo {
     @Column(nullable = false)
     private String title;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @Column(nullable = false)
@@ -59,7 +59,7 @@ public class Todo {
     private LocalDateTime completedAt;
 
     public Todo(String title, String description, Priority priority, LocalDate dueDate,
-                Category category, Set<Tag> tags, LocalDateTime createdAt) {
+            Category category, Set<Tag> tags, LocalDateTime createdAt) {
         this.title = Objects.requireNonNull(title, "title must not be null");
         this.description = description;
         this.priority = resolvePriority(priority);
@@ -71,7 +71,7 @@ public class Todo {
     }
 
     public void update(String title, String description, Priority priority, LocalDate dueDate,
-                       Category category, Set<Tag> tags, boolean completed, LocalDateTime now) {
+            Category category, Set<Tag> tags, boolean completed, LocalDateTime now) {
         this.title = Objects.requireNonNull(title, "title must not be null");
         this.description = description;
         this.priority = resolvePriority(priority);
@@ -95,9 +95,19 @@ public class Todo {
     }
 
     private void applyTags(Set<Tag> tags) {
-        this.todoTags.clear();
+        Set<Long> newTagIds = ObjectUtils.isEmpty(tags) ? new java.util.HashSet<>()
+                : tags.stream().map(Tag::getId).collect(Collectors.toSet());
+
+        this.todoTags.removeIf(todoTag -> !newTagIds.contains(todoTag.getTag().getId()));
+
         if (!ObjectUtils.isEmpty(tags)) {
-            tags.forEach(tag -> this.todoTags.add(new TodoTag(this, tag)));
+            Set<Long> currentTagIds = this.todoTags.stream()
+                    .map(tt -> tt.getTag().getId())
+                    .collect(Collectors.toSet());
+
+            tags.stream()
+                    .filter(tag -> !currentTagIds.contains(tag.getId()))
+                    .forEach(tag -> this.todoTags.add(new TodoTag(this, tag)));
         }
     }
 
