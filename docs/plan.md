@@ -196,10 +196,10 @@ git init
 **의존 단계**: Phase 11 완료 후
 
 #### Tasks
-- [ ] `src/mocks/todos.ts` — Todo, Category, Tag mock 데이터 정의
-- [ ] Todo 목록 컴포넌트 — 완료 토글(UI만), 우선순위 뱃지, D-day 뱃지
-- [ ] Todo 생성/수정 모달 — 전체 필드 입력 UI (제목, 설명, 카테고리, 태그, 우선순위, 마감일)
-- [ ] 필터 사이드바 — 카테고리, 태그, 우선순위, 완료 여부, 텍스트 검색 UI
+- [x] `src/mocks/todos.ts` — Todo, Category, Tag mock 데이터 정의
+- [x] Todo 목록 컴포넌트 — 완료 토글(UI만), 우선순위 뱃지, D-day 뱃지
+- [x] Todo 생성/수정 모달 — 전체 필드 입력 UI (제목, 설명, 카테고리, 태그, 우선순위, 마감일)
+- [x] 필터 사이드바 — 카테고리, 태그, 우선순위, 완료 여부, 텍스트 검색 UI
 
 ---
 
