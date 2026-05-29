@@ -18,6 +18,15 @@ export default function LoginPage() {
     setMounted(true)
   }, [])
 
+  // 로그인 페이지에서 뒤로가기 차단: 히스토리에 현재 엔트리를 밀어넣고
+  // popstate(뒤로가기/앞으로가기) 발생 시 다시 밀어넣어 이 페이지에 머물게 함
+  useEffect(() => {
+    window.history.pushState(null, '', '/login')
+    const onPopState = () => window.history.pushState(null, '', '/login')
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     await login(password)
