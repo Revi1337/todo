@@ -24,7 +24,9 @@ public class AuthFilter extends OncePerRequestFilter {
         String method = request.getMethod();
         String path = request.getRequestURI();
 
-        if (HttpMethod.GET.name().equalsIgnoreCase(method) || path.startsWith(AUTH_PATH_PREFIX)) {
+        if (HttpMethod.GET.name().equalsIgnoreCase(method)
+                || HttpMethod.OPTIONS.name().equalsIgnoreCase(method)
+                || path.startsWith(AUTH_PATH_PREFIX)) {
             chain.doFilter(request, response);
             return;
         }
