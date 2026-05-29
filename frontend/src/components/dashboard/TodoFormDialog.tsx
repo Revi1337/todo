@@ -96,6 +96,16 @@ export function TodoFormDialog({ open, onClose, todo, defaultDueDate }: Props) {
   const toggleTag = (id: number) =>
     setSelectedTagIds(prev => prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id])
 
+  const handleCategoryChange = (v: string | null) => {
+    setCategoryId(v === "none" ? "" : (v || ""))
+  }
+
+  const getCategoryDisplay = () => {
+    if (!categoryId) return "선택 없음"
+    const category = categories.find(c => String(c.id) === categoryId)
+    return category ? category.name : "선택 없음"
+  }
+
   const isReadOnly = mode === "view"
 
   return (
@@ -170,12 +180,14 @@ export function TodoFormDialog({ open, onClose, todo, defaultDueDate }: Props) {
             </div>
             <div className="flex flex-col gap-1.5">
               <Label className="text-sm font-semibold">카테고리</Label>
-              <Select value={categoryId} onValueChange={v => setCategoryId(v ?? "")} disabled={isReadOnly}>
-                <SelectTrigger className="bg-background/50 h-10 rounded-lg border-input disabled:opacity-100">
-                  <SelectValue placeholder="선택 없음" />
+              <Select value={categoryId} onValueChange={handleCategoryChange} disabled={isReadOnly}>
+                <SelectTrigger className="w-full !h-10 bg-background/50 rounded-lg border-input disabled:opacity-100">
+                  <SelectValue placeholder="선택 없음">
+                    {getCategoryDisplay()}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">선택 없음</SelectItem>
+                  <SelectItem value="none">선택 없음</SelectItem>
                   {categories.map(c => (
                     <SelectItem key={c.id} value={String(c.id)}>
                       <span className="flex items-center gap-2">
@@ -200,11 +212,10 @@ export function TodoFormDialog({ open, onClose, todo, defaultDueDate }: Props) {
                     type="button"
                     onClick={(e) => { e.preventDefault(); toggleTag(tag.id); }}
                     disabled={isReadOnly}
-                    className={`px-3 py-1 rounded-full border text-xs font-semibold transition-all disabled:opacity-80 disabled:cursor-not-allowed ${
-                      selectedTagIds.includes(tag.id)
-                        ? "bg-primary text-primary-foreground border-primary"
-                        : "bg-background/50 text-muted-foreground border-border/50 hover:border-primary/50"
-                    }`}
+                    className={`px-3 py-1 rounded-full border text-xs font-semibold transition-all disabled:opacity-80 disabled:cursor-not-allowed ${selectedTagIds.includes(tag.id)
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-background/50 text-muted-foreground border-border/50 hover:border-primary/50"
+                      }`}
                   >
                     {tag.name}
                   </button>

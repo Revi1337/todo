@@ -44,6 +44,15 @@ export function TodoCard({ todo, index, onToggle, onEdit, onDelete }: TodoCardPr
             </div>
 
             <div className="flex items-center gap-2 shrink-0 ml-auto">
+              {todo.tags?.length > 0 && (
+                <div className="flex items-center gap-1">
+                  {todo.tags.map(tag => (
+                    <span key={tag.id} className="text-[10px] font-medium text-muted-foreground bg-muted/40 px-2 py-0.5 rounded-full border border-border/50">
+                      #{tag.name}
+                    </span>
+                  ))}
+                </div>
+              )}
               {todo.category && (
                 <div className="flex items-center gap-1 text-[10px] font-medium text-muted-foreground bg-muted/30 px-2 py-0.5 rounded-full">
                   <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: todo.category.color }} />
