@@ -41,7 +41,7 @@ export function SidebarNav({ onItemClick }: { onItemClick?: () => void }) {
 
 export function Sidebar() {
   return (
-    <aside className="w-[260px] h-screen fixed top-0 left-0 pt-20 pb-6 px-4 hidden md:flex flex-col glass z-40 border-r border-border/50">
+    <aside className="w-[260px] h-screen fixed top-0 left-0 pt-20 pb-6 px-4 hidden lg:flex flex-col glass z-40 border-r border-border/50">
       <div className="mt-4">
         <SidebarNav />
       </div>

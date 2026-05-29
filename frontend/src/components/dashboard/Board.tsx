@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus, Search, Calendar as CalendarIcon, Clock, Ban } from "lucide-react"
+import { Plus, Search, Clock, Ban } from "lucide-react"
 import dayjs from "dayjs"
 import { Todo } from "@/types"
 
@@ -18,10 +18,10 @@ const priorityColors = {
 }
 
 export function Board() {
-  const { todos: swrTodos, toggleTodo, updateTodo, isLoading } = useTodos()
+  const { todos: swrTodos, toggleTodo, isLoading } = useTodos()
   const [localTodos, setLocalTodos] = useState<Todo[]>([])
   const [search, setSearch] = useState("")
-  const [isDragging, setIsDragging] = useState(false)
+  const [draggingFromId, setDraggingFromId] = useState<string | null>(null)
 
   React.useEffect(() => {
     if (swrTodos) setLocalTodos(swrTodos)
@@ -30,10 +30,10 @@ export function Board() {
   const activeTodos = localTodos.filter(t => !t.completed && t.title.toLowerCase().includes(search.toLowerCase()))
   const completedTodos = localTodos.filter(t => t.completed && t.title.toLowerCase().includes(search.toLowerCase()))
 
-  const onDragStart = () => setIsDragging(true)
+  const onDragStart = (start: any) => setDraggingFromId(start.source.droppableId)
 
   const onDragEnd = (result: any) => {
-    setIsDragging(false)
+    setDraggingFromId(null)
     if (!result.destination) return
     const { source, destination } = result
 
@@ -78,12 +78,12 @@ export function Board() {
       <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
         <div className="flex-1 grid grid-cols-2 gap-6 h-full min-h-0 overflow-hidden">
           <Column title="할 일" id="ACTIVE" todos={activeTodos} toggleTodo={handleToggleTodo} scrollable />
-          <Column title="완료됨" id="COMPLETED" todos={completedTodos} toggleTodo={handleToggleTodo} isDropDisabled isDragActive={isDragging} />
+          <Column title="완료됨" id="COMPLETED" todos={completedTodos} toggleTodo={handleToggleTodo} isDropDisabled={draggingFromId === "ACTIVE"} isDragActive={draggingFromId === "ACTIVE"} />
         </div>
       </DragDropContext>
 
       {/* Sidebar Filter */}
-      <div className="w-64 shrink-0 flex flex-col gap-6">
+      <div className="w-64 shrink-0 hidden xl:flex flex-col gap-6">
         <div>
           <h2 className="text-2xl font-bold tracking-tight mb-4">대시보드</h2>
           <Button className="w-full justify-start gap-2 rounded-full" size="lg">
