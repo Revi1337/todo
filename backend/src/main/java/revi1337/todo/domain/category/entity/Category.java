@@ -33,4 +33,9 @@ public class Category {
         this.color = Objects.requireNonNull(color, "color must not be null");
         this.createdAt = Objects.requireNonNull(createdAt, "createdAt must not be null");
     }
+
+    public void update(String name, String color) {
+        this.name = Objects.requireNonNull(name, "name must not be null");
+        this.color = Objects.requireNonNull(color, "color must not be null");
+    }
 }

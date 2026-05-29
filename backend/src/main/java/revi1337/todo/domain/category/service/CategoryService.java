@@ -3,6 +3,7 @@ package revi1337.todo.domain.category.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import jakarta.persistence.EntityNotFoundException;
 import revi1337.todo.domain.category.entity.Category;
 import revi1337.todo.domain.category.repository.CategoryRepository;
 import revi1337.todo.domain.category.service.dto.CategoryResponse;
@@ -26,6 +27,14 @@ public class CategoryService {
         return categoryRepository.findAll().stream()
                 .map(CategoryResponse::from)
                 .toList();
+    }
+
+    @Transactional
+    public CategoryResponse update(Long id, String name, String color) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Category not found: " + id));
+        category.update(name, color);
+        return CategoryResponse.from(category);
     }
 
     @Transactional

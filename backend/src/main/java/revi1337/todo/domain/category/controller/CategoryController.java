@@ -5,9 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import revi1337.todo.common.ApiResponse;
+import revi1337.todo.domain.category.service.CategoryService;
 import revi1337.todo.domain.category.service.dto.CategoryCreateRequest;
 import revi1337.todo.domain.category.service.dto.CategoryResponse;
-import revi1337.todo.domain.category.service.CategoryService;
+import revi1337.todo.domain.category.service.dto.CategoryUpdateRequest;
 
 import java.util.List;
 
@@ -27,6 +28,11 @@ public class CategoryController {
     @GetMapping
     public ApiResponse<List<CategoryResponse>> findAll() {
         return ApiResponse.ok(categoryService.findAll());
+    }
+
+    @PutMapping("/{id}")
+    public ApiResponse<CategoryResponse> update(@PathVariable Long id, @RequestBody @Valid CategoryUpdateRequest request) {
+        return ApiResponse.ok(categoryService.update(id, request.name(), request.color()));
     }
 
     @DeleteMapping("/{id}")

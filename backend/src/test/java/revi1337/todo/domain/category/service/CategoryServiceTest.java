@@ -1,5 +1,6 @@
 package revi1337.todo.domain.category.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import revi1337.todo.domain.category.service.dto.CategoryResponse;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @Transactional
@@ -38,6 +40,24 @@ class CategoryServiceTest {
         List<CategoryResponse> result = categoryService.findAll();
 
         assertThat(result).hasSize(2);
+    }
+
+    @Test
+    @DisplayName("Category의 name과 color를 수정한다")
+    void update() {
+        CategoryResponse saved = categoryService.save("개발", "#6366f1");
+
+        CategoryResponse result = categoryService.update(saved.id(), "업무", "#f59e0b");
+
+        assertThat(result.name()).isEqualTo("업무");
+        assertThat(result.color()).isEqualTo("#f59e0b");
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 Category 수정 시 예외를 던진다")
+    void update_notFound_throws() {
+        assertThatThrownBy(() -> categoryService.update(999L, "업무", "#f59e0b"))
+                .isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
