@@ -1,11 +1,17 @@
 "use client"
 
 import React from "react"
-import { mockStats } from "@/mocks/stats"
+import { useStats } from "@/hooks/useStats"
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
 import { Progress } from "@/components/ui/progress"
 
 export function StatsView() {
+  const { stats, isLoading } = useStats()
+
+  if (isLoading || !stats) {
+    return <div className="p-8 flex justify-center text-muted-foreground">로딩 중...</div>
+  }
+
   return (
     <div className="flex flex-col gap-6 h-full pb-8">
       <div>
@@ -18,10 +24,10 @@ export function StatsView() {
         <div className="bg-card/50 p-6 rounded-[24px] border border-border/50 shadow-sm flex flex-col justify-center hover:-translate-y-1 transition-transform backdrop-blur-sm">
           <h3 className="text-lg font-bold text-muted-foreground mb-6">전체 달성률</h3>
           <div className="flex items-end gap-2 mb-6">
-            <span className="text-6xl font-black tracking-tighter text-primary">{mockStats.completionRate}</span>
+            <span className="text-6xl font-black tracking-tighter text-primary">{stats.completionRate}</span>
             <span className="text-2xl font-bold text-muted-foreground mb-2">%</span>
           </div>
-          <Progress value={mockStats.completionRate} className="h-4 rounded-full bg-muted/50" />
+          <Progress value={stats.completionRate} className="h-4 rounded-full bg-muted/50" />
         </div>
 
         {/* Category Stats */}
@@ -31,7 +37,7 @@ export function StatsView() {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={mockStats.categoryStats}
+                  data={stats.categoryStats}
                   cx="50%"
                   cy="50%"
                   innerRadius={65}
@@ -41,7 +47,7 @@ export function StatsView() {
                   stroke="none"
                   cornerRadius={10}
                 >
-                  {mockStats.categoryStats.map((entry, index) => (
+                  {stats.categoryStats.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
@@ -53,7 +59,7 @@ export function StatsView() {
             </ResponsiveContainer>
           </div>
           <div className="flex justify-center gap-5 mt-4">
-            {mockStats.categoryStats.map(cat => (
+            {stats.categoryStats.map(cat => (
               <div key={cat.name} className="flex items-center gap-2 text-sm font-semibold">
                 <span className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: cat.color }} />
                 {cat.name}
@@ -67,7 +73,7 @@ export function StatsView() {
           <h3 className="text-lg font-bold text-muted-foreground mb-6">이번 주 완료 추이</h3>
           <div className="h-[220px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={mockStats.weeklyTrend}>
+              <BarChart data={stats.weeklyTrend}>
                 <XAxis dataKey="day" axisLine={false} tickLine={false} fontSize={13} fontWeight={600} tickMargin={12} stroke="currentColor" opacity={0.6} />
                 <Tooltip 
                   cursor={{ fill: 'var(--color-primary)', opacity: 0.05 }}
@@ -85,7 +91,7 @@ export function StatsView() {
         <h3 className="text-lg font-bold text-muted-foreground mb-6">이번 달 완료 추이</h3>
         <div className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={mockStats.monthlyTrend}>
+            <BarChart data={stats.monthlyTrend}>
               <XAxis dataKey="date" axisLine={false} tickLine={false} fontSize={12} fontWeight={600} tickMargin={12} minTickGap={10} stroke="currentColor" opacity={0.6} />
               <YAxis axisLine={false} tickLine={false} fontSize={12} fontWeight={600} stroke="currentColor" opacity={0.6} />
               <Tooltip 

@@ -280,8 +280,8 @@ git init
 **의존 단계**: Phase 18 완료 후
 
 #### Tasks
-- [ ] `src/hooks/useStats.ts` — `GET /api/stats` 호출
-- [ ] 통계 페이지 컴포넌트에서 `src/mocks/stats.ts` 제거, `useStats` 훅으로 교체
+- [x] `src/hooks/useStats.ts` — `GET /api/stats` 호출
+- [x] 통계 페이지 컴포넌트에서 `src/mocks/stats.ts` 제거, `useStats` 훅으로 교체
 
 ---
 
