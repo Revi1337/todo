@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import revi1337.todo.domain.todo.entity.Priority;
+import revi1337.todo.domain.todo.service.dto.ReorderRequest;
 import revi1337.todo.domain.todo.service.dto.TodoFilterRequest;
 import revi1337.todo.domain.todo.service.dto.TodoPatchRequest;
 import revi1337.todo.domain.todo.service.dto.TodoRequest;
@@ -48,6 +49,25 @@ class TodoServiceTest {
         List<TodoResponse> result = todoService.findAll(new TodoFilterRequest(null, null, null, null, null, null));
 
         assertThat(result).hasSize(2);
+    }
+
+    @Test
+    @DisplayName("전체 목록은 position ASC 순으로 반환된다")
+    void findAll_orderedByPosition() {
+        TodoResponse a = todoService.create(new TodoRequest("A", null, null, null, null, null, null));
+        TodoResponse b = todoService.create(new TodoRequest("B", null, null, null, null, null, null));
+        TodoResponse c = todoService.create(new TodoRequest("C", null, null, null, null, null, null));
+
+        todoService.reorder(List.of(
+                new ReorderRequest.ReorderItem(c.id(), 0),
+                new ReorderRequest.ReorderItem(a.id(), 1),
+                new ReorderRequest.ReorderItem(b.id(), 2)
+        ));
+
+        List<TodoResponse> result = todoService.findAll(new TodoFilterRequest(null, null, null, null, null, null));
+
+        assertThat(result).extracting(TodoResponse::title)
+                .containsExactly("C", "A", "B");
     }
 
     @Test
@@ -99,38 +119,96 @@ class TodoServiceTest {
     }
 
     @Test
-    @DisplayName("PATCH로 completed만 변경하면 나머지 필드는 유지된다")
-    void patch_onlyCompleted() {
+    @DisplayName("PATCH로 completed true 전환 시 completedAt이 설정된다")
+    void patch_completed() {
         TodoResponse created = todoService.create(
                 new TodoRequest("패치 테스트", "설명", Priority.HIGH, LocalDate.of(2026, 6, 1), null, null, null));
 
-        TodoResponse result = todoService.patch(created.id(),
-                new TodoPatchRequest(null, null, null, null, null, null, true));
+        TodoResponse result = todoService.patch(created.id(), new TodoPatchRequest(true));
 
         assertThat(result.completed()).isTrue();
         assertThat(result.completedAt()).isNotNull();
-        assertThat(result.title()).isEqualTo("패치 테스트");
-        assertThat(result.priority()).isEqualTo(Priority.HIGH);
     }
 
     @Test
-    @DisplayName("PATCH로 title만 변경하면 completed는 유지된다")
-    void patch_onlyTitle() {
-        TodoResponse created = todoService.create(
-                new TodoRequest("원래 제목", null, null, null, null, null, null));
+    @DisplayName("completed가 null이면 변경 없이 그대로 반환한다")
+    void patch_nullCompleted_noChange() {
+        TodoResponse created = todoService.create(new TodoRequest("테스트", null, null, null, null, null, null));
 
-        TodoResponse result = todoService.patch(created.id(),
-                new TodoPatchRequest("새 제목", null, null, null, null, null, null));
+        TodoResponse result = todoService.patch(created.id(), new TodoPatchRequest(null));
 
-        assertThat(result.title()).isEqualTo("새 제목");
         assertThat(result.completed()).isFalse();
+        assertThat(result.completedAt()).isNull();
     }
 
     @Test
     @DisplayName("존재하지 않는 Todo PATCH 시 예외를 던진다")
     void patch_notFound_throws() {
-        assertThatThrownBy(() -> todoService.patch(999L,
-                new TodoPatchRequest(null, null, null, null, null, null, true)))
+        assertThatThrownBy(() -> todoService.patch(999L, new TodoPatchRequest(true)))
+                .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("PATCH로 completed true 전환 시 position이 0으로 이동하고 기존 그룹이 당겨진다")
+    void patch_completedToggle_movesToPositionZero() {
+        TodoResponse a = todoService.create(new TodoRequest("A", null, null, null, null, null, null));
+        TodoResponse b = todoService.create(new TodoRequest("B", null, null, null, null, null, null));
+        todoService.reorder(List.of(
+                new ReorderRequest.ReorderItem(a.id(), 0),
+                new ReorderRequest.ReorderItem(b.id(), 1)
+        ));
+
+        TodoResponse result = todoService.patch(a.id(), new TodoPatchRequest(true));
+
+        assertThat(result.completed()).isTrue();
+        assertThat(result.position()).isEqualTo(0);
+
+        TodoResponse remaining = todoService.findById(b.id());
+        assertThat(remaining.position()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("PATCH로 completed false 전환 시 position이 0으로 이동하고 기존 active 그룹이 밀린다")
+    void patch_completedFalseToggle_movesToPositionZero() {
+        TodoResponse active = todoService.create(new TodoRequest("Active", null, null, null, null, null, null));
+        todoService.reorder(List.of(new ReorderRequest.ReorderItem(active.id(), 0)));
+
+        TodoResponse completed = todoService.patch(
+                todoService.create(new TodoRequest("Completed", null, null, null, null, null, null)).id(),
+                new TodoPatchRequest(true));
+
+        TodoResponse result = todoService.patch(completed.id(), new TodoPatchRequest(false));
+
+        assertThat(result.completed()).isFalse();
+        assertThat(result.position()).isEqualTo(0);
+
+        TodoResponse shifted = todoService.findById(active.id());
+        assertThat(shifted.position()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("reorder로 position을 일괄 변경한다")
+    void reorder() {
+        TodoResponse a = todoService.create(new TodoRequest("A", null, null, null, null, null, null));
+        TodoResponse b = todoService.create(new TodoRequest("B", null, null, null, null, null, null));
+        TodoResponse c = todoService.create(new TodoRequest("C", null, null, null, null, null, null));
+
+        todoService.reorder(List.of(
+                new ReorderRequest.ReorderItem(a.id(), 2),
+                new ReorderRequest.ReorderItem(b.id(), 0),
+                new ReorderRequest.ReorderItem(c.id(), 1)
+        ));
+
+        assertThat(todoService.findById(a.id()).position()).isEqualTo(2);
+        assertThat(todoService.findById(b.id()).position()).isEqualTo(0);
+        assertThat(todoService.findById(c.id()).position()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 ID로 reorder 시 예외를 던진다")
+    void reorder_notFound_throws() {
+        assertThatThrownBy(() -> todoService.reorder(
+                List.of(new ReorderRequest.ReorderItem(999L, 0))))
                 .isInstanceOf(EntityNotFoundException.class);
     }
 }

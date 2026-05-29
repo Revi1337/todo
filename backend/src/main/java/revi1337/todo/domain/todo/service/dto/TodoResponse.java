@@ -21,7 +21,8 @@ public record TodoResponse(
         Set<TagResponse> tags,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        LocalDateTime completedAt
+        LocalDateTime completedAt,
+        int position
 ) {
     public static TodoResponse from(Todo todo) {
         CategoryResponse category = todo.getCategory() != null
@@ -35,7 +36,8 @@ public record TodoResponse(
                 todo.getId(), todo.getTitle(), todo.getDescription(),
                 todo.isCompleted(), todo.getPriority(), todo.getDueDate(),
                 category, tags,
-                todo.getCreatedAt(), todo.getUpdatedAt(), todo.getCompletedAt()
+                todo.getCreatedAt(), todo.getUpdatedAt(), todo.getCompletedAt(),
+                todo.getPosition()
         );
     }
 }

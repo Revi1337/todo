@@ -31,6 +31,7 @@ export interface Todo {
   tags: Tag[];
   createdAt: string;
   updatedAt: string;
+  position: number;
 }
 
 export interface TodoRequest {
