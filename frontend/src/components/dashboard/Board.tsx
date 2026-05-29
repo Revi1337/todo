@@ -73,6 +73,14 @@ export function Board() {
 
   return (
     <div className="flex gap-8 h-full">
+      {/* Kanban Board */}
+      <DragDropContext onDragEnd={onDragEnd}>
+        <div className="flex-1 grid grid-cols-2 gap-6 items-start h-full">
+          <Column title="할 일" id="ACTIVE" todos={activeTodos} toggleTodo={handleToggleTodo} />
+          <Column title="완료됨" id="COMPLETED" todos={completedTodos} toggleTodo={handleToggleTodo} />
+        </div>
+      </DragDropContext>
+
       {/* Sidebar Filter */}
       <div className="w-64 shrink-0 flex flex-col gap-6">
         <div>
@@ -103,14 +111,6 @@ export function Board() {
           </div>
         </div>
       </div>
-
-      {/* Kanban Board */}
-      <DragDropContext onDragEnd={onDragEnd}>
-        <div className="flex-1 grid grid-cols-2 gap-6 items-start h-full">
-          <Column title="할 일" id="ACTIVE" todos={activeTodos} toggleTodo={handleToggleTodo} />
-          <Column title="완료됨" id="COMPLETED" todos={completedTodos} toggleTodo={handleToggleTodo} />
-        </div>
-      </DragDropContext>
     </div>
   )
 }
