@@ -31,9 +31,10 @@ export function useAuth() {
   const logout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' })
-      router.push('/login')
     } catch (err) {
       console.error(err)
+    } finally {
+      window.location.href = '/login'
     }
   }
 
