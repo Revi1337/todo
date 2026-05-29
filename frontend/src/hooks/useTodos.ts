@@ -8,7 +8,11 @@ const invalidateTodos = () =>
   globalMutate((key: unknown) => typeof key === 'string' && key.startsWith('/api/todos'), undefined, { revalidate: true })
 
 export function useTodos(queryParams = '') {
-  const { data, error, isLoading, mutate } = useSWR<Todo[]>(`/api/todos${queryParams}`, fetcher)
+  const { data, error, isLoading, mutate } = useSWR<Todo[]>(
+    `/api/todos${queryParams}`, 
+    fetcher, 
+    { keepPreviousData: true }
+  )
 
   const createTodo = async (todoData: Partial<Todo>) => {
     await fetchWithAuth('/api/todos', { method: 'POST', body: JSON.stringify(todoData) })

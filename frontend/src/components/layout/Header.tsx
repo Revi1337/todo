@@ -37,18 +37,18 @@ export function Header() {
             </div>
           </SheetContent>
         </Sheet>
-        
+
         <div className="flex items-center gap-2 hidden lg:flex">
           <CheckSquare className="w-6 h-6 text-primary" />
           <span className="font-bold text-lg tracking-tight leading-none pt-[2px]">Todo</span>
         </div>
       </div>
-      
+
       <div className="flex-1 max-w-xl mx-auto px-2 lg:px-6 hidden lg:block">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input 
-            placeholder="검색어를 입력하세요..." 
+          <Input
+            placeholder="검색어를 입력하세요..."
             className="w-full pl-10 bg-background/50 border-border/50 focus-visible:ring-primary backdrop-blur-md rounded-full"
           />
         </div>
@@ -65,7 +65,7 @@ export function Header() {
             {theme === "light" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
           </Button>
         )}
-        
+
 
       </div>
     </header>

@@ -39,10 +39,12 @@ export function TodoFormDialog({ open, onClose, todo, defaultDueDate }: Props) {
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [isEditMode, setIsEditMode] = useState(false)
 
   useEffect(() => {
     if (!open) return
     if (todo) {
+      setIsEditMode(false)
       setTitle(todo.title)
       setDescription(todo.description || "")
       setPriority(todo.priority)
@@ -50,6 +52,7 @@ export function TodoFormDialog({ open, onClose, todo, defaultDueDate }: Props) {
       setCategoryId(todo.category ? String(todo.category.id) : "")
       setSelectedTagIds(todo.tags.map(t => t.id))
     } else {
+      setIsEditMode(true)
       setTitle("")
       setDescription("")
       setPriority("MEDIUM")
@@ -95,7 +98,7 @@ export function TodoFormDialog({ open, onClose, todo, defaultDueDate }: Props) {
       <DialogContent className="sm:max-w-lg bg-card/95 backdrop-blur-xl border-border/60 rounded-2xl shadow-2xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold tracking-tight">
-            {todo ? "작업 수정" : "새 작업 추가"}
+            {!isEditMode && todo ? "작업 상세" : (todo ? "작업 수정" : "새 작업 추가")}
           </DialogTitle>
         </DialogHeader>
 
@@ -108,7 +111,8 @@ export function TodoFormDialog({ open, onClose, todo, defaultDueDate }: Props) {
               value={title}
               onChange={e => setTitle(e.target.value)}
               placeholder="할 일을 입력하세요"
-              className="bg-background/50 h-10"
+              className="bg-background/50 h-10 disabled:opacity-100"
+              disabled={!isEditMode}
             />
             {error && <p className="text-xs text-red-500">{error}</p>}
           </div>
@@ -121,8 +125,9 @@ export function TodoFormDialog({ open, onClose, todo, defaultDueDate }: Props) {
               value={description}
               onChange={e => setDescription(e.target.value)}
               placeholder="설명을 입력하세요 (선택)"
-              className="bg-background/50"
+              className="bg-background/50 disabled:opacity-100 min-h-[80px]"
               rows={3}
+              disabled={!isEditMode}
             />
           </div>
 
@@ -135,8 +140,9 @@ export function TodoFormDialog({ open, onClose, todo, defaultDueDate }: Props) {
                   key={opt.value}
                   type="button"
                   data-active={priority === opt.value}
-                  onClick={() => setPriority(opt.value)}
-                  className={`flex-1 py-1.5 rounded-full border text-xs font-semibold transition-all ${opt.color}`}
+                  onClick={(e) => { e.preventDefault(); setPriority(opt.value); }}
+                  disabled={!isEditMode}
+                  className={`flex-1 py-1.5 rounded-full border text-xs font-semibold transition-all disabled:opacity-70 disabled:cursor-not-allowed ${opt.color}`}
                 >
                   {opt.label}
                 </button>
@@ -153,13 +159,14 @@ export function TodoFormDialog({ open, onClose, todo, defaultDueDate }: Props) {
                 type="date"
                 value={dueDate}
                 onChange={e => setDueDate(e.target.value)}
-                className="bg-background/50 h-10"
+                className="bg-background/50 h-10 disabled:opacity-100"
+                disabled={!isEditMode}
               />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label className="text-sm font-semibold">카테고리</Label>
-              <Select value={categoryId} onValueChange={v => setCategoryId(v ?? "")}>
-                <SelectTrigger className="bg-background/50 h-10 rounded-lg border-input">
+              <Select value={categoryId} onValueChange={v => setCategoryId(v ?? "")} disabled={!isEditMode}>
+                <SelectTrigger className="bg-background/50 h-10 rounded-lg border-input disabled:opacity-100">
                   <SelectValue placeholder="선택 없음" />
                 </SelectTrigger>
                 <SelectContent>
@@ -186,8 +193,9 @@ export function TodoFormDialog({ open, onClose, todo, defaultDueDate }: Props) {
                   <button
                     key={tag.id}
                     type="button"
-                    onClick={() => toggleTag(tag.id)}
-                    className={`px-3 py-1 rounded-full border text-xs font-semibold transition-all ${
+                    onClick={(e) => { e.preventDefault(); toggleTag(tag.id); }}
+                    disabled={!isEditMode}
+                    className={`px-3 py-1 rounded-full border text-xs font-semibold transition-all disabled:opacity-80 disabled:cursor-not-allowed ${
                       selectedTagIds.includes(tag.id)
                         ? "bg-primary text-primary-foreground border-primary"
                         : "bg-background/50 text-muted-foreground border-border/50 hover:border-primary/50"
@@ -202,12 +210,25 @@ export function TodoFormDialog({ open, onClose, todo, defaultDueDate }: Props) {
 
           {/* 액션 버튼 */}
           <div className="flex justify-end gap-2 pt-1">
-            <Button type="button" variant="outline" onClick={onClose} className="rounded-full px-5" disabled={loading}>
-              취소
-            </Button>
-            <Button type="submit" className="rounded-full px-5" disabled={loading}>
-              {loading ? "저장 중..." : "저장하기"}
-            </Button>
+            {!isEditMode && todo ? (
+              <>
+                <Button type="button" variant="outline" onClick={(e) => { e.preventDefault(); onClose(); }} className="rounded-full px-5">
+                  닫기
+                </Button>
+                <Button type="button" onClick={(e) => { e.preventDefault(); setIsEditMode(true); }} className="rounded-full px-5">
+                  편집
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button type="button" variant="outline" onClick={(e) => { e.preventDefault(); todo ? setIsEditMode(false) : onClose(); }} className="rounded-full px-5" disabled={loading}>
+                  취소
+                </Button>
+                <Button type="submit" className="rounded-full px-5" disabled={loading}>
+                  {loading ? "저장 중..." : "저장하기"}
+                </Button>
+              </>
+            )}
           </div>
         </form>
       </DialogContent>

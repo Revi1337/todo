@@ -108,10 +108,15 @@ export function CalendarView() {
               <div key={todo.id} onClick={() => openEdit(todo)}
                 className="bg-card p-4 rounded-2xl shadow-sm border border-border/50 flex flex-col gap-2 hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer">
                 <div className="flex items-start gap-3">
-                  <Checkbox checked={todo.completed}
-                    onCheckedChange={() => handleToggle(todo)}
-                    onClick={e => e.stopPropagation()}
-                    className="mt-1 w-5 h-5 rounded-[4px]" />
+                  <div 
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Checkbox checked={todo.completed}
+                      onCheckedChange={() => handleToggle(todo)}
+                      className="mt-1 w-5 h-5 rounded-[4px]" />
+                  </div>
                   <span className={`font-medium leading-tight ${todo.completed ? "line-through text-muted-foreground" : ""}`}>
                     {todo.title}
                   </span>

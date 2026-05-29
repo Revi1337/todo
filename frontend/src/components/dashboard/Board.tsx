@@ -96,19 +96,27 @@ export function Board() {
     <>
       <div className="flex gap-8 h-full">
         <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
-          <div className="flex-1 grid grid-cols-2 gap-6 h-full min-h-0 overflow-hidden">
+          <div className="flex-1 grid grid-rows-2 gap-6 h-full min-h-0 overflow-hidden">
             <Column title="할 일" id="ACTIVE" todos={activeTodos}
               onToggle={handleToggle} onEdit={openEdit} onDelete={handleDelete} scrollable />
             <Column title="완료됨" id="COMPLETED" todos={completedTodos}
               onToggle={handleToggle} onEdit={openEdit} onDelete={handleDelete}
-              isDropDisabled={draggingFromId === "ACTIVE"} isDragActive={draggingFromId === "ACTIVE"} />
+              isDropDisabled={draggingFromId === "ACTIVE"} isDragActive={draggingFromId === "ACTIVE"} scrollable />
           </div>
         </DragDropContext>
 
         {/* 필터 사이드바 */}
         <div className="w-64 shrink-0 hidden xl:flex flex-col gap-6">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight mb-4">대시보드</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold tracking-tight">대시보드</h2>
+              <button 
+                onClick={() => { setFilter({}); setSearch(""); }} 
+                className="text-xs font-semibold text-muted-foreground hover:text-primary transition-colors px-2 py-1"
+              >
+                필터 초기화
+              </button>
+            </div>
             <Button onClick={openCreate} className="w-full justify-start gap-2 rounded-full" size="lg">
               <Plus className="w-5 h-5" /> 새 작업 추가
             </Button>
@@ -244,46 +252,50 @@ function Column({ title, id, todos, onToggle, onEdit, onDelete, scrollable, isDr
                 <Draggable key={todo.id} draggableId={todo.id.toString()} index={index}>
                   {(provided, snapshot) => (
                     <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}
-                      className={`group bg-card text-card-foreground p-5 rounded-2xl shadow-sm border border-border/80 flex flex-col mb-3 last:mb-0 transition-[box-shadow,opacity] duration-200 ${snapshot.isDragging ? "ring-2 ring-primary shadow-2xl opacity-95" : "hover:ring-2 hover:ring-primary"}`}>
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex items-start gap-3 flex-1">
+                      onClick={() => onEdit(todo)}
+                      className={`cursor-pointer group bg-card text-card-foreground p-3 rounded-xl shadow-sm border border-border/80 flex flex-col mb-2 last:mb-0 transition-[box-shadow,opacity] duration-200 ${snapshot.isDragging ? "ring-2 ring-primary shadow-xl opacity-95" : "hover:ring-2 hover:ring-primary"}`}>
+                      <div className="flex items-start gap-3 w-full">
+                        <div 
+                          onPointerDown={(e) => e.stopPropagation()} 
+                          onMouseDown={(e) => e.stopPropagation()} 
+                          onClick={(e) => e.stopPropagation()}
+                          className="shrink-0"
+                        >
                           <Checkbox checked={todo.completed} onCheckedChange={() => onToggle(todo.id)}
                             className="mt-1 w-5 h-5 rounded-[4px]" />
-                          <div className="flex flex-col gap-1.5">
-                            <span className={`font-medium leading-tight ${todo.completed ? "line-through text-muted-foreground" : ""}`}>
-                              {todo.title}
-                            </span>
-                            {todo.description && (
-                              <span className="text-sm text-muted-foreground line-clamp-2">{todo.description}</span>
-                            )}
-                          </div>
                         </div>
-                        <div className="flex flex-col items-end gap-2 shrink-0">
-                          <Badge variant="outline" className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${priorityColors[todo.priority]}`}>
-                            {todo.priority === "HIGH" ? "긴급" : todo.priority === "MEDIUM" ? "보통" : "낮음"}
-                          </Badge>
-                          {todo.dueDate && (
-                            <Badge variant="outline" className="rounded-full px-2.5 py-0.5 text-xs text-muted-foreground bg-background/50 border-border/50 gap-1">
-                              <Clock className="w-3 h-3" />
-                              {dayjs(todo.dueDate).format("MM.DD")}
-                            </Badge>
-                          )}
-                          {todo.category && (
-                            <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-muted/30 px-2.5 py-1 rounded-full">
-                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: todo.category.color }} />
-                              {todo.category.name}
+                        <div className="flex flex-col gap-2 min-w-0 flex-1">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex flex-col gap-1 min-w-0">
+                              <span className={`font-medium leading-tight truncate ${todo.completed ? "line-through text-muted-foreground" : ""}`}>
+                                {todo.title}
+                              </span>
                             </div>
-                          )}
-                          {/* 수정/삭제 */}
-                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onClick={e => { e.stopPropagation(); onEdit(todo) }}
-                              className="p-1 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
-                              <Pencil className="w-3.5 h-3.5" />
-                            </button>
-                            <button onClick={e => { e.stopPropagation(); onDelete(todo.id) }}
-                              className="p-1 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors">
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
+                            {/* 삭제 */}
+                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                              <button onClick={e => { e.stopPropagation(); onDelete(todo.id) }}
+                                className="p-1 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors">
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                          {/* Horizontal Breadcrumbs Container */}
+                          <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
+                            <Badge variant="outline" className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${priorityColors[todo.priority]}`}>
+                              {todo.priority === "HIGH" ? "긴급" : todo.priority === "MEDIUM" ? "보통" : "낮음"}
+                            </Badge>
+                            {todo.dueDate && (
+                              <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[10px] text-muted-foreground bg-background/50 border-border/50 gap-1">
+                                <Clock className="w-3 h-3" />
+                                {dayjs(todo.dueDate).format("MM.DD")}
+                              </Badge>
+                            )}
+                            {todo.category && (
+                              <div className="flex items-center gap-1 text-[10px] font-medium text-muted-foreground bg-muted/30 px-2 py-0.5 rounded-full">
+                                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: todo.category.color }} />
+                                {todo.category.name}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
