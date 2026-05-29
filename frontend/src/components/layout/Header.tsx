@@ -22,10 +22,8 @@ export function Header() {
     <header className="fixed top-0 left-0 right-0 h-16 z-50 glass flex items-center justify-between px-4 md:px-6 border-b border-border/50">
       <div className="flex items-center gap-3 md:w-[260px]">
         <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="md:hidden">
-              <Menu className="w-5 h-5" />
-            </Button>
+          <SheetTrigger render={<Button variant="ghost" size="icon" className="md:hidden" />}>
+            <Menu className="w-5 h-5" />
           </SheetTrigger>
           <SheetContent side="left" className="w-[260px] p-0 glass">
             <SheetHeader className="p-4 border-b border-border/50 text-left">
