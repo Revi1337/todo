@@ -132,15 +132,15 @@ git init
 
 ---
 
-### Phase 8. Nuxt 3 프론트엔드 초기화
+### Phase 8. Next.js 15 프론트엔드 초기화
 **목적**: 프론트엔드 프로젝트를 생성하고 백엔드 API 통신 환경을 갖춘다.
 **의존 단계**: Phase 4 완료 후 (Phase 5~7과 병렬 진행 가능)
 
 #### Tasks
-- [x] `frontend/` 디렉토리에 Nuxt 3 프로젝트 생성
-- [x] Tailwind CSS 설치/설정
-- [x] `lucide-vue-next`, `dayjs` 설치
-- [x] `nuxt.config.ts` — `/api/**` → `localhost:8080` 프록시 설정
+- [x] `frontend/` 디렉토리에 Next.js 15 프로젝트 생성 (TypeScript, Tailwind, App Router, src/)
+- [x] `lucide-react`, `dayjs`, `react-chartjs-2`, `chart.js` 설치
+- [x] `next.config.ts` — `/api/**` → `localhost:8080` 프록시 설정 (rewrites)
+- [x] `src/types/index.ts` — 공통 타입 정의 (Category, Tag, Todo, ApiResponse 등)
 
 ---
 
@@ -166,61 +166,61 @@ git init
 
 ---
 
+---
+> **전략: UI 선행 → API 후행**
+> Phase 11~16에서 모든 페이지의 UI 껍데기를 mock 데이터로 완성한 뒤, Phase 17~20에서 실제 API를 일괄 연결한다.
+> 이유: 디자인 일관성 유지, 에이전트 환각 방지, 컴포넌트 재사용성 극대화.
+---
+
 ### Phase 11. 기본 레이아웃 작성
 **목적**: 모든 페이지가 공유하는 네비게이션 레이아웃을 구성한다.
 **의존 단계**: Phase 10 완료 후
 
 #### Tasks
-- [ ] `layouts/default.vue` — 상단 네비게이션 바 (`/`, `/calendar`, `/stats` 링크)
-- [ ] `app.vue` — NuxtLayout, NuxtPage 연결
+- [ ] `src/app/layout.tsx` — 상단 네비게이션 바 (`/`, `/calendar`, `/stats`, `/login` 링크) 포함 루트 레이아웃
 
 ---
 
-### Phase 12. 메인 페이지 (`/`) 구현
-**목적**: Todo 목록 조회, 생성/수정/삭제, 필터 기능을 가진 메인 화면을 완성한다.
-**의존 단계**: Phase 6, Phase 11 완료 후
+### Phase 12. 로그인 페이지 UI
+**목적**: 로그인 화면의 UI 껍데기만 완성한다. API 연결은 Phase 17에서 수행한다.
+**의존 단계**: Phase 11 완료 후
 
 #### Tasks
-- [ ] `useTodos` composable 작성 — API 호출, 상태 관리
-- [ ] `useCategories`, `useTags` composable 작성
-- [ ] Todo 목록 컴포넌트 — 완료 토글, 우선순위 뱃지, D-day 뱃지
-- [ ] Todo 생성/수정 모달 — 전체 필드 입력 (제목, 설명, 카테고리, 태그, 우선순위, 마감일)
-- [ ] 필터 사이드바 — 카테고리, 태그, 우선순위, 완료 여부, 텍스트 검색
+- [ ] `src/app/login/page.tsx` — 로그인 폼 UI (비밀번호 입력 필드, 제출 버튼, 에러 메시지 영역)
+- [ ] 폼 제출 시 콘솔 로그만 출력 (실제 API 호출 없음)
 
 ---
 
-### Phase 13. 프론트엔드 인증 구현
-**목적**: 백엔드 인증 API와 연동하는 프론트엔드 인증 레이어를 추가한다.
-**의존 단계**: Phase 10, Phase 12 완료 후
+### Phase 13. 메인 페이지 UI (`/`)
+**목적**: Todo 목록, 생성/수정/삭제 모달, 필터 사이드바의 UI 껍데기를 mock 데이터로 완성한다. API 연결은 Phase 18에서 수행한다.
+**의존 단계**: Phase 11 완료 후
 
 #### Tasks
-- [ ] `frontend/app/composables/useAuth.ts` — login/logout/me API 호출
-- [ ] `frontend/app/middleware/auth.ts` — 미인증 시 `/login` 리다이렉트
-- [ ] `frontend/app/pages/login.vue` — 로그인 폼
+- [ ] `src/mocks/todos.ts` — Todo, Category, Tag mock 데이터 정의
+- [ ] Todo 목록 컴포넌트 — 완료 토글(UI만), 우선순위 뱃지, D-day 뱃지
+- [ ] Todo 생성/수정 모달 — 전체 필드 입력 UI (제목, 설명, 카테고리, 태그, 우선순위, 마감일)
+- [ ] 필터 사이드바 — 카테고리, 태그, 우선순위, 완료 여부, 텍스트 검색 UI
 
 ---
 
-### Phase 14. 캘린더 페이지 (`/calendar`) 구현
-**목적**: 날짜별 Todo 시각화 및 날짜 클릭 시 CRUD 기능을 완성한다.
-**의존 단계**: Phase 6, Phase 11 완료 후
+### Phase 14. 캘린더 페이지 UI (`/calendar`)
+**목적**: 월간 캘린더와 날짜 클릭 패널의 UI 껍데기를 mock 데이터로 완성한다. API 연결은 Phase 19에서 수행한다.
+**의존 단계**: Phase 11 완료 후
 
 #### Tasks
-- [ ] `v-calendar` 설치 및 월간 캘린더 렌더링
-- [ ] 날짜별 Todo 뱃지 표시 (해당 날짜 Todo 수)
-- [ ] 날짜 클릭 → 해당 날짜 Todo 목록 패널/모달 표시
-  - GET `/api/todos?dueDate={date}` 호출
-- [ ] 날짜 패널에서 Todo 생성 — 클릭한 날짜가 마감일로 자동 설정
-- [ ] 날짜 패널에서 Todo 수정/삭제
+- [ ] dayjs + Tailwind로 월간 캘린더 직접 구현
+- [ ] 날짜별 Todo 뱃지 표시 (mock 데이터 기반 Todo 수)
+- [ ] 날짜 클릭 → 해당 날짜 Todo 목록 패널/모달 표시 (mock 데이터)
+- [ ] 날짜 패널에서 Todo 생성/수정/삭제 UI (폼만, 실제 저장 없음)
 
 ---
 
-### Phase 15. 통계 페이지 (`/stats`) 구현
-**목적**: 완료율, 카테고리별 현황, 주간/월간 추이 차트를 완성한다.
-**의존 단계**: Phase 7, Phase 11 완료 후
+### Phase 15. 통계 페이지 UI (`/stats`)
+**목적**: 완료율, 카테고리별 현황, 주간/월간 추이 차트의 UI 껍데기를 mock 데이터로 완성한다. API 연결은 Phase 20에서 수행한다.
+**의존 단계**: Phase 11 완료 후
 
 #### Tasks
-- [ ] `chart.js` + `vue-chartjs` 설치
-- [ ] `useStats` composable 작성
+- [ ] `src/mocks/stats.ts` — Stats mock 데이터 정의
 - [ ] 전체 완료율 카드 (숫자 + 프로그레스 바)
 - [ ] 카테고리별 현황 (도넛 또는 바차트)
 - [ ] 이번 주 완료 추이 바차트 (월~일, 7개 막대)
@@ -229,7 +229,7 @@ git init
 ---
 
 ### Phase 16. UI 마무리
-**목적**: 디자인 일관성과 반응형을 완성한다.
+**목적**: 디자인 일관성과 반응형을 완성한다. API 연결 전에 UI를 완전히 다듬는다.
 **의존 단계**: Phase 13, Phase 14, Phase 15 완료 후
 
 #### Tasks
@@ -240,6 +240,51 @@ git init
 
 ---
 
+### Phase 17. 인증 API 연결
+**목적**: 로그인 페이지와 백엔드 인증 API를 연결하고, 미인증 접근을 차단한다.
+**의존 단계**: Phase 16 완료 후
+
+#### Tasks
+- [ ] `src/hooks/useAuth.ts` — `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me` 호출
+- [ ] `src/middleware.ts` (루트 레벨) — 미인증 시 `/login` 리다이렉트
+- [ ] `src/app/login/page.tsx` — 폼 제출을 `useAuth.login`으로 교체 (Phase 12 mock 제거)
+
+---
+
+### Phase 18. 메인 페이지 API 연결
+**목적**: 메인 페이지의 mock 데이터를 실제 API 호출로 교체한다.
+**의존 단계**: Phase 17 완료 후
+
+#### Tasks
+- [ ] `src/hooks/useTodos.ts` — `GET/POST/PUT/DELETE /api/todos` 호출, 상태 관리
+- [ ] `src/hooks/useCategories.ts` — `GET/POST/DELETE /api/categories` 호출
+- [ ] `src/hooks/useTags.ts` — `GET/POST /api/tags` 호출
+- [ ] 메인 페이지 컴포넌트에서 `src/mocks/todos.ts` 제거, 위 훅으로 교체
+- [ ] mutation 훅에 401 응답 처리 추가 (→ `/login` 리다이렉트)
+
+---
+
+### Phase 19. 캘린더 페이지 API 연결
+**목적**: 캘린더 페이지의 mock 데이터를 실제 API 호출로 교체한다.
+**의존 단계**: Phase 18 완료 후
+
+#### Tasks
+- [ ] 캘린더 컴포넌트에서 `src/mocks/todos.ts` 제거, `useTodos` 훅으로 교체
+- [ ] 날짜 클릭 패널 — `GET /api/todos?dueDate={date}` 실제 호출
+- [ ] 날짜 패널 Todo 생성 시 클릭한 날짜를 `dueDate`로 자동 설정하여 실제 저장
+
+---
+
+### Phase 20. 통계 페이지 API 연결
+**목적**: 통계 페이지의 mock 데이터를 실제 API 호출로 교체한다.
+**의존 단계**: Phase 18 완료 후
+
+#### Tasks
+- [ ] `src/hooks/useStats.ts` — `GET /api/stats` 호출
+- [ ] 통계 페이지 컴포넌트에서 `src/mocks/stats.ts` 제거, `useStats` 훅으로 교체
+
+---
+
 ## 4. 위험 요소 & 대응
 
 | 위험 | 가능성 | 대응 |
@@ -247,6 +292,5 @@ git init
 | Supabase 연결 정보 누락/오류 | 중 | 환경변수 설정 후 `bootRun` 전 연결 확인 |
 | PostgreSQL 타입 변경으로 JPA 매핑 오류 | 중 | Phase 9 직후 앱 기동 및 CRUD 동작 확인 |
 | 세션 쿠키가 배포 도메인에서 전달 안 됨 | 중 | CORS `allowCredentials`, `SameSite` 설정 확인 |
-| `v-calendar` + Nuxt 3 버전 충돌 | 낮 | 설치 전 호환 버전 확인 |
 | 주간 통계 월요일 기준 계산 오류 | 중 | 다양한 요일에서 테스트 |
 | 월간 통계 빈 날짜 처리 누락 | 중 | 응답에 0인 날짜도 포함되는지 확인 |
