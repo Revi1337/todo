@@ -251,6 +251,14 @@ function Column({ title, id, todos, onToggle, onEdit, onDelete, scrollable, drag
 
             <div className={`flex-1 min-h-0 p-1 -m-1 ${scrollable ? "overflow-y-auto scrollbar-hide" : "overflow-visible"}`}>
               <div {...provided.droppableProps} ref={provided.innerRef} className="flex flex-col min-h-full pr-2">
+                {todos.length === 0 && (
+                  <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground/60 min-h-[150px] gap-2">
+                    <span className="text-sm font-medium">
+                      {id === "ACTIVE" ? "등록된 할 일이 없습니다!" : "아직 완료된 할 일이 없네요."}
+                    </span>
+                    {id === "ACTIVE" && <span className="text-xs">새로운 할 일을 추가해보세요.</span>}
+                  </div>
+                )}
                 {todos.map((todo, index) => (
                   <Draggable key={todo.id} draggableId={todo.id.toString()} index={index}>
                     {(provided, snapshot) => (
