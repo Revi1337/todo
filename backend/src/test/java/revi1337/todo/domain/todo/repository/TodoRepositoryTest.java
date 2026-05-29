@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import revi1337.todo.domain.category.entity.Category;
 import revi1337.todo.domain.category.repository.CategoryRepository;
@@ -99,56 +98,5 @@ class TodoRepositoryTest {
         List<Todo> result = todoRepository.findAll(Specification.where(isCompleted(true)));
 
         assertThat(result).hasSize(1);
-    }
-
-    @Test
-    @DisplayName("position으로 정렬해서 조회한다")
-    void findAllOrderByPosition() {
-        Todo a = todoRepository.save(new Todo("A", null, null, null, null, null, NOW));
-        Todo b = todoRepository.save(new Todo("B", null, null, null, null, null, NOW));
-        Todo c = todoRepository.save(new Todo("C", null, null, null, null, null, NOW));
-        a.updatePosition(2);
-        b.updatePosition(0);
-        c.updatePosition(1);
-
-        List<Todo> result = todoRepository.findAll(Sort.by(Sort.Direction.ASC, "position"));
-
-        assertThat(result).extracting(Todo::getTitle)
-                .containsExactly("B", "C", "A");
-    }
-
-    @Test
-    @DisplayName("incrementPositions는 해당 그룹 전체 position을 +1 한다")
-    void incrementPositions() {
-        Todo a = todoRepository.save(new Todo("A", null, null, null, null, null, NOW));
-        Todo b = todoRepository.save(new Todo("B", null, null, null, null, null, NOW));
-        a.updatePosition(0);
-        b.updatePosition(1);
-        todoRepository.flush();
-
-        todoRepository.incrementPositions(false);
-        todoRepository.flush();
-
-        assertThat(todoRepository.findById(a.getId()).get().getPosition()).isEqualTo(1);
-        assertThat(todoRepository.findById(b.getId()).get().getPosition()).isEqualTo(2);
-    }
-
-    @Test
-    @DisplayName("decrementPositionsAfter는 지정 position 이후만 -1 한다")
-    void decrementPositionsAfter() {
-        Todo a = todoRepository.save(new Todo("A", null, null, null, null, null, NOW));
-        Todo b = todoRepository.save(new Todo("B", null, null, null, null, null, NOW));
-        Todo c = todoRepository.save(new Todo("C", null, null, null, null, null, NOW));
-        a.updatePosition(0);
-        b.updatePosition(1);
-        c.updatePosition(2);
-        todoRepository.flush();
-
-        todoRepository.decrementPositionsAfter(false, 0);
-        todoRepository.flush();
-
-        assertThat(todoRepository.findById(a.getId()).get().getPosition()).isEqualTo(0);
-        assertThat(todoRepository.findById(b.getId()).get().getPosition()).isEqualTo(0);
-        assertThat(todoRepository.findById(c.getId()).get().getPosition()).isEqualTo(1);
     }
 }

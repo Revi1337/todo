@@ -2,7 +2,6 @@ package revi1337.todo.domain.todo.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import revi1337.todo.domain.stats.controller.dto.StatsResponse.CategoryStat;
@@ -34,12 +33,4 @@ public interface TodoRepository extends JpaRepository<Todo, Long>, JpaSpecificat
             GROUP BY completed_at::date
             """, nativeQuery = true)
     List<Object[]> findDailyCompletedBetween(@Param("from") LocalDate from, @Param("to") LocalDate to);
-
-    @Modifying(clearAutomatically = true)
-    @Query("UPDATE Todo t SET t.position = t.position + 1 WHERE t.completed = :completed")
-    void incrementPositions(@Param("completed") boolean completed);
-
-    @Modifying(clearAutomatically = true)
-    @Query("UPDATE Todo t SET t.position = t.position - 1 WHERE t.completed = :completed AND t.position > :afterPosition")
-    void decrementPositionsAfter(@Param("completed") boolean completed, @Param("afterPosition") int afterPosition);
 }

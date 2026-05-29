@@ -58,9 +58,6 @@ public class Todo {
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
-    @Column(nullable = false)
-    private int position = 0;
-
     public Todo(String title, String description, Priority priority, LocalDate dueDate,
             Category category, Set<Tag> tags, LocalDateTime createdAt) {
         this.title = Objects.requireNonNull(title, "title must not be null");
@@ -114,11 +111,7 @@ public class Todo {
         }
     }
 
-    public void updatePosition(int position) {
-        this.position = position;
-    }
-
-    public void toggleCompleted(boolean completed, LocalDateTime now) {
+    private void toggleCompleted(boolean completed, LocalDateTime now) {
         if (this.completed == completed) {
             return;
         }
