@@ -138,5 +138,8 @@
     background-image: 
       radial-gradient(at 0% 0%, color-mix(in srgb, var(--primary) 15%, transparent) 0px, transparent 50%),
       radial-gradient(at 100% 0%, color-mix(in srgb, var(--chart-2) 15%, transparent) 0px, transparent 50%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: 100vw 100vh;
   }
 }
