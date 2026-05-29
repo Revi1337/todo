@@ -21,7 +21,7 @@ export function CalendarView() {
   
   const calendarDays = []
   for (let i = 0; i < startDay; i++) calendarDays.push(null)
-  for (let i = 1; i <= daysInMonth; i++) calendarDays.push(currentDate.date(i))
+  for (let i = 1; i <= daysInMonth; i++) calendarDays.push(i)
 
   const selectedTodos = selectedDate && todos
     ? todos.filter(t => dayjs(t.dueDate).isSame(selectedDate, "day"))
