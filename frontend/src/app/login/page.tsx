@@ -1,19 +1,19 @@
 "use client"
 
-import React from "react"
+import React, { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { CheckSquare } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useAuth } from "@/hooks/useAuth"
 
 export default function LoginPage() {
-  const router = useRouter()
+  const [password, setPassword] = useState("")
+  const { login, loading, error } = useAuth()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Mock login attempt")
-    router.push("/")
+    await login(password)
   }
 
   return (
@@ -35,12 +35,16 @@ export default function LoginPage() {
               type="password"
               placeholder="••••••••"
               className="bg-background/50 h-11"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
           
-          <Button type="submit" className="w-full h-11 text-base font-semibold rounded-xl">
-            로그인
+          {error && <p className="text-sm text-red-500 font-medium">{error}</p>}
+          
+          <Button type="submit" disabled={loading} className="w-full h-11 text-base font-semibold rounded-xl">
+            {loading ? "로그인 중..." : "로그인"}
           </Button>
         </form>
       </div>

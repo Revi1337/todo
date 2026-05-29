@@ -245,9 +245,9 @@ git init
 **의존 단계**: Phase 16 완료 후
 
 #### Tasks
-- [ ] `src/hooks/useAuth.ts` — `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me` 호출
-- [ ] `src/middleware.ts` (루트 레벨) — 미인증 시 `/login` 리다이렉트
-- [ ] `src/app/login/page.tsx` — 폼 제출을 `useAuth.login`으로 교체 (Phase 12 mock 제거)
+- [x] `src/hooks/useAuth.ts` — `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me` 호출
+- [x] `src/middleware.ts` (루트 레벨) — 미인증 시 `/login` 리다이렉트
+- [x] `src/app/login/page.tsx` — 폼 제출을 `useAuth.login`으로 교체 (Phase 12 mock 제거)
 
 ---
 
