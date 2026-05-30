@@ -24,6 +24,7 @@ function buildCalendarDays(date: dayjs.Dayjs): (number | null)[] {
   const days: (number | null)[] = []
   for (let i = 0; i < date.startOf("month").day(); i++) days.push(null)
   for (let i = 1; i <= date.daysInMonth(); i++) days.push(i)
+  while (days.length < 42) days.push(null)
   return days
 }
 
@@ -37,17 +38,11 @@ function PriorityRow({ priority, total, completed }: PriorityRowProps) {
   if (total === 0) return null
   const { color } = PRIORITY_CONFIG[priority]
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-1.5">
-        <span className={`w-2.5 h-2.5 rounded-[2px] ${color}`} />
-        <span className="text-[11px] font-medium text-muted-foreground">{total}</span>
-      </div>
-      {completed > 0 && (
-        <div className="relative flex items-center gap-1.5 opacity-50 after:absolute after:top-1/2 after:left-[-2px] after:right-[-2px] after:h-[1px] after:bg-foreground/70 after:-translate-y-1/2">
-          <span className={`w-2.5 h-2.5 rounded-[2px] ${color}`} />
-          <span className="text-[11px] font-bold text-foreground">{completed}</span>
-        </div>
-      )}
+    <div className="flex items-center gap-1.5">
+      <span className={`w-2.5 h-2.5 rounded-[2px] shrink-0 ${color}`} />
+      <span className="text-[11px] font-semibold text-foreground">{total}</span>
+      <span className="text-[11px] text-muted-foreground/40">/</span>
+      <span className="text-[11px] text-muted-foreground">{completed}</span>
     </div>
   )
 }
@@ -70,12 +65,12 @@ function CalendarCell({ dateNum, isToday, isSelected, dayTodos, onClick }: Calen
   return (
     <div
       onClick={onClick}
-      className={`min-h-[100px] p-2 rounded-2xl border transition-all cursor-pointer flex flex-col gap-1 ${
-        isSelected ? "border-primary bg-primary/5 shadow-md" : "border-border/30 hover:border-primary/50"
+      className={`h-full p-2 border-r border-b border-border/40 transition-colors cursor-pointer flex flex-col gap-1 ${
+        isSelected ? "bg-primary/8" : "hover:bg-muted/30"
       }`}
     >
       <div className="flex items-center justify-between w-full">
-        <span className={`text-xs font-semibold w-[22px] h-[22px] flex items-center justify-center rounded-full ${isToday ? "bg-primary text-primary-foreground" : ""}`}>
+        <span className={`text-xs font-bold w-[22px] h-[22px] flex items-center justify-center rounded-full ${isToday ? "bg-primary text-primary-foreground" : "text-foreground"}`}>
           {dateNum}
         </span>
         {dayTodos.length > 0 && (
@@ -170,12 +165,12 @@ export function CalendarView() {
             </div>
           </div>
 
-          <div className="grid grid-cols-7 gap-4 flex-1 overflow-y-auto p-1 scrollbar-hide min-h-0">
+          <div className="grid grid-cols-7 flex-1 min-h-0 border-t border-l border-border/40 rounded-lg overflow-hidden grid-rows-[auto_repeat(6,minmax(0,1fr))]">
             {WEEK_DAYS.map(d => (
-              <div key={d} className="text-center font-semibold text-muted-foreground mb-2">{d}</div>
+              <div key={d} className="text-center text-sm font-semibold text-muted-foreground py-3 border-r border-b border-border/40">{d}</div>
             ))}
             {calendarDays.map((dateNum, i) => {
-              if (dateNum === null) return <div key={i} className="min-h-[100px]" />
+              if (dateNum === null) return <div key={i} className="h-full border-r border-b border-border/40" />
               const date = currentDate.date(dateNum)
               return (
                 <CalendarCell
