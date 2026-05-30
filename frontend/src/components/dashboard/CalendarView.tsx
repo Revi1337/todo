@@ -7,18 +7,11 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ChevronLeft, ChevronRight, Plus, Clock } from "lucide-react"
-import { Todo } from "@/types"
+import { Todo, Priority } from "@/types"
+import { PRIORITY_META } from "@/constants/priority"
 import { TodoFormDialog } from "./TodoFormDialog"
 
 const WEEK_DAYS = ["일", "월", "화", "수", "목", "금", "토"]
-
-const PRIORITY_CONFIG = {
-  HIGH:   { color: "bg-red-500",   label: "긴급" },
-  MEDIUM: { color: "bg-amber-500", label: "보통" },
-  LOW:    { color: "bg-slate-400", label: "낮음" },
-} as const
-
-type Priority = keyof typeof PRIORITY_CONFIG
 
 function buildCalendarDays(date: dayjs.Dayjs): (number | null)[] {
   const days: (number | null)[] = []
@@ -36,10 +29,10 @@ interface PriorityRowProps {
 
 function PriorityRow({ priority, total, completed }: PriorityRowProps) {
   if (total === 0) return null
-  const { color } = PRIORITY_CONFIG[priority]
+  const { dotColor } = PRIORITY_META[priority]
   return (
     <div className="flex items-center gap-1.5">
-      <span className={`w-2.5 h-2.5 rounded-[2px] shrink-0 ${color}`} />
+      <span className={`w-2.5 h-2.5 rounded-[2px] shrink-0 ${dotColor}`} />
       <span className="text-[11px] font-semibold text-foreground">{total}</span>
       <span className="text-[11px] text-muted-foreground/40">/</span>
       <span className="text-[11px] text-muted-foreground">{completed}</span>
@@ -121,7 +114,7 @@ function TodoCard({ todo, onEdit, onToggle }: TodoCardProps) {
       </span>
       <Badge variant="outline" className="text-xs bg-background/50 rounded-full font-semibold shrink-0">
         <Clock className="w-3 h-3 mr-1" />
-        {PRIORITY_CONFIG[todo.priority as Priority].label}
+        {PRIORITY_META[todo.priority].label}
       </Badge>
     </div>
   )
