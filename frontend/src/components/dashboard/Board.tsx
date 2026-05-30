@@ -12,6 +12,8 @@ import { buildQuery } from "@/lib/queryBuilder"
 import { Column } from "./Column"
 import { FilterPanel } from "./FilterPanel"
 import { TodoFormDialog } from "./TodoFormDialog"
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { useFilterSheet } from "@/contexts/FilterSheetContext"
 
 function formatDateLabel(date: Dayjs): string {
   const today = dayjs().startOf("day")
@@ -116,6 +118,16 @@ export function Board() {
   const handleReset = useCallback(() => { setFilter({}); setSearch("") }, [])
   const handleClose = useCallback(() => setDialogOpen(false), [])
 
+  const { open: filterSheetOpen, setOpen: setFilterSheetOpen } = useFilterSheet()
+
+  const filterPanelProps = {
+    filter, search, categories, tags,
+    onFilterChange: setFilter,
+    onSearchChange: setSearch,
+    onReset: handleReset,
+    onCreateTodo: openCreate,
+  }
+
   return (
     <>
       <div className="flex gap-8 h-full">
@@ -150,16 +162,18 @@ export function Board() {
           </DragDropContext>
         </div>
 
-        <FilterPanel
-          filter={filter}
-          search={search}
-          categories={categories}
-          tags={tags}
-          onFilterChange={setFilter}
-          onSearchChange={setSearch}
-          onReset={handleReset}
-          onCreateTodo={openCreate}
-        />
+        <FilterPanel {...filterPanelProps} />
+
+        <Sheet open={filterSheetOpen} onOpenChange={setFilterSheetOpen}>
+          <SheetContent side="right" className="w-[280px] p-0 flex flex-col">
+            <SheetHeader className="p-4 border-b border-border/50 text-left shrink-0">
+              <SheetTitle>필터</SheetTitle>
+            </SheetHeader>
+            <div className="p-4 flex-1 min-h-0 overflow-y-auto">
+              <FilterPanel {...filterPanelProps} asSheet />
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
 
       <TodoFormDialog

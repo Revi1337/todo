@@ -3,15 +3,19 @@
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Moon, Sun, CheckSquare, Menu, LogOut } from "lucide-react"
+import { Moon, Sun, CheckSquare, Menu, LogOut, SlidersHorizontal } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { SidebarNav } from "./Sidebar"
 import { useAuth } from "@/hooks/useAuth"
+import { useFilterSheet } from "@/contexts/FilterSheetContext"
+import { usePathname } from "next/navigation"
 
 export function Header() {
   const { setTheme, theme } = useTheme()
   const { logout } = useAuth()
+  const { setOpen: setFilterOpen } = useFilterSheet()
+  const pathname = usePathname()
   const [mounted, setMounted] = useState(false)
   const [open, setOpen] = useState(false)
 
@@ -48,6 +52,17 @@ export function Header() {
 
 
       <div className="flex items-center gap-2 md:gap-4 ml-auto">
+        {pathname === "/" && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setFilterOpen(true)}
+            className="xl:hidden rounded-full text-muted-foreground hover:text-foreground"
+            title="필터"
+          >
+            <SlidersHorizontal className="w-5 h-5" />
+          </Button>
+        )}
         <Button
           variant="ghost"
           size="icon"

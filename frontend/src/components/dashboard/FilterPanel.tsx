@@ -16,6 +16,7 @@ interface FilterPanelProps {
   onSearchChange: (search: string) => void
   onReset: () => void
   onCreateTodo: () => void
+  asSheet?: boolean
 }
 
 function FilterSection({ title, children }: { title: string; children: React.ReactNode }) {
@@ -27,9 +28,9 @@ function FilterSection({ title, children }: { title: string; children: React.Rea
   )
 }
 
-export function FilterPanel({ filter, search, categories, tags, onFilterChange, onSearchChange, onReset, onCreateTodo }: FilterPanelProps) {
+export function FilterPanel({ filter, search, categories, tags, onFilterChange, onSearchChange, onReset, onCreateTodo, asSheet }: FilterPanelProps) {
   return (
-    <div className="w-64 shrink-0 hidden xl:flex flex-col gap-6">
+    <div className={asSheet ? "flex flex-col gap-6" : "w-64 shrink-0 hidden xl:flex flex-col gap-6"}>
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold tracking-tight">대시보드</h2>
