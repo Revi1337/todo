@@ -74,8 +74,7 @@ class TodoServiceTest {
         todoService.reorder(List.of(
                 new ReorderRequest.ReorderItem(c.id(), 0),
                 new ReorderRequest.ReorderItem(a.id(), 1),
-                new ReorderRequest.ReorderItem(b.id(), 2)
-        ));
+                new ReorderRequest.ReorderItem(b.id(), 2)));
 
         List<TodoResponse> result = todoService.findAll(new TodoFilterRequest(null, null, null, null, null, null));
 
@@ -168,8 +167,7 @@ class TodoServiceTest {
         TodoResponse b = todoService.create(new TodoRequest("B", null, null, null, null, null, null));
         todoService.reorder(List.of(
                 new ReorderRequest.ReorderItem(a.id(), 0),
-                new ReorderRequest.ReorderItem(b.id(), 1)
-        ));
+                new ReorderRequest.ReorderItem(b.id(), 1)));
 
         TodoResponse result = todoService.patch(a.id(), new TodoPatchRequest(true));
 
@@ -209,8 +207,7 @@ class TodoServiceTest {
         todoService.reorder(List.of(
                 new ReorderRequest.ReorderItem(a.id(), 2),
                 new ReorderRequest.ReorderItem(b.id(), 0),
-                new ReorderRequest.ReorderItem(c.id(), 1)
-        ));
+                new ReorderRequest.ReorderItem(c.id(), 1)));
 
         assertThat(todoService.findById(a.id()).position()).isEqualTo(2);
         assertThat(todoService.findById(b.id()).position()).isEqualTo(0);

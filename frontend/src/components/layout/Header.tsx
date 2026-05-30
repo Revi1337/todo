@@ -10,6 +10,7 @@ import { SidebarNav } from "./Sidebar"
 import { useAuth } from "@/hooks/useAuth"
 import { useFilterSheet } from "@/contexts/FilterSheetContext"
 import { usePathname } from "next/navigation"
+import Link from "next/link"
 
 export function Header() {
   const { setTheme, theme } = useTheme()
@@ -43,10 +44,10 @@ export function Header() {
           </SheetContent>
         </Sheet>
 
-        <div className="flex items-center gap-2 hidden lg:flex">
+        <Link href="/" className="flex items-center gap-2 hidden lg:flex">
           <CheckSquare className="w-6 h-6 text-primary" />
           <span className="font-bold text-lg tracking-tight leading-none pt-[2px]">Todo</span>
-        </div>
+        </Link>
       </div>
 
 

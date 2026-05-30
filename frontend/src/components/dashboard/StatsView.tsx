@@ -1,12 +1,56 @@
 "use client"
 
-import React from "react"
+import { useMemo } from "react"
+import dayjs from "dayjs"
 import { useStats } from "@/hooks/useStats"
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
+import { PieChart, Pie, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
 import { Progress } from "@/components/ui/progress"
+
+const tooltipStyle = {
+  borderRadius: '16px',
+  border: '1px solid rgba(128,128,128,0.2)',
+  boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.15)',
+  background: 'var(--color-card)',
+  color: 'var(--color-card-foreground)',
+  padding: '8px 14px',
+  fontSize: '13px',
+  fontWeight: 600,
+}
+
+type ChartTooltipProps = { active?: boolean; payload?: ReadonlyArray<{ value?: number | string; payload: Record<string, string> }> }
+
+const DAY_MAP: Record<string, string> = {
+  MON: '월', TUE: '화', WED: '수', THU: '목', FRI: '금', SAT: '토', SUN: '일',
+  월: '월', 화: '화', 수: '수', 목: '목', 금: '금', 토: '토', 일: '일',
+}
+
+function WeeklyTooltip({ active, payload }: ChartTooltipProps) {
+  if (!active || !payload?.length) return null
+  const raw = payload[0].payload.day
+  const day = DAY_MAP[raw] ?? raw
+  return <div style={tooltipStyle}>{day}요일: {payload[0].value} 완료</div>
+}
+
+function MonthlyTooltip({ active, payload }: ChartTooltipProps) {
+  if (!active || !payload?.length) return null
+  const d = dayjs(payload[0].payload.date)
+  return <div style={tooltipStyle}>{d.month() + 1}-{String(d.date()).padStart(2, '0')}: {payload[0].value} 완료</div>
+}
 
 export function StatsView() {
   const { stats, isLoading } = useStats()
+
+  const fullMonthlyTrend = useMemo(() => {
+    if (!stats?.monthlyTrend) return []
+    const start = dayjs().startOf('month')
+    const daysInMonth = dayjs().daysInMonth()
+    const map = new Map(stats.monthlyTrend.map(t => [t.date, t]))
+
+    return Array.from({ length: daysInMonth }, (_, i) => {
+      const dateStr = start.add(i, 'day').format('YYYY-MM-DD')
+      return map.get(dateStr) || { date: dateStr, completed: 0 }
+    })
+  }, [stats?.monthlyTrend])
 
   if (isLoading || !stats) {
     return <div className="p-8 flex justify-center text-muted-foreground">로딩 중...</div>
@@ -34,10 +78,10 @@ export function StatsView() {
         <div className="bg-card/50 p-6 rounded-[20px] border border-border/50 shadow-sm md:col-span-1 backdrop-blur-sm">
           <h3 className="text-lg font-bold text-muted-foreground mb-4">카테고리별 현황</h3>
           <div className="h-[200px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="99%" height="100%">
               <PieChart>
                 <Pie
-                  data={stats.categoryStats}
+                  data={stats.categoryStats.map(c => ({ ...c, fill: c.color }))}
                   cx="50%"
                   cy="50%"
                   innerRadius={65}
@@ -46,12 +90,8 @@ export function StatsView() {
                   dataKey="value"
                   stroke="none"
                   cornerRadius={10}
-                >
-                  {stats.categoryStats.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip 
+                />
+                <Tooltip
                   contentStyle={{ borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
                   itemStyle={{ fontWeight: 600 }}
                 />
@@ -72,13 +112,11 @@ export function StatsView() {
         <div className="bg-card/50 p-6 rounded-[20px] border border-border/50 shadow-sm backdrop-blur-sm">
           <h3 className="text-lg font-bold text-muted-foreground mb-6">이번 주 완료 추이</h3>
           <div className="h-[220px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="99%" height="100%">
               <BarChart data={stats.weeklyTrend}>
-                <XAxis dataKey="day" axisLine={false} tickLine={false} fontSize={13} fontWeight={600} tickMargin={12} stroke="currentColor" opacity={0.6} />
-                <Tooltip 
-                  cursor={{ fill: 'var(--color-primary)', opacity: 0.05 }}
-                  contentStyle={{ borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                />
+                <XAxis dataKey="day" axisLine={false} tickLine={false} fontSize={13} fontWeight={600} tickMargin={12} stroke="currentColor" opacity={0.6} tickFormatter={(v: string) => DAY_MAP[v] ?? v} />
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                <Tooltip cursor={{ fill: 'var(--color-primary)', opacity: 0.05 }} content={WeeklyTooltip as any} />
                 <Bar dataKey="completed" fill="#6366f1" radius={[6, 6, 6, 6]} />
               </BarChart>
             </ResponsiveContainer>
@@ -90,14 +128,27 @@ export function StatsView() {
       <div className="bg-card/50 p-6 rounded-[20px] border border-border/50 shadow-sm flex-1 backdrop-blur-sm">
         <h3 className="text-lg font-bold text-muted-foreground mb-6">이번 달 완료 추이</h3>
         <div className="h-[300px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={stats.monthlyTrend}>
-              <XAxis dataKey="date" axisLine={false} tickLine={false} fontSize={12} fontWeight={600} tickMargin={12} minTickGap={10} stroke="currentColor" opacity={0.6} />
-              <YAxis axisLine={false} tickLine={false} fontSize={12} fontWeight={600} stroke="currentColor" opacity={0.6} />
-              <Tooltip 
-                cursor={{ fill: 'var(--color-primary)', opacity: 0.05 }}
-                contentStyle={{ borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+          <ResponsiveContainer width="99%" height="100%">
+            <BarChart data={fullMonthlyTrend}>
+              <XAxis
+                dataKey="date"
+                axisLine={false}
+                tickLine={false}
+                fontSize={12}
+                fontWeight={600}
+                tickMargin={12}
+                stroke="currentColor"
+                opacity={0.6}
+                ticks={fullMonthlyTrend.map(d => d.date).filter(date => {
+                  const day = parseInt(date.slice(8), 10);
+                  return day === 1 || day % 5 === 0;
+                })}
+                tickFormatter={(v: string) => `${parseInt(v.slice(8), 10)}일`}
+                interval="preserveStartEnd"
               />
+              <YAxis axisLine={false} tickLine={false} fontSize={12} fontWeight={600} stroke="currentColor" opacity={0.6} />
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              <Tooltip cursor={{ fill: 'var(--color-primary)', opacity: 0.05 }} content={MonthlyTooltip as any} />
               <Bar dataKey="completed" fill="#3b82f6" opacity={0.9} radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
