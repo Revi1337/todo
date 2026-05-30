@@ -11,6 +11,7 @@ import { useBoardState } from "@/hooks/useBoardState"
 import { useDragDrop } from "@/hooks/useDragDrop"
 import { Todo } from "@/types"
 import { buildQuery } from "@/lib/queryBuilder"
+import { TodoActionsProvider } from "@/contexts/TodoActionsContext"
 import { Column } from "./Column"
 import { FilterPanel } from "./FilterPanel"
 import { TodoFormDialog } from "./TodoFormDialog"
@@ -129,16 +130,14 @@ export function Board() {
             </button>
           </div>
 
-          <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
-            <div className="flex-1 grid grid-rows-2 gap-6 min-h-0 overflow-hidden">
-              <Column title="할 일" id="ACTIVE" todos={activeTodos}
-                onToggle={handleToggle} onEdit={openEdit} onDelete={handleDelete} scrollable
-                draggingFromId={draggingFromId} />
-              <Column title="완료됨" id="COMPLETED" todos={completedTodos}
-                onToggle={handleToggle} onEdit={openEdit} onDelete={handleDelete} scrollable
-                draggingFromId={draggingFromId} />
-            </div>
-          </DragDropContext>
+          <TodoActionsProvider onToggle={handleToggle} onEdit={openEdit} onDelete={handleDelete}>
+            <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+              <div className="flex-1 grid grid-rows-2 gap-6 min-h-0 overflow-hidden">
+                <Column title="할 일" id="ACTIVE" todos={activeTodos} scrollable draggingFromId={draggingFromId} />
+                <Column title="완료됨" id="COMPLETED" todos={completedTodos} scrollable draggingFromId={draggingFromId} />
+              </div>
+            </DragDropContext>
+          </TodoActionsProvider>
         </div>
 
         <FilterPanel {...filterPanelProps} />

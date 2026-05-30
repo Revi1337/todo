@@ -10,14 +10,11 @@ interface ColumnProps {
   title: string
   id: string
   todos: Todo[]
-  onToggle: (id: number) => void
-  onEdit: (todo: Todo) => void
-  onDelete: (id: number) => void
   scrollable?: boolean
   draggingFromId?: string | null
 }
 
-export function Column({ title, id, todos, onToggle, onEdit, onDelete, scrollable, draggingFromId }: ColumnProps) {
+export function Column({ title, id, todos, scrollable, draggingFromId }: ColumnProps) {
   return (
     <Droppable droppableId={id}>
       {(provided, snapshot) => {
@@ -46,14 +43,7 @@ export function Column({ title, id, todos, onToggle, onEdit, onDelete, scrollabl
                   </div>
                 )}
                 {todos.map((todo, index) => (
-                  <TodoCard
-                    key={todo.id}
-                    todo={todo}
-                    index={index}
-                    onToggle={onToggle}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                  />
+                  <TodoCard key={todo.id} todo={todo} index={index} />
                 ))}
                 {provided.placeholder}
               </div>

@@ -7,16 +7,16 @@ import { Clock, Trash2 } from "lucide-react"
 import dayjs from "dayjs"
 import { Todo } from "@/types"
 import { PRIORITY_META } from "@/constants/priority"
+import { useTodoActions } from "@/contexts/TodoActionsContext"
 
 interface TodoCardProps {
   todo: Todo
   index: number
-  onToggle: (id: number) => void
-  onEdit: (todo: Todo) => void
-  onDelete: (id: number) => void
 }
 
-export function TodoCard({ todo, index, onToggle, onEdit, onDelete }: TodoCardProps) {
+export function TodoCard({ todo, index }: TodoCardProps) {
+  const { onToggle, onEdit, onDelete } = useTodoActions()
+
   return (
     <Draggable draggableId={todo.id.toString()} index={index}>
       {(provided, snapshot) => (
