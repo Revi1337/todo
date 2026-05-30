@@ -102,30 +102,27 @@ function TodoCard({ todo, onEdit, onToggle }: TodoCardProps) {
   return (
     <div
       onClick={() => onEdit(todo)}
-      className="bg-card p-4 rounded-2xl shadow-sm border border-border/50 flex flex-col gap-2 hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer"
+      className="bg-card px-4 py-3 rounded-xl shadow-sm border border-border/50 flex items-center gap-3 cursor-pointer transition-[box-shadow,opacity] duration-200 hover:ring-2 hover:ring-primary"
     >
-      <div className="flex items-start gap-3">
-        <div
-          onPointerDown={e => e.stopPropagation()}
-          onMouseDown={e => e.stopPropagation()}
-          onClick={e => e.stopPropagation()}
-        >
-          <Checkbox
-            checked={todo.completed}
-            onCheckedChange={() => onToggle(todo)}
-            className="mt-1 w-5 h-5 rounded-[4px]"
-          />
-        </div>
-        <span className={`font-medium leading-tight ${todo.completed ? "line-through text-muted-foreground" : ""}`}>
-          {todo.title}
-        </span>
+      <div
+        onPointerDown={e => e.stopPropagation()}
+        onMouseDown={e => e.stopPropagation()}
+        onClick={e => e.stopPropagation()}
+        className="shrink-0"
+      >
+        <Checkbox
+          checked={todo.completed}
+          onCheckedChange={() => onToggle(todo)}
+          className="w-5 h-5 rounded-[4px]"
+        />
       </div>
-      <div className="flex items-center gap-2 mt-1 pl-8">
-        <Badge variant="outline" className="text-xs bg-background/50 rounded-full font-semibold">
-          <Clock className="w-3 h-3 mr-1" />
-          {PRIORITY_CONFIG[todo.priority as Priority].label}
-        </Badge>
-      </div>
+      <span className={`flex-1 font-medium leading-tight truncate ${todo.completed ? "line-through text-muted-foreground" : ""}`}>
+        {todo.title}
+      </span>
+      <Badge variant="outline" className="text-xs bg-background/50 rounded-full font-semibold shrink-0">
+        <Clock className="w-3 h-3 mr-1" />
+        {PRIORITY_CONFIG[todo.priority as Priority].label}
+      </Badge>
     </div>
   )
 }
@@ -142,6 +139,8 @@ export function CalendarView() {
   const selectedTodos = selectedDate
     ? todos.filter(t => dayjs(t.dueDate).isSame(selectedDate, "day"))
     : []
+  const pendingTodos = selectedTodos.filter(t => !t.completed)
+  const completedTodos = selectedTodos.filter(t => t.completed)
 
   const openCreate = () => { setEditingTodo(null); setDialogOpen(true) }
   const openEdit = (todo: Todo) => { setEditingTodo(todo); setDialogOpen(true) }
@@ -187,8 +186,8 @@ export function CalendarView() {
         </div>
 
         {/* 날짜 상세 패널 */}
-        <div className="w-80 shrink-0 bg-muted/20 rounded-[24px] p-6 shadow-sm border border-border/50 h-full overflow-y-auto scrollbar-hide">
-          <div className="flex items-start justify-between mb-6">
+        <div className="w-80 shrink-0 bg-muted/20 rounded-[24px] p-6 shadow-sm border border-border/50 h-full flex flex-col min-h-0">
+          <div className="flex items-start justify-between mb-6 shrink-0">
             <div>
               <h3 className="text-lg font-bold mb-1 tracking-tight">
                 {selectedDate ? selectedDate.format("MM월 DD일 일정") : "날짜를 선택하세요"}
@@ -204,22 +203,57 @@ export function CalendarView() {
             )}
           </div>
 
-          <Button onClick={openCreate} className="w-full justify-start gap-2 rounded-full mb-6" size="lg">
+          <Button onClick={openCreate} className="w-full justify-start gap-2 rounded-full mb-6 shrink-0" size="lg">
             <Plus className="w-5 h-5" /> 새 작업 추가
           </Button>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex-1 flex flex-col gap-4 min-h-0 overflow-hidden">
             {selectedTodos.length === 0 ? (
               <div className="text-center py-10 text-muted-foreground text-sm font-medium">일정이 없습니다.</div>
             ) : (
-              selectedTodos.map(todo => (
-                <TodoCard
-                  key={todo.id}
-                  todo={todo}
-                  onEdit={openEdit}
-                  onToggle={todo => toggleTodo(todo.id, !todo.completed)}
-                />
-              ))
+              <>
+                <div className="flex-1 flex flex-col min-h-0">
+                  <div className="flex items-center gap-2 mb-3 shrink-0">
+                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">할 일</span>
+                    <span className="text-xs font-bold text-primary/70">{pendingTodos.length}</span>
+                  </div>
+                  <div className="flex-1 overflow-y-auto scrollbar-hide flex flex-col gap-3 px-0.5 py-0.5">
+                    {pendingTodos.length === 0 ? (
+                      <div className="text-center py-4 text-muted-foreground text-sm font-medium">모두 완료했습니다!</div>
+                    ) : (
+                      pendingTodos.map(todo => (
+                        <TodoCard
+                          key={todo.id}
+                          todo={todo}
+                          onEdit={openEdit}
+                          onToggle={(t: Todo) => toggleTodo(t.id, !t.completed)}
+                        />
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex-1 flex flex-col min-h-0">
+                  <div className="flex items-center gap-2 mb-3 shrink-0">
+                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">완료됨</span>
+                    <span className="text-xs font-bold text-primary/70">{completedTodos.length}</span>
+                  </div>
+                  <div className="flex-1 overflow-y-auto scrollbar-hide flex flex-col gap-3 px-0.5 py-0.5">
+                    {completedTodos.length === 0 ? (
+                      <div className="text-center py-4 text-muted-foreground text-sm font-medium">완료된 일정이 없습니다.</div>
+                    ) : (
+                      completedTodos.map(todo => (
+                        <TodoCard
+                          key={todo.id}
+                          todo={todo}
+                          onEdit={openEdit}
+                          onToggle={(t: Todo) => toggleTodo(t.id, !t.completed)}
+                        />
+                      ))
+                    )}
+                  </div>
+                </div>
+              </>
             )}
           </div>
         </div>
