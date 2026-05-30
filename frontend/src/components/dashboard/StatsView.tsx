@@ -21,7 +21,7 @@ export function StatsView() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Completion Rate */}
-        <div className="bg-card/50 p-6 rounded-[24px] border border-border/50 shadow-sm flex flex-col justify-center backdrop-blur-sm">
+        <div className="bg-card/50 p-6 rounded-[20px] border border-border/50 shadow-sm flex flex-col justify-center backdrop-blur-sm">
           <h3 className="text-lg font-bold text-muted-foreground mb-6">전체 달성률</h3>
           <div className="flex items-end gap-2 mb-6">
             <span className="text-6xl font-black tracking-tighter text-primary">{stats.completionRate}</span>
@@ -31,7 +31,7 @@ export function StatsView() {
         </div>
 
         {/* Category Stats */}
-        <div className="bg-card/50 p-6 rounded-[24px] border border-border/50 shadow-sm md:col-span-1 backdrop-blur-sm">
+        <div className="bg-card/50 p-6 rounded-[20px] border border-border/50 shadow-sm md:col-span-1 backdrop-blur-sm">
           <h3 className="text-lg font-bold text-muted-foreground mb-4">카테고리별 현황</h3>
           <div className="h-[200px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -69,7 +69,7 @@ export function StatsView() {
         </div>
 
         {/* Weekly Trend */}
-        <div className="bg-card/50 p-6 rounded-[24px] border border-border/50 shadow-sm backdrop-blur-sm">
+        <div className="bg-card/50 p-6 rounded-[20px] border border-border/50 shadow-sm backdrop-blur-sm">
           <h3 className="text-lg font-bold text-muted-foreground mb-6">이번 주 완료 추이</h3>
           <div className="h-[220px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -87,7 +87,7 @@ export function StatsView() {
       </div>
 
       {/* Monthly Trend */}
-      <div className="bg-card/50 p-6 rounded-[24px] border border-border/50 shadow-sm flex-1 backdrop-blur-sm">
+      <div className="bg-card/50 p-6 rounded-[20px] border border-border/50 shadow-sm flex-1 backdrop-blur-sm">
         <h3 className="text-lg font-bold text-muted-foreground mb-6">이번 달 완료 추이</h3>
         <div className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
