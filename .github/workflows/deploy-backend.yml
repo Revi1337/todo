@@ -46,5 +46,6 @@ jobs:
       - name: Stop Spring Boot
         run: ssh ${{ secrets.GCP_USER }}@${{ secrets.GCP_HOST }} "if [ -f ~/todo/todo.pid ]; then kill \$(cat ~/todo/todo.pid) || true; rm ~/todo/todo.pid; fi; sleep 2"
 
+
       - name: Start Spring Boot
-        run: ssh ${{ secrets.GCP_USER }}@${{ secrets.GCP_HOST }} "nohup java -Xmx512m -jar ~/todo/todo.jar --spring.profiles.active=prd > ~/todo/app.log 2>&1 < /dev/null & echo \$! > ~/todo/todo.pid; sleep 1"
+        run: ssh ${{ secrets.GCP_USER }}@${{ secrets.GCP_HOST }} "cd ~/todo && nohup java -Xmx512m -jar todo.jar --spring.profiles.active=prd > app.log 2>&1 < /dev/null & echo \$! > todo.pid; sleep 1"
