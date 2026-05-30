@@ -12,7 +12,7 @@ export async function proxy(request: NextRequest) {
 
   // 세션 쿠키가 있을 때 백엔드에서 유효성 검증
   try {
-    const res = await fetch('http://localhost:8080/api/auth/me', {
+    const res = await fetch(`${process.env.BACKEND_URL}/api/auth/me`, {
       headers: { Cookie: `JSESSIONID=${session.value}` },
     })
     const data = await res.json()

@@ -7,7 +7,7 @@ export async function POST() {
 
   if (session) {
     try {
-      await fetch('http://localhost:8080/api/auth/logout', {
+      await fetch(`${process.env.BACKEND_URL}/api/auth/logout`, {
         method: 'POST',
         headers: { Cookie: `JSESSIONID=${session.value}` },
       })

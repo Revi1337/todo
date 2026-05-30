@@ -1,5 +1,6 @@
 # 환경변수
-.env
+src/main/resources/application-local.yml
+src/main/resources/application-prd.yml
 
 # DB 바이너리 (backup.sql, schema.sql은 git 추적)
 db/todo.db

@@ -2,17 +2,11 @@
 guidelines/
 
 # IDE
-.antigravity/
+.antigravity
 .idea
 
 # Claude Code MCP 설정 (project_ref 노출 방지)
 .mcp.json
-
-# Node / Nuxt
-frontend/node_modules/
-frontend/.nuxt/
-frontend/.output/
-frontend/dist/
 
 # OS
 .DS_Store
