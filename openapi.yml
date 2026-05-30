@@ -17,6 +17,8 @@ tags:
     description: Tag management
   - name: stats
     description: Statistics
+  - name: auth
+    description: Authentication
 
 paths:
   /api/todos:
@@ -366,6 +368,55 @@ paths:
         "404":
           $ref: "#/components/responses/NotFound"
 
+  /api/auth/login:
+    post:
+      tags: [auth]
+      summary: Login with password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseBase"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/auth/logout:
+    post:
+      tags: [auth]
+      summary: Logout and invalidate session
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseBase"
+
+  /api/auth/me:
+    get:
+      tags: [auth]
+      summary: Check authentication status
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponseBase"
+                  - type: object
+                    properties:
+                      data:
+                        type: boolean
+
   /api/stats:
     get:
       tags: [stats]
@@ -394,6 +445,13 @@ components:
         format: int64
 
   schemas:
+    LoginRequest:
+      type: object
+      required: [password]
+      properties:
+        password:
+          type: string
+
     ApiResponseBase:
       type: object
       properties:
@@ -638,6 +696,12 @@ components:
             $ref: "#/components/schemas/ErrorResponse"
     NotFound:
       description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Unauthorized:
+      description: Unauthorized – session not found
       content:
         application/json:
           schema:

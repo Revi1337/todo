@@ -90,9 +90,12 @@ git init
 #### Tasks
 - [x] `Tag` Entity 작성 (id/name/color)
 - [x] `TagRepository` 작성
-- [x] `TagController` 작성 — Service 없이 Repository 직접 사용
+- [x] `TagService` 작성
+- [x] `TagController` 작성
   - GET `/api/tags` — 전체 조회
   - POST `/api/tags` — 생성 (name, color)
+  - PUT `/api/tags/{id}` — 수정 (name, color)
+  - DELETE `/api/tags/{id}` — 삭제
 
 ---
 
@@ -256,7 +259,7 @@ git init
 **의존 단계**: Phase 17 완료 후
 
 #### Tasks
-- [x] `src/hooks/useTodos.ts` — `GET/POST/PUT/DELETE /api/todos` 호출, 상태 관리
+- [x] `src/hooks/useTodos.ts` — `GET/POST/PUT/PATCH/DELETE /api/todos` 호출, 상태 관리
 - [x] `src/hooks/useCategories.ts` — `GET/POST/DELETE /api/categories` 호출
 - [x] `src/hooks/useTags.ts` — `GET/POST /api/tags` 호출
 - [x] 메인 페이지 컴포넌트에서 `src/mocks/todos.ts` 제거, 위 훅으로 교체

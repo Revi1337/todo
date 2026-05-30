@@ -117,6 +117,7 @@ categories ──< todos >──< todo_tags >── tags
 | created_at | TIMESTAMP | DEFAULT NOW() | |
 | updated_at | TIMESTAMP | DEFAULT NOW() | |
 | completed_at | TIMESTAMP | nullable | 완료 처리 시각 |
+| position | INTEGER | NOT NULL, DEFAULT 0 | 그룹 내 정렬 순서 (0-based) |
 
 **todo_tags** (중간 테이블)
 | 컬럼 | 타입 | 제약 |
@@ -221,6 +222,9 @@ AuthFilter — 세션에 authenticated=true ? → 통과
 | search | String | 제목/설명 키워드 |
 | dueDate | String | 특정 날짜의 Todo (캘린더용, YYYY-MM-DD) |
 
+#### GET /api/todos/{id}
+**200** 단건 Todo / **404** 없음
+
 #### POST /api/todos
 ```json
 {
@@ -235,7 +239,21 @@ AuthFilter — 세션에 authenticated=true ? → 통과
 **201** 생성된 Todo 객체 / **400** 유효성 검사 실패
 
 #### PUT /api/todos/{id}
-POST와 동일 구조 + `completed` 필드 포함. **200** 수정된 Todo / **404** 없음
+POST와 동일 구조 + `completed` 필드 포함. **200** 수정된 Todo / **400** 유효성 오류 / **404** 없음
+
+#### PATCH /api/todos/{id}
+완료 상태 부분 수정.
+```json
+{ "completed": true }
+```
+**200** 수정된 Todo / **404** 없음
+
+#### PATCH /api/todos/reorder
+Todo 순서 일괄 변경.
+```json
+{ "items": [{ "id": 1, "position": 0 }, { "id": 2, "position": 1 }] }
+```
+**204** No Content
 
 #### DELETE /api/todos/{id}
 **204** No Content / **404** 없음
@@ -258,6 +276,8 @@ POST와 동일 구조 + `completed` 필드 포함. **200** 수정된 Todo / **40
 |--------|------|------|------|
 | GET | `/api/tags` | 전체 목록 | 200 |
 | POST | `/api/tags` | 생성 (name, color) | 201 |
+| PUT | `/api/tags/{id}` | 수정 (name, color) | 200 |
+| DELETE | `/api/tags/{id}` | 삭제 | 204 |
 
 ---
 
