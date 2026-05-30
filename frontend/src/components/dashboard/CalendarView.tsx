@@ -4,12 +4,11 @@ import { useState } from "react"
 import dayjs from "dayjs"
 import { useTodos } from "@/hooks/useTodos"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Checkbox } from "@/components/ui/checkbox"
-import { ChevronLeft, ChevronRight, Plus, Clock } from "lucide-react"
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
 import { Todo, Priority } from "@/types"
 import { PRIORITY_META } from "@/constants/priority"
 import { TodoFormDialog } from "./TodoFormDialog"
+import { CalendarTodoCard } from "./CalendarTodoCard"
 
 const WEEK_DAYS = ["일", "월", "화", "수", "목", "금", "토"]
 
@@ -85,40 +84,6 @@ function CalendarCell({ dateNum, isToday, isSelected, dayTodos, onClick }: Calen
   )
 }
 
-interface TodoCardProps {
-  todo: Todo
-  onEdit: (todo: Todo) => void
-  onToggle: (todo: Todo) => void
-}
-
-function TodoCard({ todo, onEdit, onToggle }: TodoCardProps) {
-  return (
-    <div
-      onClick={() => onEdit(todo)}
-      className="bg-card px-4 py-3 rounded-xl shadow-sm border border-border/50 flex items-center gap-3 cursor-pointer transition-[box-shadow,opacity] duration-200 hover:ring-2 hover:ring-primary"
-    >
-      <div
-        onPointerDown={e => e.stopPropagation()}
-        onMouseDown={e => e.stopPropagation()}
-        onClick={e => e.stopPropagation()}
-        className="shrink-0"
-      >
-        <Checkbox
-          checked={todo.completed}
-          onCheckedChange={() => onToggle(todo)}
-          className="w-5 h-5 rounded-[4px]"
-        />
-      </div>
-      <span className={`flex-1 font-medium leading-tight truncate ${todo.completed ? "line-through text-muted-foreground" : ""}`}>
-        {todo.title}
-      </span>
-      <Badge variant="outline" className="text-xs bg-background/50 rounded-full font-semibold shrink-0">
-        <Clock className="w-3 h-3 mr-1" />
-        {PRIORITY_META[todo.priority].label}
-      </Badge>
-    </div>
-  )
-}
 
 export function CalendarView() {
   const [currentDate, setCurrentDate] = useState(dayjs())
@@ -215,7 +180,7 @@ export function CalendarView() {
                       <div className="text-center py-4 text-muted-foreground text-sm font-medium">모두 완료했습니다!</div>
                     ) : (
                       pendingTodos.map(todo => (
-                        <TodoCard
+                        <CalendarTodoCard
                           key={todo.id}
                           todo={todo}
                           onEdit={openEdit}
@@ -236,7 +201,7 @@ export function CalendarView() {
                       <div className="text-center py-4 text-muted-foreground text-sm font-medium">완료된 일정이 없습니다.</div>
                     ) : (
                       completedTodos.map(todo => (
-                        <TodoCard
+                        <CalendarTodoCard
                           key={todo.id}
                           todo={todo}
                           onEdit={openEdit}
