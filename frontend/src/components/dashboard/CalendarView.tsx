@@ -149,9 +149,9 @@ export function CalendarView() {
 
   return (
     <>
-      <div className="flex gap-8 h-full items-start">
+      <div className="flex flex-col lg:flex-row gap-8 lg:h-full lg:items-start">
         {/* 캘린더 */}
-        <div className="flex-1 bg-card rounded-[24px] p-6 shadow-sm border border-border/50 h-full flex flex-col min-h-0 overflow-hidden">
+        <div className="flex-1 bg-card rounded-[24px] p-6 shadow-sm border border-border/50 h-[420px] lg:h-full flex flex-col min-h-0 overflow-hidden">
           <div className="flex items-center justify-between mb-6 shrink-0">
             <h2 className="text-2xl font-bold tracking-tight">{currentDate.format("YYYY년 MM월")}</h2>
             <div className="flex gap-2">
@@ -186,7 +186,7 @@ export function CalendarView() {
         </div>
 
         {/* 날짜 상세 패널 */}
-        <div className="w-80 shrink-0 bg-muted/20 rounded-[24px] p-6 shadow-sm border border-border/50 h-full flex flex-col min-h-0">
+        <div className="w-full lg:w-80 lg:shrink-0 bg-muted/20 rounded-[24px] p-6 shadow-sm border border-border/50 lg:h-full flex flex-col lg:min-h-0">
           <div className="flex items-start justify-between mb-6 shrink-0">
             <div>
               <h3 className="text-lg font-bold mb-1 tracking-tight">
@@ -207,17 +207,17 @@ export function CalendarView() {
             <Plus className="w-5 h-5" /> 새 작업 추가
           </Button>
 
-          <div className="flex-1 flex flex-col gap-4 min-h-0 overflow-hidden">
+          <div className="flex-1 flex flex-col gap-4 lg:min-h-0 lg:overflow-hidden">
             {selectedTodos.length === 0 ? (
               <div className="text-center py-10 text-muted-foreground text-sm font-medium">일정이 없습니다.</div>
             ) : (
               <>
-                <div className="flex-1 flex flex-col min-h-0">
+                <div className="flex-1 flex flex-col lg:min-h-0">
                   <div className="flex items-center gap-2 mb-3 shrink-0">
                     <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">할 일</span>
                     <span className="text-xs font-bold text-primary/70">{pendingTodos.length}</span>
                   </div>
-                  <div className="flex-1 overflow-y-auto scrollbar-hide flex flex-col gap-3 px-0.5 py-0.5">
+                  <div className="flex-1 lg:overflow-y-auto scrollbar-hide flex flex-col gap-3 px-0.5 py-0.5">
                     {pendingTodos.length === 0 ? (
                       <div className="text-center py-4 text-muted-foreground text-sm font-medium">모두 완료했습니다!</div>
                     ) : (
@@ -233,12 +233,12 @@ export function CalendarView() {
                   </div>
                 </div>
 
-                <div className="flex-1 flex flex-col min-h-0">
+                <div className="flex-1 flex flex-col lg:min-h-0">
                   <div className="flex items-center gap-2 mb-3 shrink-0">
                     <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">완료됨</span>
                     <span className="text-xs font-bold text-primary/70">{completedTodos.length}</span>
                   </div>
-                  <div className="flex-1 overflow-y-auto scrollbar-hide flex flex-col gap-3 px-0.5 py-0.5">
+                  <div className="flex-1 lg:overflow-y-auto scrollbar-hide flex flex-col gap-3 px-0.5 py-0.5">
                     {completedTodos.length === 0 ? (
                       <div className="text-center py-4 text-muted-foreground text-sm font-medium">완료된 일정이 없습니다.</div>
                     ) : (
