@@ -1,0 +1,50 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - ".github/workflows/deploy-backend.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: Build jar
+        working-directory: backend
+        run: ./gradlew build -x test
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GCP_USER_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan ${{ secrets.GCP_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Create deploy directory
+        run: ssh ${{ secrets.GCP_USER }}@${{ secrets.GCP_HOST }} "mkdir -p ~/todo"
+
+      - name: Upload jar
+        run: scp backend/build/libs/todo.jar ${{ secrets.GCP_USER }}@${{ secrets.GCP_HOST }}:~/todo
+
+      - name: Create and Upload application-prd.yml
+        run: |
+          echo "${{ secrets.APPLICATION_PRD_YML }}" | base64 -d > application-prd.yml
+          scp application-prd.yml ${{ secrets.GCP_USER }}@${{ secrets.GCP_HOST }}:~/todo
+
+      - name: Stop Spring Boot
+        run: ssh ${{ secrets.GCP_USER }}@${{ secrets.GCP_HOST }} "if [ -f ~/todo/todo.pid ]; then kill \$(cat ~/todo/todo.pid) || true; rm ~/todo/todo.pid; fi; sleep 2"
+
+      - name: Start Spring Boot
+        run: ssh ${{ secrets.GCP_USER }}@${{ secrets.GCP_HOST }} "nohup java -Xmx512m -jar ~/todo/todo.jar --spring.profiles.active=prd > ~/todo/app.log 2>&1 < /dev/null & echo \$! > ~/todo/todo.pid; sleep 1"
