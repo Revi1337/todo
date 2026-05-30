@@ -9,6 +9,7 @@ import { Todo, Priority } from "@/types"
 import { PRIORITY_META } from "@/constants/priority"
 import { TodoFormDialog } from "./TodoFormDialog"
 import { CalendarTodoCard } from "./CalendarTodoCard"
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner"
 
 const WEEK_DAYS = ["일", "월", "화", "수", "목", "금", "토"]
 
@@ -103,7 +104,7 @@ export function CalendarView() {
   const openCreate = () => { setEditingTodo(null); setDialogOpen(true) }
   const openEdit = (todo: Todo) => { setEditingTodo(todo); setDialogOpen(true) }
 
-  if (isLoading) return <div className="p-8 flex justify-center text-muted-foreground">로딩 중...</div>
+  if (isLoading) return <LoadingSpinner />
 
   return (
     <>
