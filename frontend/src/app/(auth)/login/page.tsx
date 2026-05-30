@@ -51,7 +51,7 @@ export default function LoginPage() {
               <CheckSquare className="w-6 h-6 text-primary" />
             </div>
             <h1 className="text-2xl font-bold tracking-tight">Todo 로그인</h1>
-            <p className="text-sm text-muted-foreground mt-2">나만의 생산성 갤러리에 오신 것을 환영합니다.</p>
+            <p className="text-sm text-muted-foreground mt-2">당신만의 할 일을 정리하고, 하루를 완성하세요.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
