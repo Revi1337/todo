@@ -48,21 +48,25 @@ todo/
 ```bash
 cd backend
 
-# 환경변수 파일 생성
-cp .env.example .env  # Supabase 연결 정보 입력
+# 로컬 환경변수 파일 생성 (gitignore 대상)
+cp src/main/resources/application-local.yml.example src/main/resources/application-local.yml
 
 # 실행
 ./gradlew bootRun
 ```
 
-**환경변수** (`backend/.env`):
+**로컬 설정** (`backend/src/main/resources/application-local.yml`):
 
-```
-SPRING_DATASOURCE_URL=jdbc:postgresql://<host>:5432/postgres
-SPRING_DATASOURCE_USERNAME=postgres.<project-ref>
-SPRING_DATASOURCE_PASSWORD=<password>
-APP_PASSWORD=<your-app-password>
-APP_CORS_ORIGIN=http://localhost:3000
+```yaml
+spring:
+  datasource:
+    url: jdbc:postgresql://<host>:5432/postgres
+    username: postgres.<project-ref>
+    password: <password>
+
+app:
+  password: <your-app-password>
+  cors-origin: http://localhost:3000
 ```
 
 ### 프론트엔드
@@ -73,7 +77,13 @@ npm install
 npm run dev
 ```
 
-프론트엔드는 `/api/**` 요청을 `http://localhost:8080`으로 프록시한다.
+**로컬 설정** (`frontend/.env.local`, 선택사항):
+
+```
+BACKEND_URL=http://localhost:8080
+```
+
+프론트엔드는 `/api/**` 요청을 `BACKEND_URL`로 프록시한다.
 
 ## API
 
