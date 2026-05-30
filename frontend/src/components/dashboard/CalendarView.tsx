@@ -109,7 +109,7 @@ export function CalendarView() {
     <>
       <div className="flex flex-col lg:flex-row gap-8 lg:h-full lg:items-start">
         {/* 캘린더 */}
-        <div className="flex-1 bg-card rounded-[20px] p-6 shadow-sm border border-border/50 h-[420px] lg:h-full flex flex-col min-h-0 overflow-hidden">
+        <div className="flex-1 bg-card rounded-card p-6 shadow-sm border border-border/50 h-[420px] lg:h-full flex flex-col min-h-0 overflow-hidden">
           <div className="flex items-center justify-between mb-6 shrink-0">
             <h2 className="text-2xl font-bold tracking-tight">{currentDate.format("YYYY년 MM월")}</h2>
             <div className="flex gap-2">
@@ -144,7 +144,7 @@ export function CalendarView() {
         </div>
 
         {/* 날짜 상세 패널 */}
-        <div className="w-full lg:w-80 lg:shrink-0 bg-muted/20 rounded-[20px] p-6 shadow-sm border border-border/50 lg:h-full flex flex-col lg:min-h-0">
+        <div className="w-full lg:w-80 lg:shrink-0 bg-muted/20 rounded-card p-6 shadow-sm border border-border/50 lg:h-full flex flex-col lg:min-h-0">
           <div className="flex items-start justify-between mb-6 shrink-0">
             <div>
               <h3 className="text-lg font-bold mb-1 tracking-tight">

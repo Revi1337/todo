@@ -20,9 +20,9 @@ export function Column({ title, id, todos, scrollable, draggingFromId }: ColumnP
       {(provided, snapshot) => {
         const showBlocked = id === "COMPLETED" && draggingFromId === "ACTIVE" && snapshot.isDraggingOver
         return (
-          <div className={`relative flex flex-col gap-4 bg-muted/40 rounded-[20px] p-5 border h-full min-h-0 overflow-hidden transition-all duration-200 ${showBlocked ? "border-red-500/40" : "border-border/60"}`}>
+          <div className={`relative flex flex-col gap-4 bg-muted/40 rounded-card p-5 border h-full min-h-0 overflow-hidden transition-all duration-200 ${showBlocked ? "border-red-500/40" : "border-border/60"}`}>
             {showBlocked && (
-              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 rounded-[20px] bg-background/60 backdrop-blur-[4px]">
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 rounded-card bg-background/60 backdrop-blur-[4px]">
                 <Ban className="w-8 h-8 text-red-400" />
                 <span className="text-sm font-bold text-red-400">체크박스로 처리하세요</span>
               </div>

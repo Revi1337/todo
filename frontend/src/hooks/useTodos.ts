@@ -1,4 +1,5 @@
 import useSWR, { mutate as globalMutate } from 'swr'
+import { toast } from 'sonner'
 import { fetcher, fetchWithAuth } from '@/lib/fetcher'
 import { Todo } from '@/types'
 
@@ -15,27 +16,52 @@ export function useTodos(queryParams = '') {
   )
 
   const createTodo = async (todoData: Partial<Todo>) => {
-    await fetchWithAuth('/api/todos', { method: 'POST', body: JSON.stringify(todoData) })
-    await invalidateTodos()
+    try {
+      await fetchWithAuth('/api/todos', { method: 'POST', body: JSON.stringify(todoData) })
+      await invalidateTodos()
+    } catch {
+      toast.error('할 일을 생성하지 못했습니다.')
+      throw new Error('createTodo failed')
+    }
   }
 
   const updateTodo = async (id: number, updates: Partial<Todo>) => {
-    await fetchWithAuth(`/api/todos/${id}`, { method: 'PUT', body: JSON.stringify(updates) })
-    await invalidateTodos()
+    try {
+      await fetchWithAuth(`/api/todos/${id}`, { method: 'PUT', body: JSON.stringify(updates) })
+      await invalidateTodos()
+    } catch {
+      toast.error('할 일을 수정하지 못했습니다.')
+      throw new Error('updateTodo failed')
+    }
   }
 
   const deleteTodo = async (id: number) => {
-    await fetchWithAuth(`/api/todos/${id}`, { method: 'DELETE' })
-    await invalidateTodos()
+    try {
+      await fetchWithAuth(`/api/todos/${id}`, { method: 'DELETE' })
+      await invalidateTodos()
+    } catch {
+      toast.error('할 일을 삭제하지 못했습니다.')
+      throw new Error('deleteTodo failed')
+    }
   }
 
   const toggleTodo = async (id: number, completed: boolean) => {
-    await fetchWithAuth(`/api/todos/${id}`, { method: 'PATCH', body: JSON.stringify({ completed }) })
-    await invalidateTodos()
+    try {
+      await fetchWithAuth(`/api/todos/${id}`, { method: 'PATCH', body: JSON.stringify({ completed }) })
+      await invalidateTodos()
+    } catch {
+      toast.error('상태를 변경하지 못했습니다.')
+      throw new Error('toggleTodo failed')
+    }
   }
 
   const reorderTodos = async (items: { id: number; position: number }[]) => {
-    await fetchWithAuth('/api/todos/reorder', { method: 'PATCH', body: JSON.stringify({ items }) })
+    try {
+      await fetchWithAuth('/api/todos/reorder', { method: 'PATCH', body: JSON.stringify({ items }) })
+    } catch {
+      toast.error('순서를 저장하지 못했습니다.')
+      throw new Error('reorderTodos failed')
+    }
   }
 
   return {
