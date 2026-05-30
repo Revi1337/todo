@@ -1,18 +1,16 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useTodos } from "@/hooks/useTodos"
 import { useCategories } from "@/hooks/useCategories"
 import { useTags } from "@/hooks/useTags"
+import { useTodoForm } from "@/hooks/useTodoForm"
 import { Todo, Priority } from "@/types"
 import { PRIORITY_META } from "@/constants/priority"
-import dayjs from "dayjs"
 
 type DialogMode = "view" | "edit" | "create"
 
@@ -30,83 +28,30 @@ interface Props {
 }
 
 export function TodoFormDialog({ open, onClose, todo, defaultDueDate }: Props) {
-  const { createTodo, updateTodo } = useTodos()
   const { categories } = useCategories()
   const { tags } = useTags()
 
-  const [mode, setMode] = useState<DialogMode>("create")
-  const [title, setTitle] = useState("")
-  const [description, setDescription] = useState("")
-  const [priority, setPriority] = useState<Priority>("MEDIUM")
-  const [dueDate, setDueDate] = useState("")
-  const [categoryId, setCategoryId] = useState<string>("")
-  const [selectedTagIds, setSelectedTagIds] = useState<number[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
+  const {
+    mode, setMode,
+    title, setTitle,
+    description, setDescription,
+    priority, setPriority,
+    dueDate, setDueDate,
+    categoryId,
+    selectedTagIds,
+    loading, error,
+    handleSubmit,
+    toggleTag,
+    handleCategoryChange,
+  } = useTodoForm(open, todo, defaultDueDate, onClose)
 
-  useEffect(() => {
-    if (!open) return
-    if (todo) {
-      setMode("view")
-      setTitle(todo.title)
-      setDescription(todo.description || "")
-      setPriority(todo.priority)
-      setDueDate(todo.dueDate ? dayjs(todo.dueDate).format("YYYY-MM-DD") : "")
-      setCategoryId(todo.category ? String(todo.category.id) : "")
-      setSelectedTagIds(todo.tags.map(t => t.id))
-    } else {
-      setMode("create")
-      setTitle("")
-      setDescription("")
-      setPriority("MEDIUM")
-      setDueDate(defaultDueDate || "")
-      setCategoryId("")
-      setSelectedTagIds([])
-    }
-    setError("")
-  }, [open, todo, defaultDueDate])
-
-  const handleSubmit = async (e: React.BaseSyntheticEvent) => {
-    e.preventDefault()
-    if (!title.trim()) { setError("제목을 입력하세요."); return }
-    setLoading(true)
-    setError("")
-    try {
-      const payload = {
-        title: title.trim(),
-        description: description.trim() || undefined,
-        priority,
-        dueDate: dueDate || (mode === "create" ? dayjs().format("YYYY-MM-DD") : undefined),
-        categoryId: categoryId ? Number(categoryId) : undefined,
-        tagIds: selectedTagIds,
-      }
-      if (todo) {
-        await updateTodo(todo.id, { ...payload, completed: todo.completed })
-      } else {
-        await createTodo(payload)
-      }
-      onClose()
-    } catch {
-      setError("저장 중 오류가 발생했습니다.")
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const toggleTag = (id: number) =>
-    setSelectedTagIds(prev => prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id])
-
-  const handleCategoryChange = (v: string | null) => {
-    setCategoryId(v === "none" ? "" : (v || ""))
-  }
+  const isReadOnly = mode === "view"
 
   const getCategoryDisplay = () => {
     if (!categoryId) return "선택 없음"
     const category = categories.find(c => String(c.id) === categoryId)
     return category ? category.name : "선택 없음"
   }
-
-  const isReadOnly = mode === "view"
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
@@ -155,7 +100,7 @@ export function TodoFormDialog({ open, onClose, todo, defaultDueDate }: Props) {
                   key={value}
                   type="button"
                   data-active={priority === value}
-                  onClick={(e) => { e.preventDefault(); setPriority(value); }}
+                  onClick={(e) => { e.preventDefault(); setPriority(value) }}
                   disabled={isReadOnly}
                   className={`flex-1 py-1.5 rounded-full border text-xs font-semibold transition-all disabled:opacity-70 disabled:cursor-not-allowed ${PRIORITY_META[value].buttonColor}`}
                 >
@@ -210,12 +155,13 @@ export function TodoFormDialog({ open, onClose, todo, defaultDueDate }: Props) {
                   <button
                     key={tag.id}
                     type="button"
-                    onClick={(e) => { e.preventDefault(); toggleTag(tag.id); }}
+                    onClick={(e) => { e.preventDefault(); toggleTag(tag.id) }}
                     disabled={isReadOnly}
-                    className={`px-3 py-1 rounded-full border text-xs font-semibold transition-all disabled:opacity-80 disabled:cursor-not-allowed ${selectedTagIds.includes(tag.id)
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-background/50 text-muted-foreground border-border/50 hover:border-primary/50"
-                      }`}
+                    className={`px-3 py-1 rounded-full border text-xs font-semibold transition-all disabled:opacity-80 disabled:cursor-not-allowed ${
+                      selectedTagIds.includes(tag.id)
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-background/50 text-muted-foreground border-border/50 hover:border-primary/50"
+                    }`}
                   >
                     {tag.name}
                   </button>
@@ -228,16 +174,16 @@ export function TodoFormDialog({ open, onClose, todo, defaultDueDate }: Props) {
           <div className="flex justify-end gap-2 pt-1">
             {mode === "view" ? (
               <>
-                <Button type="button" variant="outline" onClick={(e) => { e.preventDefault(); onClose(); }} className="rounded-full px-5">
+                <Button type="button" variant="outline" onClick={(e) => { e.preventDefault(); onClose() }} className="rounded-full px-5">
                   닫기
                 </Button>
-                <Button type="button" onClick={(e) => { e.preventDefault(); setMode("edit"); }} className="rounded-full px-5">
+                <Button type="button" onClick={(e) => { e.preventDefault(); setMode("edit") }} className="rounded-full px-5">
                   편집
                 </Button>
               </>
             ) : (
               <>
-                <Button type="button" variant="outline" onClick={(e) => { e.preventDefault(); mode === "edit" ? setMode("view") : onClose(); }} className="rounded-full px-5" disabled={loading}>
+                <Button type="button" variant="outline" onClick={(e) => { e.preventDefault(); mode === "edit" ? setMode("view") : onClose() }} className="rounded-full px-5" disabled={loading}>
                   취소
                 </Button>
                 <Button type="submit" className="rounded-full px-5" disabled={loading}>

@@ -1,13 +1,15 @@
 "use client"
 
 import { useState, useEffect, useMemo, useCallback } from "react"
-import { DragDropContext, type DragStart, type DropResult } from "@hello-pangea/dnd"
+import { DragDropContext } from "@hello-pangea/dnd"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import dayjs, { Dayjs } from "dayjs"
+import dayjs from "dayjs"
 import { useTodos } from "@/hooks/useTodos"
 import { useCategories } from "@/hooks/useCategories"
 import { useTags } from "@/hooks/useTags"
-import { Todo, TodoFilter } from "@/types"
+import { useBoardState } from "@/hooks/useBoardState"
+import { useDragDrop } from "@/hooks/useDragDrop"
+import { Todo } from "@/types"
 import { buildQuery } from "@/lib/queryBuilder"
 import { Column } from "./Column"
 import { FilterPanel } from "./FilterPanel"
@@ -15,7 +17,7 @@ import { TodoFormDialog } from "./TodoFormDialog"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { useFilterSheet } from "@/contexts/FilterSheetContext"
 
-function formatDateLabel(date: Dayjs): string {
+function formatDateLabel(date: dayjs.Dayjs): string {
   const today = dayjs().startOf("day")
   const diff = date.startOf("day").diff(today, "day")
   const formatted = date.format("M월 D일")
@@ -26,9 +28,12 @@ function formatDateLabel(date: Dayjs): string {
 }
 
 export function Board() {
-  const [selectedDate, setSelectedDate] = useState<Dayjs>(() => dayjs())
-  const [filter, setFilter] = useState<TodoFilter>({})
-  const [search, setSearch] = useState("")
+  const {
+    selectedDate, filter, setFilter, search, setSearch,
+    dialogOpen, editingTodo,
+    goToPrevDay, goToNextDay,
+    openCreate, openEdit, closeDialog, resetFilter,
+  } = useBoardState()
 
   const queryParams = useMemo(
     () => buildQuery({
@@ -44,41 +49,20 @@ export function Board() {
   const { tags } = useTags()
 
   const [localTodos, setLocalTodos] = useState<Todo[]>([])
-  const [draggingFromId, setDraggingFromId] = useState<string | null>(null)
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [editingTodo, setEditingTodo] = useState<Todo | null>(null)
 
   useEffect(() => {
     if (swrTodos) setLocalTodos(swrTodos)
   }, [swrTodos])
 
+  const { draggingFromId, onDragStart, onDragEnd } = useDragDrop({
+    localTodos,
+    swrTodos,
+    setLocalTodos,
+    reorderTodos,
+  })
+
   const activeTodos = useMemo(() => localTodos.filter(t => !t.completed), [localTodos])
   const completedTodos = useMemo(() => localTodos.filter(t => t.completed), [localTodos])
-
-  const onDragStart = useCallback((start: DragStart) => {
-    setDraggingFromId(start.source.droppableId)
-  }, [])
-
-  const onDragEnd = useCallback((result: DropResult) => {
-    setDraggingFromId(null)
-    if (!result.destination) return
-    const { source, destination } = result
-    if (source.droppableId !== destination.droppableId) return
-    if (source.index === destination.index) return
-
-    const isCompleted = source.droppableId === "COMPLETED"
-    const col = localTodos.filter(t => t.completed === isCompleted)
-    const other = localTodos.filter(t => t.completed !== isCompleted)
-    const newCol = [...col]
-    const [moved] = newCol.splice(source.index, 1)
-    newCol.splice(destination.index, 0, moved)
-
-    const reorderItems = newCol.map((t, i) => ({ id: t.id, position: i }))
-    const newTodos = isCompleted ? [...other, ...newCol] : [...newCol, ...other]
-
-    setLocalTodos(newTodos)
-    reorderTodos(reorderItems).catch(() => setLocalTodos(swrTodos))
-  }, [localTodos, reorderTodos, swrTodos])
 
   const handleToggle = useCallback(async (id: number) => {
     const snapshot = localTodos
@@ -113,18 +97,13 @@ export function Board() {
     }
   }, [localTodos, deleteTodo])
 
-  const openCreate = useCallback(() => { setEditingTodo(null); setDialogOpen(true) }, [])
-  const openEdit = useCallback((todo: Todo) => { setEditingTodo(todo); setDialogOpen(true) }, [])
-  const handleReset = useCallback(() => { setFilter({}); setSearch("") }, [])
-  const handleClose = useCallback(() => setDialogOpen(false), [])
-
   const { open: filterSheetOpen, setOpen: setFilterSheetOpen } = useFilterSheet()
 
   const filterPanelProps = {
     filter, search, categories, tags,
     onFilterChange: setFilter,
     onSearchChange: setSearch,
-    onReset: handleReset,
+    onReset: resetFilter,
     onCreateTodo: openCreate,
   }
 
@@ -134,7 +113,7 @@ export function Board() {
         <div className="flex-1 flex flex-col gap-4 min-h-0">
           <div className="flex items-center justify-center gap-3 shrink-0">
             <button
-              onClick={() => setSelectedDate(d => d.subtract(1, "day"))}
+              onClick={goToPrevDay}
               className="p-1.5 rounded-lg hover:bg-muted transition-colors"
             >
               <ChevronLeft className="w-5 h-5" />
@@ -143,7 +122,7 @@ export function Board() {
               {formatDateLabel(selectedDate)}
             </span>
             <button
-              onClick={() => setSelectedDate(d => d.add(1, "day"))}
+              onClick={goToNextDay}
               className="p-1.5 rounded-lg hover:bg-muted transition-colors"
             >
               <ChevronRight className="w-5 h-5" />
@@ -178,7 +157,7 @@ export function Board() {
 
       <TodoFormDialog
         open={dialogOpen}
-        onClose={handleClose}
+        onClose={closeDialog}
         todo={editingTodo}
         defaultDueDate={selectedDate.format("YYYY-MM-DD")}
       />
