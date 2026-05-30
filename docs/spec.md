@@ -200,6 +200,8 @@ AuthFilter — 세션에 authenticated=true ? → 통과
 
 ## 7. API 설계
 
+> 전체 OpenAPI 3.0 스펙: `backend/openapi.yml`
+
 ### 공통 규칙
 - Base URL: `/api`
 - Content-Type: `application/json`
