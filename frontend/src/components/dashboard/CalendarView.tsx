@@ -1,9 +1,11 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useCallback } from "react"
 import dayjs from "dayjs"
 import { DragDropContext, Droppable } from "@hello-pangea/dnd"
 import { useTodos } from "@/hooks/useTodos"
+import { useTodoMutations } from "@/hooks/useTodoMutations"
+import { useLocalTodoSync } from "@/hooks/useLocalTodoSync"
 import { useDragDrop } from "@/hooks/useDragDrop"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
@@ -107,12 +109,9 @@ export function CalendarView() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null)
 
-  const { todos, rawTodos, toggleTodo, deleteTodo, reorderTodos, refetch, isLoading } = useTodos()
-  const [localTodos, setLocalTodos] = useState(todos)
-
-  useEffect(() => {
-    if (rawTodos !== undefined) setLocalTodos(rawTodos)
-  }, [rawTodos])
+  const { rawTodos, refetch, isLoading } = useTodos()
+  const { toggleTodo, deleteTodo, reorderTodos } = useTodoMutations()
+  const [localTodos, setLocalTodos] = useLocalTodoSync(rawTodos)
 
   const { onDragStart, onDragEnd } = useDragDrop({ localTodos, setLocalTodos, reorderTodos })
 

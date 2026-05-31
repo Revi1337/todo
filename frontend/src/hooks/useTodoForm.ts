@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import dayjs from "dayjs"
 import { Todo, Priority, DialogMode } from "@/types"
-import { useTodos } from "./useTodos"
+import { useTodoMutations } from "./useTodoMutations"
 
 export function useTodoForm(
   open: boolean,
@@ -10,7 +10,7 @@ export function useTodoForm(
   onClose: () => void,
   onSaved?: () => void,
 ) {
-  const { createTodo, updateTodo } = useTodos()
+  const { createTodo, updateTodo } = useTodoMutations()
 
   const [mode, setMode] = useState<DialogMode>("create")
   const [title, setTitle] = useState("")

@@ -1,15 +1,16 @@
 "use client"
 
-import { useState, useEffect, useMemo, useCallback } from "react"
+import { useMemo, useCallback } from "react"
 import { DragDropContext } from "@hello-pangea/dnd"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import dayjs from "dayjs"
 import { useTodos } from "@/hooks/useTodos"
+import { useTodoMutations } from "@/hooks/useTodoMutations"
+import { useLocalTodoSync } from "@/hooks/useLocalTodoSync"
 import { useCategories } from "@/hooks/useCategories"
 import { useTags } from "@/hooks/useTags"
 import { useBoardState } from "@/hooks/useBoardState"
 import { useDragDrop } from "@/hooks/useDragDrop"
-import { Todo } from "@/types"
 import { buildQuery } from "@/lib/queryBuilder"
 import { TodoActionsProvider } from "@/contexts/TodoActionsContext"
 import { Column } from "./Column"
@@ -45,15 +46,12 @@ export function Board() {
     [filter, search, selectedDate]
   )
 
-  const { rawTodos, toggleTodo, deleteTodo, reorderTodos, refetch, isLoading: todosLoading } = useTodos(queryParams)
+  const { rawTodos, refetch, isLoading: todosLoading } = useTodos(queryParams)
+  const { toggleTodo, deleteTodo, reorderTodos } = useTodoMutations()
   const { categories, isLoading: categoriesLoading } = useCategories()
   const { tags, isLoading: tagsLoading } = useTags()
 
-  const [localTodos, setLocalTodos] = useState<Todo[]>([])
-
-  useEffect(() => {
-    if (rawTodos !== undefined) setLocalTodos(rawTodos)
-  }, [rawTodos])
+  const [localTodos, setLocalTodos] = useLocalTodoSync(rawTodos)
 
   const { draggingFromId, onDragStart, onDragEnd } = useDragDrop({
     localTodos,
