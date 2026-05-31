@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react"
 import dayjs from "dayjs"
-import { Todo, Priority } from "@/types"
+import { Todo, Priority, DialogMode } from "@/types"
 import { useTodos } from "./useTodos"
-
-type DialogMode = "view" | "edit" | "create"
 
 export function useTodoForm(
   open: boolean,

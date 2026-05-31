@@ -9,10 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useCategories } from "@/hooks/useCategories"
 import { useTags } from "@/hooks/useTags"
 import { useTodoForm } from "@/hooks/useTodoForm"
-import { Todo, Priority } from "@/types"
+import { Todo, Priority, DialogMode } from "@/types"
 import { PRIORITY_META } from "@/constants/priority"
-
-type DialogMode = "view" | "edit" | "create"
 
 const DIALOG_TITLES: Record<DialogMode, string> = {
   view: "작업 상세",

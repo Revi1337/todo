@@ -19,6 +19,8 @@ export interface Tag {
 
 export type Priority = "HIGH" | "MEDIUM" | "LOW";
 
+export type DialogMode = "view" | "edit" | "create";
+
 export interface Todo {
   id: number;
   title: string;

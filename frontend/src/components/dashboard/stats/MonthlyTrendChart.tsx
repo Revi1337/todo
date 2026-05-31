@@ -3,28 +3,14 @@
 import { useMemo } from "react"
 import dayjs from "dayjs"
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
+import { CHART_COLORS } from "@/constants/colors"
+import { ChartTooltipProps, CHART_TOOLTIP_STYLE } from "@/lib/chartStyles"
 import { StatsData } from "@/hooks/useStats"
-
-type ChartTooltipProps = {
-  active?: boolean
-  payload?: ReadonlyArray<{ value?: number | string; payload: Record<string, string> }>
-}
-
-const tooltipStyle = {
-  borderRadius: '16px',
-  border: '1px solid rgba(128,128,128,0.2)',
-  boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.15)',
-  background: 'var(--color-card)',
-  color: 'var(--color-card-foreground)',
-  padding: '8px 14px',
-  fontSize: '13px',
-  fontWeight: 600,
-}
 
 function MonthlyTooltip({ active, payload }: ChartTooltipProps) {
   if (!active || !payload?.length) return null
   const d = dayjs(payload[0].payload.date)
-  return <div style={tooltipStyle}>{d.month() + 1}-{String(d.date()).padStart(2, '0')}: {payload[0].value} 완료</div>
+  return <div style={CHART_TOOLTIP_STYLE}>{d.month() + 1}-{String(d.date()).padStart(2, '0')}: {payload[0].value} 완료</div>
 }
 
 interface Props {
@@ -67,7 +53,7 @@ export function MonthlyTrendChart({ monthlyTrend }: Props) {
             <YAxis axisLine={false} tickLine={false} fontSize={12} fontWeight={600} stroke="currentColor" opacity={0.6} />
             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             <Tooltip isAnimationActive={false} cursor={{ fill: 'var(--color-primary)', opacity: 0.05 }} content={MonthlyTooltip as any} />
-            <Bar dataKey="completed" fill="#3b82f6" opacity={0.9} radius={[6, 6, 0, 0]} />
+            <Bar dataKey="completed" fill={CHART_COLORS.monthly} opacity={0.9} radius={[6, 6, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
