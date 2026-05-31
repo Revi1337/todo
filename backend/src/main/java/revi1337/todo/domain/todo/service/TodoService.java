@@ -105,7 +105,6 @@ public class TodoService {
         int oldPosition = todo.getPosition();
         todoRepository.incrementPositions(newCompleted);
         todoRepository.decrementPositionsAfter(!newCompleted, oldPosition);
-        todo = todoRepository.findById(id).orElseThrow();
         todo.toggleCompleted(newCompleted, LocalDateTime.now());
         todo.updatePosition(0);
 

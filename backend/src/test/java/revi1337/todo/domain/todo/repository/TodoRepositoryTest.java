@@ -1,5 +1,6 @@
 package revi1337.todo.domain.todo.repository;
 
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -32,6 +33,7 @@ class TodoRepositoryTest {
     @Autowired private TodoRepository todoRepository;
     @Autowired private CategoryRepository categoryRepository;
     @Autowired private TagRepository tagRepository;
+    @Autowired private EntityManager entityManager;
 
     private static final LocalDateTime NOW = LocalDateTime.of(2026, 5, 28, 0, 0);
     private Category category;
@@ -129,6 +131,7 @@ class TodoRepositoryTest {
 
         todoRepository.incrementPositions(false);
         todoRepository.flush();
+        entityManager.clear();
 
         assertThat(todoRepository.findById(a.getId()).get().getPosition()).isEqualTo(1);
         assertThat(todoRepository.findById(b.getId()).get().getPosition()).isEqualTo(2);
@@ -147,6 +150,7 @@ class TodoRepositoryTest {
 
         todoRepository.decrementPositionsAfter(false, 0);
         todoRepository.flush();
+        entityManager.clear();
 
         assertThat(todoRepository.findById(a.getId()).get().getPosition()).isEqualTo(0);
         assertThat(todoRepository.findById(b.getId()).get().getPosition()).isEqualTo(0);

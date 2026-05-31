@@ -1,5 +1,6 @@
 package revi1337.todo.domain.todo.service;
 
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,8 @@ class TodoServiceTest {
 
     @Autowired
     private TodoService todoService;
+    @Autowired
+    private EntityManager entityManager;
 
     @Test
     @DisplayName("Todo를 생성한다")
@@ -47,6 +50,7 @@ class TodoServiceTest {
         TodoResponse first = todoService.create(new TodoRequest("첫번째", null, null, null, null, null, null));
         TodoResponse second = todoService.create(new TodoRequest("두번째", null, null, null, null, null, null));
         TodoResponse third = todoService.create(new TodoRequest("세번째", null, null, null, null, null, null));
+        entityManager.clear();
 
         assertThat(todoService.findById(third.id()).position()).isEqualTo(0);
         assertThat(todoService.findById(second.id()).position()).isEqualTo(1);

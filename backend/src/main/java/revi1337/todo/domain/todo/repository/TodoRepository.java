@@ -35,11 +35,11 @@ public interface TodoRepository extends JpaRepository<Todo, Long>, JpaSpecificat
             """, nativeQuery = true)
     List<Object[]> findDailyCompletedBetween(@Param("from") LocalDate from, @Param("to") LocalDate to);
 
-    @Modifying(clearAutomatically = true)
+    @Modifying
     @Query("UPDATE Todo t SET t.position = t.position + 1 WHERE t.completed = :completed")
     void incrementPositions(@Param("completed") boolean completed);
 
-    @Modifying(clearAutomatically = true)
+    @Modifying
     @Query("UPDATE Todo t SET t.position = t.position - 1 WHERE t.completed = :completed AND t.position > :afterPosition")
     void decrementPositionsAfter(@Param("completed") boolean completed, @Param("afterPosition") int afterPosition);
 
