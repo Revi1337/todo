@@ -10,6 +10,7 @@ export function useTodoForm(
   todo: Todo | null | undefined,
   defaultDueDate: string | undefined,
   onClose: () => void,
+  onSaved?: () => void,
 ) {
   const { createTodo, updateTodo } = useTodos()
 
@@ -64,6 +65,7 @@ export function useTodoForm(
       } else {
         await createTodo(payload)
       }
+      onSaved?.()
       onClose()
     } catch {
       setError("저장 중 오류가 발생했습니다.")

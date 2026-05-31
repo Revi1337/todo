@@ -94,16 +94,14 @@ export function CalendarView() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null)
 
-  const { todos, rawTodos, toggleTodo, deleteTodo, reorderTodos, mutate, isLoading } = useTodos()
+  const { todos, rawTodos, toggleTodo, deleteTodo, reorderTodos, refetch, isLoading } = useTodos()
   const [localTodos, setLocalTodos] = useState(todos)
 
   useEffect(() => {
     if (rawTodos !== undefined) setLocalTodos(rawTodos)
   }, [rawTodos])
 
-  const clearCache = useCallback(() => mutate(undefined, { revalidate: false }), [mutate])
-
-  const { onDragStart, onDragEnd } = useDragDrop({ localTodos, setLocalTodos, reorderTodos, clearCache })
+  const { onDragStart, onDragEnd } = useDragDrop({ localTodos, setLocalTodos, reorderTodos })
 
   const handleToggle = useCallback(async (todo: Todo) => {
     const snapshot = localTodos
@@ -113,22 +111,20 @@ export function CalendarView() {
     ))
     try {
       await toggleTodo(todo.id, next)
-      clearCache()
     } catch {
       setLocalTodos(snapshot)
     }
-  }, [localTodos, toggleTodo, clearCache])
+  }, [localTodos, toggleTodo])
 
   const handleDelete = useCallback(async (id: number) => {
     const snapshot = localTodos
     setLocalTodos(prev => prev.filter(t => t.id !== id))
     try {
       await deleteTodo(id)
-      clearCache()
     } catch {
       setLocalTodos(snapshot)
     }
-  }, [localTodos, deleteTodo, clearCache])
+  }, [localTodos, deleteTodo])
 
   const calendarDays = buildCalendarDays(currentDate)
   const selectedTodos = selectedDate
@@ -281,6 +277,7 @@ export function CalendarView() {
       <TodoFormDialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
+        onSaved={refetch}
         todo={editingTodo}
         defaultDueDate={selectedDate ? selectedDate.format("YYYY-MM-DD") : undefined}
       />

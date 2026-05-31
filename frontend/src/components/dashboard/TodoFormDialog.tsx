@@ -25,9 +25,10 @@ interface Props {
   onClose: () => void
   todo?: Todo | null
   defaultDueDate?: string
+  onSaved?: () => void
 }
 
-export function TodoFormDialog({ open, onClose, todo, defaultDueDate }: Props) {
+export function TodoFormDialog({ open, onClose, todo, defaultDueDate, onSaved }: Props) {
   const { categories } = useCategories()
   const { tags } = useTags()
 
@@ -43,7 +44,7 @@ export function TodoFormDialog({ open, onClose, todo, defaultDueDate }: Props) {
     handleSubmit,
     toggleTag,
     handleCategoryChange,
-  } = useTodoForm(open, todo, defaultDueDate, onClose)
+  } = useTodoForm(open, todo, defaultDueDate, onClose, onSaved)
 
   const isReadOnly = mode === "view"
 

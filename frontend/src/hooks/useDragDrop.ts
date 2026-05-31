@@ -6,10 +6,9 @@ interface UseDragDropOptions {
   localTodos: Todo[]
   setLocalTodos: (todos: Todo[]) => void
   reorderTodos: (items: { id: number; position: number }[]) => Promise<void>
-  clearCache: () => void
 }
 
-export function useDragDrop({ localTodos, setLocalTodos, reorderTodos, clearCache }: UseDragDropOptions) {
+export function useDragDrop({ localTodos, setLocalTodos, reorderTodos }: UseDragDropOptions) {
   const [draggingFromId, setDraggingFromId] = useState<string | null>(null)
 
   const onDragStart = useCallback((start: DragStart) => {
@@ -35,10 +34,8 @@ export function useDragDrop({ localTodos, setLocalTodos, reorderTodos, clearCach
     const snapshot = localTodos
 
     setLocalTodos(newTodos)
-    reorderTodos(reorderItems)
-      .then(() => clearCache())
-      .catch(() => setLocalTodos(snapshot))
-  }, [localTodos, setLocalTodos, reorderTodos, clearCache])
+    reorderTodos(reorderItems).catch(() => setLocalTodos(snapshot))
+  }, [localTodos, setLocalTodos, reorderTodos])
 
   return { draggingFromId, onDragStart, onDragEnd }
 }

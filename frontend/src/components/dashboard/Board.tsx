@@ -45,7 +45,7 @@ export function Board() {
     [filter, search, selectedDate]
   )
 
-  const { rawTodos, toggleTodo, deleteTodo, reorderTodos, mutate } = useTodos(queryParams)
+  const { rawTodos, toggleTodo, deleteTodo, reorderTodos, refetch } = useTodos(queryParams)
   const { categories } = useCategories()
   const { tags } = useTags()
 
@@ -55,13 +55,10 @@ export function Board() {
     if (rawTodos !== undefined) setLocalTodos(rawTodos)
   }, [rawTodos])
 
-  const clearCache = useCallback(() => mutate(undefined, { revalidate: false }), [mutate])
-
   const { draggingFromId, onDragStart, onDragEnd } = useDragDrop({
     localTodos,
     setLocalTodos,
     reorderTodos,
-    clearCache,
   })
 
   const activeTodos = useMemo(() => localTodos.filter(t => !t.completed), [localTodos])
@@ -85,22 +82,20 @@ export function Board() {
 
     try {
       await toggleTodo(id, next)
-      clearCache()
     } catch {
       setLocalTodos(snapshot)
     }
-  }, [localTodos, toggleTodo, clearCache])
+  }, [localTodos, toggleTodo])
 
   const handleDelete = useCallback(async (id: number) => {
     const snapshot = localTodos
     setLocalTodos(prev => prev.filter(t => t.id !== id))
     try {
       await deleteTodo(id)
-      clearCache()
     } catch {
       setLocalTodos(snapshot)
     }
-  }, [localTodos, deleteTodo, clearCache])
+  }, [localTodos, deleteTodo])
 
   const { open: filterSheetOpen, setOpen: setFilterSheetOpen } = useFilterSheet()
 
@@ -161,6 +156,7 @@ export function Board() {
       <TodoFormDialog
         open={dialogOpen}
         onClose={closeDialog}
+        onSaved={refetch}
         todo={editingTodo}
         defaultDueDate={selectedDate.format("YYYY-MM-DD")}
       />
