@@ -136,8 +136,6 @@ export function CalendarView() {
   const openCreate = () => { setEditingTodo(null); setDialogOpen(true) }
   const openEdit = (todo: Todo) => { setEditingTodo(todo); setDialogOpen(true) }
 
-  if (isLoading) return <LoadingSpinner />
-
   return (
     <>
       <div className="flex flex-col xl:flex-row gap-8 xl:h-full xl:items-start">
@@ -155,7 +153,12 @@ export function CalendarView() {
             </div>
           </div>
 
-          <div className="grid grid-cols-7 min-h-[360px] xl:flex-1 xl:min-h-0 border-t border-l border-border/40 rounded-lg overflow-hidden grid-rows-[auto_repeat(6,minmax(0,1fr))]">
+          <div className="relative grid grid-cols-7 min-h-[360px] xl:flex-1 xl:min-h-0 border-t border-l border-border/40 rounded-lg overflow-hidden grid-rows-[auto_repeat(6,minmax(0,1fr))]">
+            {isLoading && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/50 backdrop-blur-[2px] rounded-lg">
+                <LoadingSpinner />
+              </div>
+            )}
             {WEEK_DAYS.map(d => (
               <div key={d} className="text-center text-sm font-semibold text-muted-foreground py-3 border-r border-b border-border/40">{d}</div>
             ))}
@@ -183,7 +186,7 @@ export function CalendarView() {
               <h3 className="text-lg font-bold mb-1 tracking-tight">
                 {selectedDate ? selectedDate.format("MM월 DD일 일정") : "날짜를 선택하세요"}
               </h3>
-              <p className="text-sm text-muted-foreground font-medium">총 {selectedTodos.length}개의 일정</p>
+              <p className={`text-sm text-muted-foreground font-medium ${isLoading ? 'invisible' : ''}`}>총 {selectedTodos.length}개의 일정</p>
             </div>
             {selectedTodos.length > 0 && (
               <span className="px-2 h-6 flex items-center justify-center bg-muted/80 text-muted-foreground text-xs font-bold rounded-full gap-0.5 border border-border/50 shrink-0 mt-1">
@@ -199,8 +202,15 @@ export function CalendarView() {
           </Button>
 
           <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
-            <div className="flex-1 flex flex-col gap-4 xl:min-h-0 xl:overflow-hidden">
-              {selectedTodos.length === 0 ? (
+            <div className="flex flex-col gap-4 xl:flex-1 xl:min-h-0 xl:overflow-hidden">
+              {isLoading ? (
+                <div className="text-center py-10 text-muted-foreground text-sm font-medium flex items-center justify-center">
+                  <svg className="animate-spin w-4 h-4 text-muted-foreground/60" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                </div>
+              ) : selectedTodos.length === 0 ? (
                 <div className="text-center py-10 text-muted-foreground text-sm font-medium">일정이 없습니다.</div>
               ) : (
                 <>
