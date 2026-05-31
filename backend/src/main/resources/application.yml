@@ -18,6 +18,7 @@ spring:
         format_sql: true
         highlight_sql: true
         generate_statistics: true
+        default_batch_fetch_size: 100
 
 server:
   servlet:
