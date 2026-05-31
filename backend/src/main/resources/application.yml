@@ -7,6 +7,8 @@ spring:
     username: datasource_username
     password: datasource_password
     driver-class-name: org.postgresql.Driver
+    hikari:
+      keepalive-time: 60000
 
   jpa:
     hibernate:
