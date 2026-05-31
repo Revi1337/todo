@@ -93,12 +93,12 @@ public class TodoService {
     }
 
     @Transactional
-    public TodoResponse patch(Long id, TodoPatchRequest request) {
+    public void patch(Long id, TodoPatchRequest request) {
         Todo todo = todoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Todo not found: " + id));
 
         if (request.completed() == null || request.completed() == todo.isCompleted()) {
-            return TodoResponse.from(todo);
+            return;
         }
 
         boolean newCompleted = request.completed();
@@ -107,8 +107,6 @@ public class TodoService {
         todoRepository.decrementPositionsAfter(!newCompleted, oldPosition);
         todo.toggleCompleted(newCompleted, LocalDateTime.now());
         todo.updatePosition(0);
-
-        return TodoResponse.from(todo);
     }
 
     @Transactional

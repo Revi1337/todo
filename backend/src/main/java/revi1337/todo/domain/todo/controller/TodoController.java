@@ -53,8 +53,9 @@ public class TodoController {
     }
 
     @PatchMapping("/{id}")
-    public ApiResponse<TodoResponse> patch(@PathVariable Long id, @RequestBody TodoPatchRequest request) {
-        return ApiResponse.ok(todoService.patch(id, request));
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void patch(@PathVariable Long id, @RequestBody TodoPatchRequest request) {
+        todoService.patch(id, request);
     }
 
     @PatchMapping("/reorder")

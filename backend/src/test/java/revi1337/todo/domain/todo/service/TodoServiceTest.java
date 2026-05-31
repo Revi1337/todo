@@ -140,19 +140,21 @@ class TodoServiceTest {
         TodoResponse created = todoService.create(
                 new TodoRequest("패치 테스트", "설명", Priority.HIGH, LocalDate.of(2026, 6, 1), null, null, null));
 
-        TodoResponse result = todoService.patch(created.id(), new TodoPatchRequest(true));
+        todoService.patch(created.id(), new TodoPatchRequest(true));
 
+        TodoResponse result = todoService.findById(created.id());
         assertThat(result.completed()).isTrue();
         assertThat(result.completedAt()).isNotNull();
     }
 
     @Test
-    @DisplayName("completed가 null이면 변경 없이 그대로 반환한다")
+    @DisplayName("completed가 null이면 변경 없이 그대로 유지된다")
     void patch_nullCompleted_noChange() {
         TodoResponse created = todoService.create(new TodoRequest("테스트", null, null, null, null, null, null));
 
-        TodoResponse result = todoService.patch(created.id(), new TodoPatchRequest(null));
+        todoService.patch(created.id(), new TodoPatchRequest(null));
 
+        TodoResponse result = todoService.findById(created.id());
         assertThat(result.completed()).isFalse();
         assertThat(result.completedAt()).isNull();
     }
@@ -173,8 +175,9 @@ class TodoServiceTest {
                 new ReorderRequest.ReorderItem(a.id(), 0),
                 new ReorderRequest.ReorderItem(b.id(), 1)));
 
-        TodoResponse result = todoService.patch(a.id(), new TodoPatchRequest(true));
+        todoService.patch(a.id(), new TodoPatchRequest(true));
 
+        TodoResponse result = todoService.findById(a.id());
         assertThat(result.completed()).isTrue();
         assertThat(result.position()).isEqualTo(0);
 
@@ -188,12 +191,12 @@ class TodoServiceTest {
         TodoResponse active = todoService.create(new TodoRequest("Active", null, null, null, null, null, null));
         todoService.reorder(List.of(new ReorderRequest.ReorderItem(active.id(), 0)));
 
-        TodoResponse completed = todoService.patch(
-                todoService.create(new TodoRequest("Completed", null, null, null, null, null, null)).id(),
-                new TodoPatchRequest(true));
+        TodoResponse completedTodo = todoService.create(new TodoRequest("Completed", null, null, null, null, null, null));
+        todoService.patch(completedTodo.id(), new TodoPatchRequest(true));
 
-        TodoResponse result = todoService.patch(completed.id(), new TodoPatchRequest(false));
+        todoService.patch(completedTodo.id(), new TodoPatchRequest(false));
 
+        TodoResponse result = todoService.findById(completedTodo.id());
         assertThat(result.completed()).isFalse();
         assertThat(result.position()).isEqualTo(0);
 

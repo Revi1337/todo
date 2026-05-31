@@ -114,23 +114,19 @@ class TodoControllerTest {
     }
 
     @Test
-    @DisplayName("PATCH /api/todos/{id} — 부분 수정하고 200을 반환한다")
+    @DisplayName("PATCH /api/todos/{id} — 완료 상태를 변경하고 204를 반환한다")
     void patchTodo() throws Exception {
-        given(todoService.patch(any(), any(TodoPatchRequest.class)))
-                .willReturn(new TodoResponse(1L, "스프링 공부", null, true, Priority.HIGH, null, null, Set.of(), NOW, NOW, NOW, 0));
-
         mockMvc.perform(patch("/api/todos/1").session(authSession())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new TodoPatchRequest(true))))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.completed").value(true));
+                .andExpect(status().isNoContent());
     }
 
     @Test
     @DisplayName("PATCH /api/todos/{id} — 존재하지 않으면 404를 반환한다")
     void patchTodo_notFound_returns404() throws Exception {
-        given(todoService.patch(any(), any(TodoPatchRequest.class)))
-                .willThrow(new EntityNotFoundException("Todo not found: 999"));
+        willThrow(new EntityNotFoundException("Todo not found: 999"))
+                .given(todoService).patch(any(), any(TodoPatchRequest.class));
 
         mockMvc.perform(patch("/api/todos/999").session(authSession())
                         .contentType(MediaType.APPLICATION_JSON)

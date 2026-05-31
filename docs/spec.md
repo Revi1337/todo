@@ -248,7 +248,7 @@ POST와 동일 구조 + `completed` 필드 포함. **200** 수정된 Todo / **40
 ```json
 { "completed": true }
 ```
-**200** 수정된 Todo / **404** 없음
+**204** No Content / **404** 없음
 
 #### PATCH /api/todos/reorder
 Todo 순서 일괄 변경.
@@ -344,7 +344,7 @@ GROUP BY completed_at::date
 |------|------|
 | 200 | 성공 |
 | 201 | 리소스 생성 성공 |
-| 204 | 삭제 성공 (No Content) |
+| 204 | 삭제/완료 토글 성공 (No Content) |
 | 400 | 입력값 유효성 오류 |
 | 401 | 미인증 (세션 없음) |
 | 404 | 리소스 없음 |

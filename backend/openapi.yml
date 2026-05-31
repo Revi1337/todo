@@ -163,17 +163,8 @@ paths:
             schema:
               $ref: "#/components/schemas/TodoPatchRequest"
       responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/ApiResponseBase"
-                  - type: object
-                    properties:
-                      data:
-                        $ref: "#/components/schemas/TodoResponse"
+        "204":
+          description: No Content
         "404":
           $ref: "#/components/responses/NotFound"
 
