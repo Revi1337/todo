@@ -3,9 +3,9 @@ spring:
     default: local
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: datasource_url
+    username: datasource_username
+    password: datasource_password
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -17,10 +17,11 @@ spring:
       hibernate:
         format_sql: true
         highlight_sql: true
-        generate_statistics: true
+        generate_statistics: false
         default_batch_fetch_size: 100
 
 server:
+  shutdown: graceful
   servlet:
     session:
       timeout: 24h

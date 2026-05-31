@@ -44,7 +44,7 @@ jobs:
           scp application-prd.yml ${{ secrets.GCP_USER }}@${{ secrets.GCP_HOST }}:~/todo
 
       - name: Stop Spring Boot
-        run: ssh ${{ secrets.GCP_USER }}@${{ secrets.GCP_HOST }} "if [ -f ~/todo/todo.pid ]; then kill \$(cat ~/todo/todo.pid) || true; rm ~/todo/todo.pid; fi; sleep 2"
+        run: ssh ${{ secrets.GCP_USER }}@${{ secrets.GCP_HOST }} "if [ -f ~/todo/todo.pid ]; then kill \$(cat ~/todo/todo.pid) || true; while kill -0 \$(cat ~/todo/todo.pid) 2>/dev/null; do sleep 1; done; rm ~/todo/todo.pid; fi"
 
 
       - name: Start Spring Boot
