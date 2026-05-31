@@ -1,8 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import dayjs from "dayjs"
+import { DragDropContext, Droppable } from "@hello-pangea/dnd"
 import { useTodos } from "@/hooks/useTodos"
+import { useDragDrop } from "@/hooks/useDragDrop"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
 import { Todo, Priority } from "@/types"
@@ -92,11 +94,39 @@ export function CalendarView() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null)
 
-  const { todos, toggleTodo, isLoading } = useTodos()
+  const { todos: swrTodos, toggleTodo, deleteTodo, reorderTodos, isLoading } = useTodos()
+  const [localTodos, setLocalTodos] = useState(swrTodos)
+
+  useEffect(() => {
+    setLocalTodos(swrTodos)
+  }, [swrTodos])
+
+  const { onDragStart, onDragEnd } = useDragDrop({ localTodos, setLocalTodos, reorderTodos })
+
+  const handleToggle = useCallback(async (todo: Todo) => {
+    const snapshot = localTodos
+    const next = !todo.completed
+    setLocalTodos(prev => prev.map(t => t.id === todo.id ? { ...t, completed: next, completedAt: next ? new Date().toISOString() : null } : t))
+    try {
+      await toggleTodo(todo.id, next)
+    } catch {
+      setLocalTodos(snapshot)
+    }
+  }, [localTodos, toggleTodo])
+
+  const handleDelete = useCallback(async (id: number) => {
+    const snapshot = localTodos
+    setLocalTodos(prev => prev.filter(t => t.id !== id))
+    try {
+      await deleteTodo(id)
+    } catch {
+      setLocalTodos(snapshot)
+    }
+  }, [localTodos, deleteTodo])
 
   const calendarDays = buildCalendarDays(currentDate)
   const selectedTodos = selectedDate
-    ? todos.filter(t => dayjs(t.dueDate).isSame(selectedDate, "day"))
+    ? localTodos.filter(t => dayjs(t.dueDate).isSame(selectedDate, "day"))
     : []
   const pendingTodos = selectedTodos.filter(t => !t.completed)
   const completedTodos = selectedTodos.filter(t => t.completed)
@@ -108,9 +138,9 @@ export function CalendarView() {
 
   return (
     <>
-      <div className="flex flex-col lg:flex-row gap-8 lg:h-full lg:items-start">
+      <div className="flex flex-col xl:flex-row gap-8 xl:h-full xl:items-start">
         {/* 캘린더 */}
-        <div className="flex-1 bg-card rounded-card p-6 shadow-sm border border-border/50 h-[420px] lg:h-full flex flex-col min-h-0 overflow-hidden">
+        <div className="bg-card rounded-card p-6 shadow-sm border border-border/50 xl:flex-[2] xl:h-full flex flex-col xl:min-h-0 xl:overflow-hidden">
           <div className="flex items-center justify-between mb-6 shrink-0">
             <h2 className="text-2xl font-bold tracking-tight">{currentDate.format("YYYY년 MM월")}</h2>
             <div className="flex gap-2">
@@ -123,7 +153,7 @@ export function CalendarView() {
             </div>
           </div>
 
-          <div className="grid grid-cols-7 flex-1 min-h-0 border-t border-l border-border/40 rounded-lg overflow-hidden grid-rows-[auto_repeat(6,minmax(0,1fr))]">
+          <div className="grid grid-cols-7 min-h-[360px] xl:flex-1 xl:min-h-0 border-t border-l border-border/40 rounded-lg overflow-hidden grid-rows-[auto_repeat(6,minmax(0,1fr))]">
             {WEEK_DAYS.map(d => (
               <div key={d} className="text-center text-sm font-semibold text-muted-foreground py-3 border-r border-b border-border/40">{d}</div>
             ))}
@@ -136,7 +166,7 @@ export function CalendarView() {
                   dateNum={dateNum}
                   isToday={date.isSame(dayjs(), "day")}
                   isSelected={!!selectedDate?.isSame(date, "day")}
-                  dayTodos={todos.filter(t => dayjs(t.dueDate).isSame(date, "day"))}
+                  dayTodos={localTodos.filter(t => dayjs(t.dueDate).isSame(date, "day"))}
                   onClick={() => setSelectedDate(date)}
                 />
               )
@@ -145,7 +175,7 @@ export function CalendarView() {
         </div>
 
         {/* 날짜 상세 패널 */}
-        <div className="w-full lg:w-80 lg:shrink-0 bg-muted/20 rounded-card p-6 shadow-sm border border-border/50 lg:h-full flex flex-col lg:min-h-0">
+        <div className="w-full xl:flex-[1] bg-muted/20 rounded-card p-6 shadow-sm border border-border/50 xl:h-full flex flex-col xl:min-h-0">
           <div className="flex items-start justify-between mb-6 shrink-0">
             <div>
               <h3 className="text-lg font-bold mb-1 tracking-tight">
@@ -166,55 +196,79 @@ export function CalendarView() {
             <Plus className="w-5 h-5" /> 새 작업 추가
           </Button>
 
-          <div className="flex-1 flex flex-col gap-4 lg:min-h-0 lg:overflow-hidden">
-            {selectedTodos.length === 0 ? (
-              <div className="text-center py-10 text-muted-foreground text-sm font-medium">일정이 없습니다.</div>
-            ) : (
-              <>
-                <div className="flex-1 flex flex-col lg:min-h-0">
-                  <div className="flex items-center gap-2 mb-3 shrink-0">
-                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">할 일</span>
-                    <span className="text-xs font-bold text-primary/70">{pendingTodos.length}</span>
+          <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+            <div className="flex-1 flex flex-col gap-4 xl:min-h-0 xl:overflow-hidden">
+              {selectedTodos.length === 0 ? (
+                <div className="text-center py-10 text-muted-foreground text-sm font-medium">일정이 없습니다.</div>
+              ) : (
+                <>
+                  <div className="flex-1 flex flex-col xl:min-h-0">
+                    <div className="flex items-center gap-2 mb-3 shrink-0">
+                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">할 일</span>
+                      <span className="text-xs font-bold text-primary/70">{pendingTodos.length}</span>
+                    </div>
+                    <Droppable droppableId="ACTIVE">
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.droppableProps}
+                          className="flex-1 xl:overflow-y-auto scrollbar-hide flex flex-col px-0.5 py-0.5"
+                        >
+                          {pendingTodos.length === 0 ? (
+                            <div className="text-center py-4 text-muted-foreground text-sm font-medium">모두 완료했습니다!</div>
+                          ) : (
+                            pendingTodos.map((todo, index) => (
+                              <CalendarTodoCard
+                                key={todo.id}
+                                todo={todo}
+                                index={index}
+                                onEdit={openEdit}
+                                onToggle={handleToggle}
+                                onDelete={handleDelete}
+                              />
+                            ))
+                          )}
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Droppable>
                   </div>
-                  <div className="flex-1 lg:overflow-y-auto scrollbar-hide flex flex-col gap-3 px-0.5 py-0.5">
-                    {pendingTodos.length === 0 ? (
-                      <div className="text-center py-4 text-muted-foreground text-sm font-medium">모두 완료했습니다!</div>
-                    ) : (
-                      pendingTodos.map(todo => (
-                        <CalendarTodoCard
-                          key={todo.id}
-                          todo={todo}
-                          onEdit={openEdit}
-                          onToggle={(t: Todo) => toggleTodo(t.id, !t.completed)}
-                        />
-                      ))
-                    )}
-                  </div>
-                </div>
 
-                <div className="flex-1 flex flex-col lg:min-h-0">
-                  <div className="flex items-center gap-2 mb-3 shrink-0">
-                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">완료됨</span>
-                    <span className="text-xs font-bold text-primary/70">{completedTodos.length}</span>
+                  <div className="flex-1 flex flex-col xl:min-h-0">
+                    <div className="flex items-center gap-2 mb-3 shrink-0">
+                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">완료됨</span>
+                      <span className="text-xs font-bold text-primary/70">{completedTodos.length}</span>
+                    </div>
+                    <Droppable droppableId="COMPLETED">
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.droppableProps}
+                          className="flex-1 xl:overflow-y-auto scrollbar-hide flex flex-col px-0.5 py-0.5"
+                        >
+                          {completedTodos.length === 0 ? (
+                            <div className="text-center py-4 text-muted-foreground text-sm font-medium">완료된 일정이 없습니다.</div>
+                          ) : (
+                            completedTodos.map((todo, index) => (
+                              <CalendarTodoCard
+                                key={todo.id}
+                                todo={todo}
+                                index={index}
+                                onEdit={openEdit}
+                                onToggle={handleToggle}
+                                onDelete={handleDelete}
+                              />
+                            ))
+                          )}
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Droppable>
                   </div>
-                  <div className="flex-1 lg:overflow-y-auto scrollbar-hide flex flex-col gap-3 px-0.5 py-0.5">
-                    {completedTodos.length === 0 ? (
-                      <div className="text-center py-4 text-muted-foreground text-sm font-medium">완료된 일정이 없습니다.</div>
-                    ) : (
-                      completedTodos.map(todo => (
-                        <CalendarTodoCard
-                          key={todo.id}
-                          todo={todo}
-                          onEdit={openEdit}
-                          onToggle={(t: Todo) => toggleTodo(t.id, !t.completed)}
-                        />
-                      ))
-                    )}
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
+                </>
+              )}
+            </div>
+          </DragDropContext>
         </div>
       </div>
 
