@@ -12,6 +12,8 @@ interface FilterPanelProps {
   search: string
   categories: Category[]
   tags: Tag[]
+  categoriesLoading?: boolean
+  tagsLoading?: boolean
   onFilterChange: (filter: TodoFilter) => void
   onSearchChange: (search: string) => void
   onReset: () => void
@@ -28,7 +30,7 @@ function FilterSection({ title, children }: { title: string; children: React.Rea
   )
 }
 
-export function FilterPanel({ filter, search, categories, tags, onFilterChange, onSearchChange, onReset, onCreateTodo, asSheet }: FilterPanelProps) {
+export function FilterPanel({ filter, search, categories, tags, categoriesLoading, tagsLoading, onFilterChange, onSearchChange, onReset, onCreateTodo, asSheet }: FilterPanelProps) {
   return (
     <div className={asSheet ? "flex flex-col gap-6" : "w-64 shrink-0 hidden xl:flex flex-col gap-6"}>
       <div>
@@ -81,33 +83,47 @@ export function FilterPanel({ filter, search, categories, tags, onFilterChange, 
           ))}
         </FilterSection>
 
-        {categories.length > 0 && (
-          <FilterSection title="카테고리">
-            <Button variant={!filter.category ? "default" : "ghost"} size="sm"
-              className="justify-start rounded-lg w-full"
-              onClick={() => onFilterChange({ ...filter, category: undefined })}>전체</Button>
-            {categories.map(c => (
-              <Button key={c.id} variant={filter.category === c.id ? "default" : "ghost"} size="sm"
-                className="justify-start rounded-lg w-full gap-2"
-                onClick={() => onFilterChange({ ...filter, category: c.id })}>
-                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: c.color }} />
-                {c.name}
-              </Button>
-            ))}
-          </FilterSection>
-        )}
+        <FilterSection title="카테고리">
+          {categoriesLoading ? (
+            <div className="flex flex-col gap-0.5">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="h-8 rounded-lg bg-border/60 animate-pulse" />
+              ))}
+            </div>
+          ) : (
+            <>
+              <Button variant={!filter.category ? "default" : "ghost"} size="sm"
+                className="justify-start rounded-lg w-full"
+                onClick={() => onFilterChange({ ...filter, category: undefined })}>전체</Button>
+              {categories.map(c => (
+                <Button key={c.id} variant={filter.category === c.id ? "default" : "ghost"} size="sm"
+                  className="justify-start rounded-lg w-full gap-2"
+                  onClick={() => onFilterChange({ ...filter, category: c.id })}>
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: c.color }} />
+                  {c.name}
+                </Button>
+              ))}
+            </>
+          )}
+        </FilterSection>
 
-        {tags.length > 0 && (
-          <FilterSection title="태그">
-            {tags.map(t => (
+        <FilterSection title="태그">
+          {tagsLoading ? (
+            <div className="flex flex-col gap-0.5">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="h-8 rounded-lg bg-border/60 animate-pulse" />
+              ))}
+            </div>
+          ) : (
+            tags.map(t => (
               <Button key={t.id} variant={filter.tag === t.id ? "default" : "ghost"} size="sm"
                 className="justify-start rounded-lg w-full"
                 onClick={() => onFilterChange({ ...filter, tag: filter.tag === t.id ? undefined : t.id })}>
                 {t.name}
               </Button>
-            ))}
-          </FilterSection>
-        )}
+            ))
+          )}
+        </FilterSection>
       </div>
     </div>
   )
