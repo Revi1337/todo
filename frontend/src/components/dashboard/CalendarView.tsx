@@ -65,21 +65,34 @@ function CalendarCell({ dateNum, isToday, isSelected, dayTodos, onClick }: Calen
       }`}
     >
       <div className="flex items-center justify-between w-full">
-        <span className={`text-xs font-bold w-[22px] h-[22px] flex items-center justify-center rounded-full ${isToday ? "bg-primary text-primary-foreground" : "text-foreground"}`}>
+        <span className={`text-xs font-bold w-[18px] h-[18px] sm:w-[22px] sm:h-[22px] flex items-center justify-center rounded-full ${isToday ? "bg-primary text-primary-foreground" : "text-foreground"}`}>
           {dateNum}
         </span>
+        {/* 데스크탑: 카운트 배지 */}
         {dayTodos.length > 0 && (
-          <span className="px-1.5 h-5 flex items-center justify-center bg-muted/80 text-muted-foreground text-[10px] font-bold rounded-full gap-0.5">
+          <span className="hidden sm:flex px-1.5 h-5 items-center justify-center bg-muted/80 text-muted-foreground text-[10px] font-bold rounded-full gap-0.5">
             <span className="text-primary/80">{dayTodos.length}</span>
             <span className="opacity-40">/</span>
             <span>{dayTodos.filter(t => t.completed).length}</span>
           </span>
         )}
       </div>
+      {/* 데스크탑: 우선순위 행 */}
       {dayTodos.length > 0 && (
-        <div className="flex flex-col gap-1 mt-1 px-1">
+        <div className="hidden sm:flex flex-col gap-1 mt-1 px-1">
           {priorityRows.map(({ priority, total, completed }) => (
             <PriorityRow key={priority} priority={priority} total={total} completed={completed} />
+          ))}
+        </div>
+      )}
+      {/* 모바일: 컬러 점만 표시 */}
+      {dayTodos.length > 0 && (
+        <div className="flex sm:hidden flex-wrap gap-[3px] mt-0.5 px-0.5">
+          {priorityRows.filter(r => r.total > 0).map(({ priority }) => (
+            <span
+              key={priority}
+              className={`w-1.5 h-1.5 rounded-full shrink-0 ${PRIORITY_META[priority].dotColor}`}
+            />
           ))}
         </div>
       )}
