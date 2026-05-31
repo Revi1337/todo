@@ -9,13 +9,67 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useCategories } from "@/hooks/useCategories"
 import { useTags } from "@/hooks/useTags"
 import { useTodoForm } from "@/hooks/useTodoForm"
-import { Todo, Priority, DialogMode } from "@/types"
+import { Todo, Tag, Priority, DialogMode } from "@/types"
 import { PRIORITY_META } from "@/constants/priority"
 
 const DIALOG_TITLES: Record<DialogMode, string> = {
   view: "작업 상세",
   edit: "작업 수정",
   create: "새 작업 추가",
+}
+
+function PrioritySelector({ priority, onChange, disabled }: {
+  priority: Priority
+  onChange: (v: Priority) => void
+  disabled: boolean
+}) {
+  return (
+    <div className="flex gap-2">
+      {(Object.keys(PRIORITY_META) as Priority[]).map(value => (
+        <button
+          key={value}
+          type="button"
+          data-active={priority === value}
+          onClick={(e) => { e.preventDefault(); onChange(value) }}
+          disabled={disabled}
+          className={`flex-1 py-1.5 rounded-full border text-xs font-semibold transition-all disabled:opacity-70 disabled:cursor-not-allowed ${PRIORITY_META[value].buttonColor}`}
+        >
+          {PRIORITY_META[value].label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function TagSelector({ tags, selectedTagIds, onToggle, disabled }: {
+  tags: Tag[]
+  selectedTagIds: number[]
+  onToggle: (id: number) => void
+  disabled: boolean
+}) {
+  if (tags.length === 0) return null
+  return (
+    <div className="flex flex-col gap-1.5">
+      <Label className="text-sm font-semibold">태그</Label>
+      <div className="flex flex-wrap gap-2">
+        {tags.map(tag => (
+          <button
+            key={tag.id}
+            type="button"
+            onClick={(e) => { e.preventDefault(); onToggle(tag.id) }}
+            disabled={disabled}
+            className={`px-3 py-1 rounded-full border text-xs font-semibold transition-all disabled:opacity-80 disabled:cursor-not-allowed ${
+              selectedTagIds.includes(tag.id)
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-background/50 text-muted-foreground border-border/50 hover:border-primary/50"
+            }`}
+          >
+            {tag.name}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
 }
 
 interface Props {
@@ -62,7 +116,6 @@ export function TodoFormDialog({ open, onClose, todo, defaultDueDate, onSaved }:
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5 pt-2">
-          {/* 제목 */}
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="title" className="text-sm font-semibold">제목 <span className="text-red-500">*</span></Label>
             <Input
@@ -76,7 +129,6 @@ export function TodoFormDialog({ open, onClose, todo, defaultDueDate, onSaved }:
             {error && <p className="text-xs text-red-500">{error}</p>}
           </div>
 
-          {/* 설명 */}
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="description" className="text-sm font-semibold">설명</Label>
             <Textarea
@@ -90,26 +142,11 @@ export function TodoFormDialog({ open, onClose, todo, defaultDueDate, onSaved }:
             />
           </div>
 
-          {/* 우선순위 */}
           <div className="flex flex-col gap-1.5">
             <Label className="text-sm font-semibold">우선순위</Label>
-            <div className="flex gap-2">
-              {(Object.keys(PRIORITY_META) as Priority[]).map(value => (
-                <button
-                  key={value}
-                  type="button"
-                  data-active={priority === value}
-                  onClick={(e) => { e.preventDefault(); setPriority(value) }}
-                  disabled={isReadOnly}
-                  className={`flex-1 py-1.5 rounded-full border text-xs font-semibold transition-all disabled:opacity-70 disabled:cursor-not-allowed ${PRIORITY_META[value].buttonColor}`}
-                >
-                  {PRIORITY_META[value].label}
-                </button>
-              ))}
-            </div>
+            <PrioritySelector priority={priority} onChange={setPriority} disabled={isReadOnly} />
           </div>
 
-          {/* 마감일 + 카테고리 */}
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="dueDate" className="text-sm font-semibold">마감일</Label>
@@ -145,31 +182,8 @@ export function TodoFormDialog({ open, onClose, todo, defaultDueDate, onSaved }:
             </div>
           </div>
 
-          {/* 태그 */}
-          {tags.length > 0 && (
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-sm font-semibold">태그</Label>
-              <div className="flex flex-wrap gap-2">
-                {tags.map(tag => (
-                  <button
-                    key={tag.id}
-                    type="button"
-                    onClick={(e) => { e.preventDefault(); toggleTag(tag.id) }}
-                    disabled={isReadOnly}
-                    className={`px-3 py-1 rounded-full border text-xs font-semibold transition-all disabled:opacity-80 disabled:cursor-not-allowed ${
-                      selectedTagIds.includes(tag.id)
-                        ? "bg-primary text-primary-foreground border-primary"
-                        : "bg-background/50 text-muted-foreground border-border/50 hover:border-primary/50"
-                    }`}
-                  >
-                    {tag.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+          <TagSelector tags={tags} selectedTagIds={selectedTagIds} onToggle={toggleTag} disabled={isReadOnly} />
 
-          {/* 액션 버튼 */}
           <div className="flex justify-end gap-2 pt-1">
             {mode === "view" ? (
               <>

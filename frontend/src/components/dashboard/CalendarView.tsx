@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useMemo } from "react"
 import dayjs from "dayjs"
 import { DragDropContext, Droppable } from "@hello-pangea/dnd"
 import { useTodos } from "@/hooks/useTodos"
@@ -138,12 +138,13 @@ export function CalendarView() {
     }
   }, [localTodos, deleteTodo])
 
-  const calendarDays = buildCalendarDays(currentDate)
-  const selectedTodos = selectedDate
-    ? localTodos.filter(t => dayjs(t.dueDate).isSame(selectedDate, "day"))
-    : []
-  const pendingTodos = selectedTodos.filter(t => !t.completed)
-  const completedTodos = selectedTodos.filter(t => t.completed)
+  const calendarDays = useMemo(() => buildCalendarDays(currentDate), [currentDate])
+  const selectedTodos = useMemo(
+    () => selectedDate ? localTodos.filter(t => dayjs(t.dueDate).isSame(selectedDate, "day")) : [],
+    [localTodos, selectedDate]
+  )
+  const pendingTodos = useMemo(() => selectedTodos.filter(t => !t.completed), [selectedTodos])
+  const completedTodos = useMemo(() => selectedTodos.filter(t => t.completed), [selectedTodos])
 
   const openCreate = () => { setEditingTodo(null); setDialogOpen(true) }
   const openEdit = (todo: Todo) => { setEditingTodo(todo); setDialogOpen(true) }
@@ -216,11 +217,8 @@ export function CalendarView() {
           <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
             <div className="flex flex-col gap-4 xl:flex-1 xl:min-h-0 xl:overflow-hidden">
               {isLoading ? (
-                <div className="text-center py-10 text-muted-foreground text-sm font-medium flex items-center justify-center">
-                  <svg className="animate-spin w-4 h-4 text-muted-foreground/60" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
+                <div className="flex items-center justify-center py-10">
+                  <LoadingSpinner />
                 </div>
               ) : selectedTodos.length === 0 ? (
                 <div className="text-center py-10 text-muted-foreground text-sm font-medium">일정이 없습니다.</div>
