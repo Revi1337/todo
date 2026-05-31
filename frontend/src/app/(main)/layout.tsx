@@ -1,7 +1,7 @@
 import { Header } from "@/components/layout/Header"
 import { Sidebar } from "@/components/layout/Sidebar"
 import { AuthGuard } from "@/components/layout/AuthGuard"
-import { FilterSheetProvider } from "@/contexts/FilterSheetContext"
+import { FilterSheetProvider } from "@/contexts"
 import { ScrollToTop } from "@/components/layout/ScrollToTop"
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {

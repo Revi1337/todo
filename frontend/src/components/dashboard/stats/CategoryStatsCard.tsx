@@ -1,7 +1,7 @@
 "use client"
 
 import { PieChart, Pie, Tooltip, ResponsiveContainer } from "recharts"
-import { StatsData } from "@/hooks/useStats"
+import { type StatsData } from "@/hooks"
 
 interface Props {
   categoryStats: StatsData["categoryStats"]

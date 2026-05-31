@@ -1,6 +1,6 @@
 "use client"
 
-import { useStats } from "@/hooks/useStats"
+import { useStats } from "@/hooks"
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner"
 import { CompletionRateCard } from "./stats/CompletionRateCard"
 import { CategoryStatsCard } from "./stats/CategoryStatsCard"

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { CheckSquare, Moon, Sun } from "lucide-react"
-import { useAuth } from "@/hooks/useAuth"
+import { useAuth } from "@/hooks"
 import { useTheme } from "next-themes"
 
 export default function LoginPage() {

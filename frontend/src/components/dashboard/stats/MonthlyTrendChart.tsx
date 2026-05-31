@@ -5,7 +5,7 @@ import dayjs from "dayjs"
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
 import { CHART_COLORS } from "@/constants/colors"
 import { ChartTooltipProps, CHART_TOOLTIP_STYLE } from "@/lib/chartStyles"
-import { StatsData } from "@/hooks/useStats"
+import { type StatsData } from "@/hooks"
 
 function MonthlyTooltip({ active, payload }: ChartTooltipProps) {
   if (!active || !payload?.length) return null

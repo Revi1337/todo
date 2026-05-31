@@ -6,8 +6,8 @@ import { Moon, Sun, CheckSquare, Menu, LogOut, SlidersHorizontal } from "lucide-
 import { useEffect, useState } from "react"
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { SidebarNav } from "./Sidebar"
-import { useAuth } from "@/hooks/useAuth"
-import { useFilterSheet } from "@/contexts/FilterSheetContext"
+import { useAuth } from "@/hooks"
+import { useFilterSheet } from "@/contexts"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 

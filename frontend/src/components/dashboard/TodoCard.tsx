@@ -1,7 +1,7 @@
 "use client"
 
 import { Todo } from "@/types"
-import { useTodoActions } from "@/contexts/TodoActionsContext"
+import { useTodoActions } from "@/contexts"
 import { BaseTodoCard } from "./BaseTodoCard"
 
 interface TodoCardProps {

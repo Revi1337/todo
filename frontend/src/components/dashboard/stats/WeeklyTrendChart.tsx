@@ -4,7 +4,7 @@ import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from "recharts"
 import { DAY_MAP } from "@/constants/date"
 import { CHART_COLORS } from "@/constants/colors"
 import { ChartTooltipProps, CHART_TOOLTIP_STYLE } from "@/lib/chartStyles"
-import { StatsData } from "@/hooks/useStats"
+import { type StatsData } from "@/hooks"
 
 function WeeklyTooltip({ active, payload }: ChartTooltipProps) {
   if (!active || !payload?.length) return null
