@@ -4,7 +4,7 @@ import { createContext, useContext } from "react"
 import { Todo } from "@/types"
 
 interface TodoActionsContextValue {
-  onToggle: (id: number) => void
+  onToggle: (todo: Todo) => void
   onEdit: (todo: Todo) => void
   onDelete: (id: number) => void
 }

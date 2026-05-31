@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo, useCallback } from "react"
+import { Todo } from "@/types"
 import { DragDropContext } from "@hello-pangea/dnd"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import dayjs from "dayjs"
@@ -62,15 +63,13 @@ export function Board() {
   const activeTodos = useMemo(() => localTodos.filter(t => !t.completed), [localTodos])
   const completedTodos = useMemo(() => localTodos.filter(t => t.completed), [localTodos])
 
-  const handleToggle = useCallback(async (id: number) => {
+  const handleToggle = useCallback(async (todo: Todo) => {
     const snapshot = localTodos
-    const todo = localTodos.find(t => t.id === id)
-    if (!todo) return
     const next = !todo.completed
 
     setLocalTodos(prev => {
       const toggled = { ...todo, completed: next, completedAt: next ? new Date().toISOString() : null }
-      const others = prev.filter(t => t.id !== id)
+      const others = prev.filter(t => t.id !== todo.id)
       const activeGroup = others.filter(t => !t.completed)
       const completedGroup = others.filter(t => t.completed)
       return next
@@ -79,7 +78,7 @@ export function Board() {
     })
 
     try {
-      await toggleTodo(id, next)
+      await toggleTodo(todo.id, next)
     } catch {
       setLocalTodos(snapshot)
     }
