@@ -1,5 +1,8 @@
 package revi1337.todo.domain.todo.repository;
 
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -12,6 +15,10 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface TodoRepository extends JpaRepository<Todo, Long>, JpaSpecificationExecutor<Todo> {
+
+    @Override
+    @EntityGraph(attributePaths = {"category", "todoTags.tag"})
+    List<Todo> findAll(Specification<Todo> spec, Sort sort);
 
     long countByCompleted(boolean completed);
 
