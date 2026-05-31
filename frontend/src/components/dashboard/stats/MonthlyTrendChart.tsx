@@ -66,7 +66,7 @@ export function MonthlyTrendChart({ monthlyTrend }: Props) {
             />
             <YAxis axisLine={false} tickLine={false} fontSize={12} fontWeight={600} stroke="currentColor" opacity={0.6} />
             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            <Tooltip cursor={{ fill: 'var(--color-primary)', opacity: 0.05 }} content={MonthlyTooltip as any} />
+            <Tooltip isAnimationActive={false} cursor={{ fill: 'var(--color-primary)', opacity: 0.05 }} content={MonthlyTooltip as any} />
             <Bar dataKey="completed" fill="#3b82f6" opacity={0.9} radius={[6, 6, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>

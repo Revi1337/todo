@@ -40,7 +40,7 @@ export function WeeklyTrendChart({ weeklyTrend }: Props) {
           <BarChart data={weeklyTrend}>
             <XAxis dataKey="day" axisLine={false} tickLine={false} fontSize={13} fontWeight={600} tickMargin={12} stroke="currentColor" opacity={0.6} tickFormatter={(v: string) => DAY_MAP[v] ?? v} />
             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            <Tooltip cursor={{ fill: 'var(--color-primary)', opacity: 0.05 }} content={WeeklyTooltip as any} />
+            <Tooltip isAnimationActive={false} cursor={{ fill: 'var(--color-primary)', opacity: 0.05 }} content={WeeklyTooltip as any} />
             <Bar dataKey="completed" fill="#6366f1" radius={[6, 6, 6, 6]} />
           </BarChart>
         </ResponsiveContainer>
