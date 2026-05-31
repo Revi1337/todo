@@ -35,3 +35,4 @@ logging:
   level:
     org:
       hibernate.SQL: DEBUG
+      springframework.jdbc.core.JdbcTemplate: DEBUG
