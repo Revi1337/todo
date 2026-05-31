@@ -4,12 +4,11 @@ import { Todo } from "@/types"
 
 interface UseDragDropOptions {
   localTodos: Todo[]
-  swrTodos: Todo[]
   setLocalTodos: (todos: Todo[]) => void
   reorderTodos: (items: { id: number; position: number }[]) => Promise<void>
 }
 
-export function useDragDrop({ localTodos, swrTodos, setLocalTodos, reorderTodos }: UseDragDropOptions) {
+export function useDragDrop({ localTodos, setLocalTodos, reorderTodos }: UseDragDropOptions) {
   const [draggingFromId, setDraggingFromId] = useState<string | null>(null)
 
   const onDragStart = useCallback((start: DragStart) => {
@@ -32,10 +31,11 @@ export function useDragDrop({ localTodos, swrTodos, setLocalTodos, reorderTodos 
 
     const reorderItems = newCol.map((t, i) => ({ id: t.id, position: i }))
     const newTodos = isCompleted ? [...other, ...newCol] : [...newCol, ...other]
+    const snapshot = localTodos
 
     setLocalTodos(newTodos)
-    reorderTodos(reorderItems).catch(() => setLocalTodos(swrTodos))
-  }, [localTodos, swrTodos, setLocalTodos, reorderTodos])
+    reorderTodos(reorderItems).catch(() => setLocalTodos(snapshot))
+  }, [localTodos, setLocalTodos, reorderTodos])
 
   return { draggingFromId, onDragStart, onDragEnd }
 }

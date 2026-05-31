@@ -57,7 +57,6 @@ export function Board() {
 
   const { draggingFromId, onDragStart, onDragEnd } = useDragDrop({
     localTodos,
-    swrTodos,
     setLocalTodos,
     reorderTodos,
   })
