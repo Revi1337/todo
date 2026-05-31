@@ -51,4 +51,4 @@ jobs:
         run: ssh ${{ secrets.GCP_USER }}@${{ secrets.GCP_HOST }} "PID=\$(ss -tlnp | grep ':8080' | grep -oE 'pid=[0-9]+' | grep -oE '[0-9]+'); if [ -n \"\$PID\" ]; then kill -9 \$PID; fi"
 
       - name: Start Spring Boot
-        run: ssh ${{ secrets.GCP_USER }}@${{ secrets.GCP_HOST }} "cd ~/todo && nohup java -Xmx512m -jar todo.jar --spring.profiles.active=prd > app.log 2>&1 < /dev/null & sleep 1"
+        run: ssh ${{ secrets.GCP_USER }}@${{ secrets.GCP_HOST }} "cd ~/todo && (nohup java -Xmx512m -jar todo.jar --spring.profiles.active=prd > app.log 2>&1 < /dev/null &)"
