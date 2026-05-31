@@ -127,10 +127,9 @@ public class TodoService {
 
     @Transactional
     public void delete(Long id) {
-        if (!todoRepository.existsById(id)) {
+        if (todoRepository.deleteByIdReturningCount(id) == 0) {
             throw new EntityNotFoundException("Todo not found: " + id);
         }
-        todoRepository.deleteById(id);
     }
 
     private Category resolveCategory(Long categoryId) {

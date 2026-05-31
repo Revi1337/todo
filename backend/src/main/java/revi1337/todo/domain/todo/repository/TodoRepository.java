@@ -44,6 +44,10 @@ public interface TodoRepository extends JpaRepository<Todo, Long>, JpaSpecificat
     void decrementPositionsAfter(@Param("completed") boolean completed, @Param("afterPosition") int afterPosition);
 
     @Modifying
+    @Query("DELETE FROM Todo t WHERE t.id = :id")
+    int deleteByIdReturningCount(@Param("id") Long id);
+
+    @Modifying
     @Query(value = """
             UPDATE todos SET position = data.pos
             FROM unnest(:ids, :positions) AS data(id bigint, pos int)
