@@ -45,9 +45,9 @@ export function Board() {
     [filter, search, selectedDate]
   )
 
-  const { rawTodos, toggleTodo, deleteTodo, reorderTodos, refetch } = useTodos(queryParams)
-  const { categories } = useCategories()
-  const { tags } = useTags()
+  const { rawTodos, toggleTodo, deleteTodo, reorderTodos, refetch, isLoading: todosLoading } = useTodos(queryParams)
+  const { categories, isLoading: categoriesLoading } = useCategories()
+  const { tags, isLoading: tagsLoading } = useTags()
 
   const [localTodos, setLocalTodos] = useState<Todo[]>([])
 
@@ -101,6 +101,7 @@ export function Board() {
 
   const filterPanelProps = {
     filter, search, categories, tags,
+    categoriesLoading, tagsLoading,
     onFilterChange: setFilter,
     onSearchChange: setSearch,
     onReset: resetFilter,
@@ -132,8 +133,8 @@ export function Board() {
           <TodoActionsProvider onToggle={handleToggle} onEdit={openEdit} onDelete={handleDelete}>
             <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
               <div className="flex-1 grid grid-rows-2 gap-6 min-h-0 overflow-hidden">
-                <Column title="할 일" id="ACTIVE" todos={activeTodos} scrollable draggingFromId={draggingFromId} />
-                <Column title="완료됨" id="COMPLETED" todos={completedTodos} scrollable draggingFromId={draggingFromId} />
+                <Column title="할 일" id="ACTIVE" todos={activeTodos} isLoading={todosLoading} scrollable draggingFromId={draggingFromId} />
+                <Column title="완료됨" id="COMPLETED" todos={completedTodos} isLoading={todosLoading} scrollable draggingFromId={draggingFromId} />
               </div>
             </DragDropContext>
           </TodoActionsProvider>
