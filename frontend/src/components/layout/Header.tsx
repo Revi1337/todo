@@ -2,7 +2,6 @@
 
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Moon, Sun, CheckSquare, Menu, LogOut, SlidersHorizontal } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet"
