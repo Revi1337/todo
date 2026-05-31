@@ -1,0 +1,3 @@
+{
+  "ignoreCommand": "[ -z \"$VERCEL_GIT_PREVIOUS_SHA\" ] && exit 1; git cat-file -e \"$VERCEL_GIT_PREVIOUS_SHA\" 2>/dev/null || exit 1; git diff \"$VERCEL_GIT_PREVIOUS_SHA\" HEAD --quiet -- frontend/"
+}
