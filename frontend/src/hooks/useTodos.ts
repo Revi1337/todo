@@ -11,8 +11,7 @@ const invalidateTodos = () =>
 export function useTodos(queryParams = '') {
   const { data, error, isLoading, isValidating, mutate } = useSWR<Todo[]>(
     `/api/todos${queryParams}`,
-    fetcher,
-    { keepPreviousData: true }
+    fetcher
   )
 
   const createTodo = async (todoData: Partial<Todo>) => {
@@ -38,11 +37,6 @@ export function useTodos(queryParams = '') {
   const deleteTodo = async (id: number) => {
     try {
       await fetchWithAuth(`/api/todos/${id}`, { method: 'DELETE' })
-      globalMutate(
-        (key: unknown) => typeof key === 'string' && key.startsWith('/api/todos'),
-        (current: Todo[] | undefined) => current?.filter(t => t.id !== id),
-        { revalidate: false }
-      )
     } catch {
       toast.error('할 일을 삭제하지 못했습니다.')
       throw new Error('deleteTodo failed')
@@ -52,13 +46,6 @@ export function useTodos(queryParams = '') {
   const toggleTodo = async (id: number, completed: boolean) => {
     try {
       await fetchWithAuth(`/api/todos/${id}`, { method: 'PATCH', body: JSON.stringify({ completed }) })
-      globalMutate(
-        (key: unknown) => typeof key === 'string' && key.startsWith('/api/todos'),
-        (current: Todo[] | undefined) => current?.map(t =>
-          t.id === id ? { ...t, completed, completedAt: completed ? new Date().toISOString() : null } : t
-        ),
-        { revalidate: false }
-      )
     } catch {
       toast.error('상태를 변경하지 못했습니다.')
       throw new Error('toggleTodo failed')
@@ -75,7 +62,8 @@ export function useTodos(queryParams = '') {
   }
 
   return {
-    todos: data || emptyTodos,
+    todos: data ?? emptyTodos,
+    rawTodos: data,
     isLoading,
     isValidating,
     isError: error,

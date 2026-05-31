@@ -45,20 +45,23 @@ export function Board() {
     [filter, search, selectedDate]
   )
 
-  const { todos: swrTodos, toggleTodo, deleteTodo, reorderTodos } = useTodos(queryParams)
+  const { rawTodos, toggleTodo, deleteTodo, reorderTodos, mutate } = useTodos(queryParams)
   const { categories } = useCategories()
   const { tags } = useTags()
 
   const [localTodos, setLocalTodos] = useState<Todo[]>([])
 
   useEffect(() => {
-    if (swrTodos) setLocalTodos(swrTodos)
-  }, [swrTodos])
+    if (rawTodos !== undefined) setLocalTodos(rawTodos)
+  }, [rawTodos])
+
+  const clearCache = useCallback(() => mutate(undefined, { revalidate: false }), [mutate])
 
   const { draggingFromId, onDragStart, onDragEnd } = useDragDrop({
     localTodos,
     setLocalTodos,
     reorderTodos,
+    clearCache,
   })
 
   const activeTodos = useMemo(() => localTodos.filter(t => !t.completed), [localTodos])
@@ -82,20 +85,22 @@ export function Board() {
 
     try {
       await toggleTodo(id, next)
+      clearCache()
     } catch {
       setLocalTodos(snapshot)
     }
-  }, [localTodos, toggleTodo])
+  }, [localTodos, toggleTodo, clearCache])
 
   const handleDelete = useCallback(async (id: number) => {
     const snapshot = localTodos
     setLocalTodos(prev => prev.filter(t => t.id !== id))
     try {
       await deleteTodo(id)
+      clearCache()
     } catch {
       setLocalTodos(snapshot)
     }
-  }, [localTodos, deleteTodo])
+  }, [localTodos, deleteTodo, clearCache])
 
   const { open: filterSheetOpen, setOpen: setFilterSheetOpen } = useFilterSheet()
 
