@@ -2,14 +2,48 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Calendar, BarChart3 } from "lucide-react"
+import { LayoutDashboard, Calendar, BarChart3, LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useEasterEgg } from "@/hooks/useEasterEgg"
+import { LatencyPopup } from "./LatencyPopup"
 
 const navItems = [
-  { title: "대시보드", href: "/", icon: LayoutDashboard },
-  { title: "캘린더", href: "/calendar", icon: Calendar },
-  { title: "통계", href: "/stats", icon: BarChart3 },
+  { title: "대시보드", href: "/", icon: LayoutDashboard, apiPath: "/api/todos" },
+  { title: "캘린더", href: "/calendar", icon: Calendar, apiPath: "/api/todos" },
+  { title: "통계", href: "/stats", icon: BarChart3, apiPath: "/api/stats" },
 ]
+
+function NavItem({
+  title, href, icon: Icon, apiPath, onItemClick, isActive,
+}: {
+  title: string
+  href: string
+  icon: LucideIcon
+  apiPath: string
+  onItemClick?: () => void
+  isActive: boolean
+}) {
+  const { latency, visible, handleClick } = useEasterEgg(apiPath)
+
+  return (
+    <div className="relative">
+      <Link
+        href={href}
+        onClick={() => { handleClick(); onItemClick?.() }}
+        className={cn(
+          "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
+          isActive
+            ? "bg-primary text-primary-foreground shadow-sm"
+            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+        )}
+      >
+        <Icon className="w-5 h-5" />
+        {title}
+      </Link>
+      {visible && latency && <LatencyPopup latency={latency} />}
+    </div>
+  )
+}
 
 export function SidebarNav({ onItemClick }: { onItemClick?: () => void }) {
   const pathname = usePathname()
@@ -17,25 +51,14 @@ export function SidebarNav({ onItemClick }: { onItemClick?: () => void }) {
   return (
     <nav className="flex flex-col gap-2 h-full">
       <div className="flex flex-col gap-2">
-      {navItems.map((item) => {
-        const isActive = pathname === item.href
-        return (
-          <Link
+        {navItems.map((item) => (
+          <NavItem
             key={item.href}
-            href={item.href}
-            onClick={onItemClick}
-            className={cn(
-              "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
-              isActive
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
-            )}
-          >
-            <item.icon className="w-5 h-5" />
-            {item.title}
-          </Link>
-        )
-      })}
+            {...item}
+            isActive={pathname === item.href}
+            onItemClick={onItemClick}
+          />
+        ))}
       </div>
     </nav>
   )

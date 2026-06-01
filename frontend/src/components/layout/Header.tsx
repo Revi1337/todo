@@ -9,7 +9,7 @@ import { SidebarNav } from "./Sidebar"
 import { useAuth } from "@/hooks"
 import { useFilterSheet } from "@/contexts"
 import { usePathname } from "next/navigation"
-import Link from "next/link"
+import { LogoEasterEgg } from "./LogoEasterEgg"
 
 export function Header() {
   const { setTheme, theme } = useTheme()
@@ -43,10 +43,7 @@ export function Header() {
           </SheetContent>
         </Sheet>
 
-        <Link href="/" className="flex items-center gap-2 hidden lg:flex">
-          <CheckSquare className="w-6 h-6 text-primary" />
-          <span className="font-bold text-lg tracking-tight leading-none pt-[2px]">Todo</span>
-        </Link>
+        <LogoEasterEgg />
       </div>
 
 
