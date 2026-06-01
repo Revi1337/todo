@@ -6,7 +6,6 @@ import { Todo } from "@/types"
 interface TodoActionsContextValue {
   onToggle: (todo: Todo) => void
   onEdit: (todo: Todo) => void
-  onDelete: (id: number) => void
   togglingIds: Set<number>
 }
 
@@ -16,11 +15,10 @@ export function TodoActionsProvider({
   children,
   onToggle,
   onEdit,
-  onDelete,
   togglingIds,
 }: TodoActionsContextValue & { children: React.ReactNode }) {
   return (
-    <TodoActionsContext.Provider value={{ onToggle, onEdit, onDelete, togglingIds }}>
+    <TodoActionsContext.Provider value={{ onToggle, onEdit, togglingIds }}>
       {children}
     </TodoActionsContext.Provider>
   )

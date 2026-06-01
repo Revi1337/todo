@@ -250,7 +250,6 @@ export function CalendarView() {
                                 index={index}
                                 onEdit={openEdit}
                                 onToggle={handleToggle}
-                                onDelete={handleDelete}
                                 isToggling={togglingIds.has(todo.id)}
                               />
                             ))
@@ -283,7 +282,6 @@ export function CalendarView() {
                                 index={index}
                                 onEdit={openEdit}
                                 onToggle={handleToggle}
-                                onDelete={handleDelete}
                                 isToggling={togglingIds.has(todo.id)}
                               />
                             ))
@@ -304,6 +302,7 @@ export function CalendarView() {
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         onSaved={refetch}
+        onDelete={handleDelete}
         todo={editingTodo}
         defaultDueDate={selectedDate ? selectedDate.format("YYYY-MM-DD") : undefined}
       />

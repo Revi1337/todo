@@ -3,7 +3,7 @@
 import { Draggable } from "@hello-pangea/dnd"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
-import { Clock, Trash2 } from "lucide-react"
+import { Clock } from "lucide-react"
 import dayjs from "dayjs"
 import { Todo } from "@/types"
 import { PRIORITY_META } from "@/constants/priority"
@@ -13,12 +13,11 @@ interface BaseTodoCardProps {
   index: number
   onEdit: (todo: Todo) => void
   onToggle: (todo: Todo) => void
-  onDelete: (id: number) => void
   compact?: boolean
   isToggling?: boolean
 }
 
-export function BaseTodoCard({ todo, index, onEdit, onToggle, onDelete, compact = false, isToggling = false }: BaseTodoCardProps) {
+export function BaseTodoCard({ todo, index, onEdit, onToggle, compact = false, isToggling = false }: BaseTodoCardProps) {
   return (
     <Draggable draggableId={todo.id.toString()} index={index}>
       {(provided, snapshot) => (
@@ -51,7 +50,7 @@ export function BaseTodoCard({ todo, index, onEdit, onToggle, onDelete, compact 
           ) : (
             <div className="flex items-center gap-2 shrink-0 ml-auto">
               {todo.tags?.length > 0 && (
-                <div className="flex items-center gap-1">
+                <div className="hidden sm:flex items-center gap-1">
                   {todo.tags.map(tag => (
                     <span key={tag.id} className="text-[10px] font-medium text-muted-foreground bg-muted/40 px-2 py-0.5 rounded-full border border-border/50">
                       #{tag.name}
@@ -60,13 +59,13 @@ export function BaseTodoCard({ todo, index, onEdit, onToggle, onDelete, compact 
                 </div>
               )}
               {todo.category && (
-                <div className="flex items-center gap-1 text-[10px] font-medium text-muted-foreground bg-muted/30 px-2 py-0.5 rounded-full">
+                <div className="hidden sm:flex items-center gap-1 text-[10px] font-medium text-muted-foreground bg-muted/30 px-2 py-0.5 rounded-full">
                   <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: todo.category.color }} />
                   {todo.category.name}
                 </div>
               )}
               {todo.dueDate && (
-                <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[10px] text-muted-foreground bg-background/50 border-border/50 gap-1 flex items-center">
+                <Badge variant="outline" className="hidden sm:flex rounded-full px-2 py-0.5 text-[10px] text-muted-foreground bg-background/50 border-border/50 gap-1 items-center">
                   <Clock className="w-3 h-3" />
                   {dayjs(todo.dueDate).format("MM.DD")}
                 </Badge>
@@ -77,14 +76,6 @@ export function BaseTodoCard({ todo, index, onEdit, onToggle, onDelete, compact 
             </div>
           )}
 
-          <div className="flex opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-1">
-            <button
-              onClick={e => { e.stopPropagation(); onDelete(todo.id) }}
-              className="p-1 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
-          </div>
         </div>
       )}
     </Draggable>

@@ -127,7 +127,7 @@ export function Board() {
             </button>
           </div>
 
-          <TodoActionsProvider onToggle={handleToggle} onEdit={openEdit} onDelete={handleDelete} togglingIds={togglingIds}>
+          <TodoActionsProvider onToggle={handleToggle} onEdit={openEdit} togglingIds={togglingIds}>
             <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
               <div className="flex-1 grid grid-rows-2 gap-6 min-h-0 overflow-hidden">
                 <Column title="할 일" id="ACTIVE" todos={activeTodos} isLoading={todosLoading} scrollable draggingFromId={draggingFromId} />
@@ -155,6 +155,7 @@ export function Board() {
         open={dialogOpen}
         onClose={closeDialog}
         onSaved={refetch}
+        onDelete={handleDelete}
         todo={editingTodo}
         defaultDueDate={selectedDate.format("YYYY-MM-DD")}
       />

@@ -3,6 +3,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Trash2 } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -76,9 +77,10 @@ interface Props {
   todo?: Todo | null
   defaultDueDate?: string
   onSaved?: () => void
+  onDelete?: (id: number) => void
 }
 
-export function TodoFormDialog({ open, onClose, todo, defaultDueDate, onSaved }: Props) {
+export function TodoFormDialog({ open, onClose, todo, defaultDueDate, onSaved, onDelete }: Props) {
   const { categories } = useCategories()
   const { tags } = useTags()
 
@@ -106,7 +108,7 @@ export function TodoFormDialog({ open, onClose, todo, defaultDueDate, onSaved }:
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="sm:max-w-lg bg-card/95 backdrop-blur-xl border-border/60 rounded-2xl shadow-2xl">
+      <DialogContent className="sm:max-w-lg bg-card/95 backdrop-blur-xl border-border/60 rounded-2xl shadow-2xl" initialFocus={false}>
         <DialogHeader>
           <DialogTitle className="text-xl font-bold tracking-tight">
             {DIALOG_TITLES[mode]}
@@ -185,6 +187,12 @@ export function TodoFormDialog({ open, onClose, todo, defaultDueDate, onSaved }:
           <div className="flex justify-end gap-2 pt-1">
             {mode === "view" ? (
               <>
+                {todo && onDelete && (
+                  <Button type="button" variant="ghost" onClick={(e) => { e.preventDefault(); onDelete(todo.id); onClose() }} className="rounded-full px-5 text-destructive hover:text-destructive hover:bg-destructive/10 mr-auto">
+                    <Trash2 className="w-4 h-4 mr-1" />
+                    삭제
+                  </Button>
+                )}
                 <Button type="button" variant="outline" onClick={(e) => { e.preventDefault(); onClose() }} className="rounded-full px-5">
                   닫기
                 </Button>

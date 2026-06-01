@@ -8,18 +8,16 @@ interface CalendarTodoCardProps {
   index: number
   onEdit: (todo: Todo) => void
   onToggle: (todo: Todo) => void
-  onDelete: (id: number) => void
   isToggling?: boolean
 }
 
-export function CalendarTodoCard({ todo, index, onEdit, onToggle, onDelete, isToggling }: CalendarTodoCardProps) {
+export function CalendarTodoCard({ todo, index, onEdit, onToggle, isToggling }: CalendarTodoCardProps) {
   return (
     <BaseTodoCard
       todo={todo}
       index={index}
       onEdit={onEdit}
       onToggle={onToggle}
-      onDelete={onDelete}
       isToggling={isToggling}
       compact
     />
