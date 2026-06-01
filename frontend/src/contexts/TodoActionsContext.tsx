@@ -7,6 +7,7 @@ interface TodoActionsContextValue {
   onToggle: (todo: Todo) => void
   onEdit: (todo: Todo) => void
   onDelete: (id: number) => void
+  togglingIds: Set<number>
 }
 
 const TodoActionsContext = createContext<TodoActionsContextValue | null>(null)
@@ -16,9 +17,10 @@ export function TodoActionsProvider({
   onToggle,
   onEdit,
   onDelete,
+  togglingIds,
 }: TodoActionsContextValue & { children: React.ReactNode }) {
   return (
-    <TodoActionsContext.Provider value={{ onToggle, onEdit, onDelete }}>
+    <TodoActionsContext.Provider value={{ onToggle, onEdit, onDelete, togglingIds }}>
       {children}
     </TodoActionsContext.Provider>
   )

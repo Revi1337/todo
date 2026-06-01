@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useCallback } from "react"
+import { useMemo, useCallback, useState } from "react"
 import { Todo } from "@/types"
 import { DragDropContext } from "@hello-pangea/dnd"
 import { ChevronLeft, ChevronRight } from "lucide-react"
@@ -56,7 +56,12 @@ export function Board() {
   const activeTodos = useMemo(() => localTodos.filter(t => !t.completed), [localTodos])
   const completedTodos = useMemo(() => localTodos.filter(t => t.completed), [localTodos])
 
+  const [togglingIds, setTogglingIds] = useState<Set<number>>(new Set())
+
   const handleToggle = useCallback(async (todo: Todo) => {
+    if (togglingIds.has(todo.id)) return
+
+    setTogglingIds(prev => new Set(prev).add(todo.id))
     const snapshot = localTodos
     const next = !todo.completed
 
@@ -74,8 +79,10 @@ export function Board() {
       await toggleTodo(todo.id, next)
     } catch {
       setLocalTodos(snapshot)
+    } finally {
+      setTogglingIds(prev => { const s = new Set(prev); s.delete(todo.id); return s })
     }
-  }, [localTodos, toggleTodo])
+  }, [localTodos, toggleTodo, togglingIds])
 
   const handleDelete = useCallback(async (id: number) => {
     const snapshot = localTodos
@@ -120,7 +127,7 @@ export function Board() {
             </button>
           </div>
 
-          <TodoActionsProvider onToggle={handleToggle} onEdit={openEdit} onDelete={handleDelete}>
+          <TodoActionsProvider onToggle={handleToggle} onEdit={openEdit} onDelete={handleDelete} togglingIds={togglingIds}>
             <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
               <div className="flex-1 grid grid-rows-2 gap-6 min-h-0 overflow-hidden">
                 <Column title="할 일" id="ACTIVE" todos={activeTodos} isLoading={todosLoading} scrollable draggingFromId={draggingFromId} />

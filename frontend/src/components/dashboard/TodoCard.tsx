@@ -10,7 +10,7 @@ interface TodoCardProps {
 }
 
 export function TodoCard({ todo, index }: TodoCardProps) {
-  const { onToggle, onEdit, onDelete } = useTodoActions()
+  const { onToggle, onEdit, onDelete, togglingIds } = useTodoActions()
   return (
     <BaseTodoCard
       todo={todo}
@@ -18,6 +18,7 @@ export function TodoCard({ todo, index }: TodoCardProps) {
       onToggle={onToggle}
       onEdit={onEdit}
       onDelete={onDelete}
+      isToggling={togglingIds.has(todo.id)}
     />
   )
 }

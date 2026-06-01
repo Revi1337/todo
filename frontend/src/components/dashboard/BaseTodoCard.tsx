@@ -15,9 +15,10 @@ interface BaseTodoCardProps {
   onToggle: (todo: Todo) => void
   onDelete: (id: number) => void
   compact?: boolean
+  isToggling?: boolean
 }
 
-export function BaseTodoCard({ todo, index, onEdit, onToggle, onDelete, compact = false }: BaseTodoCardProps) {
+export function BaseTodoCard({ todo, index, onEdit, onToggle, onDelete, compact = false, isToggling = false }: BaseTodoCardProps) {
   return (
     <Draggable draggableId={todo.id.toString()} index={index}>
       {(provided, snapshot) => (
@@ -33,9 +34,9 @@ export function BaseTodoCard({ todo, index, onEdit, onToggle, onDelete, compact 
             onPointerDown={(e) => e.stopPropagation()}
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => e.stopPropagation()}
-            className="shrink-0 flex items-center"
+            className={`shrink-0 flex items-center transition-opacity duration-200 ${isToggling ? "opacity-40 cursor-not-allowed" : ""}`}
           >
-            <Checkbox checked={todo.completed} onCheckedChange={() => onToggle(todo)} className="w-5 h-5 rounded-[4px]" />
+            <Checkbox checked={todo.completed} onCheckedChange={() => onToggle(todo)} disabled={isToggling} className="w-5 h-5 rounded-[4px]" />
           </div>
 
           <span className={`flex-1 font-medium leading-tight truncate ${todo.completed ? "line-through text-muted-foreground" : ""}`}>

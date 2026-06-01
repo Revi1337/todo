@@ -112,7 +112,12 @@ export function CalendarView() {
 
   const { onDragStart, onDragEnd } = useDragDrop({ localTodos, setLocalTodos, reorderTodos })
 
+  const [togglingIds, setTogglingIds] = useState<Set<number>>(new Set())
+
   const handleToggle = useCallback(async (todo: Todo) => {
+    if (togglingIds.has(todo.id)) return
+
+    setTogglingIds(prev => new Set(prev).add(todo.id))
     const snapshot = localTodos
     const next = !todo.completed
     setLocalTodos(prev => prev.map(t =>
@@ -122,8 +127,10 @@ export function CalendarView() {
       await toggleTodo(todo.id, next)
     } catch {
       setLocalTodos(snapshot)
+    } finally {
+      setTogglingIds(prev => { const s = new Set(prev); s.delete(todo.id); return s })
     }
-  }, [localTodos, toggleTodo])
+  }, [localTodos, toggleTodo, togglingIds])
 
   const handleDelete = useCallback(async (id: number) => {
     const snapshot = localTodos
@@ -244,6 +251,7 @@ export function CalendarView() {
                                 onEdit={openEdit}
                                 onToggle={handleToggle}
                                 onDelete={handleDelete}
+                                isToggling={togglingIds.has(todo.id)}
                               />
                             ))
                           )}
@@ -276,6 +284,7 @@ export function CalendarView() {
                                 onEdit={openEdit}
                                 onToggle={handleToggle}
                                 onDelete={handleDelete}
+                                isToggling={togglingIds.has(todo.id)}
                               />
                             ))
                           )}
