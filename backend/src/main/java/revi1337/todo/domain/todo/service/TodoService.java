@@ -2,6 +2,7 @@ package revi1337.todo.domain.todo.service;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 public class TodoService {
@@ -50,83 +52,116 @@ public class TodoService {
 
     @Transactional
     public TodoResponse create(TodoRequest request) {
-        Category category = resolveCategory(request.categoryId());
-        Set<Tag> tags = resolveTags(request.tagIds());
-        todoRepository.incrementPositions(false);
-        Todo todo = todoRepository.save(new Todo(
-                request.title(), request.description(), request.priority(),
-                request.dueDate(), category, tags, LocalDateTime.now()));
-
-        return TodoResponse.from(todo);
+        try {
+            Category category = resolveCategory(request.categoryId());
+            Set<Tag> tags = resolveTags(request.tagIds());
+            todoRepository.incrementPositions(false);
+            Todo todo = todoRepository.save(new Todo(
+                    request.title(), request.description(), request.priority(),
+                    request.dueDate(), category, tags, LocalDateTime.now()));
+            return TodoResponse.from(todo);
+        } catch (RuntimeException e) {
+            log.error("Todo 생성 중 오류가 발생했습니다. title: {}", request.title(), e);
+            throw e;
+        }
     }
 
     public List<TodoResponse> findAll(TodoFilterRequest filter) {
-        Specification<Todo> spec = TodoSpecification.hasCategory(filter.category())
-                .and(TodoSpecification.hasTag(filter.tag()))
-                .and(TodoSpecification.hasPriority(filter.priority()))
-                .and(TodoSpecification.isCompleted(filter.completed()))
-                .and(TodoSpecification.hasKeyword(filter.search()))
-                .and(TodoSpecification.hasDueDate(filter.dueDate()));
+        try {
+            Specification<Todo> spec = TodoSpecification.hasCategory(filter.category())
+                    .and(TodoSpecification.hasTag(filter.tag()))
+                    .and(TodoSpecification.hasPriority(filter.priority()))
+                    .and(TodoSpecification.isCompleted(filter.completed()))
+                    .and(TodoSpecification.hasKeyword(filter.search()))
+                    .and(TodoSpecification.hasDueDate(filter.dueDate()));
 
-        return todoRepository.findAll(spec, Sort.by(Sort.Direction.ASC, "position")).stream()
-                .map(TodoResponse::from)
-                .toList();
+            return todoRepository.findAll(spec, Sort.by(Sort.Direction.ASC, "position")).stream()
+                    .map(TodoResponse::from)
+                    .toList();
+        } catch (RuntimeException e) {
+            log.error("Todo 목록 조회 중 오류가 발생했습니다. filter: {}", filter, e);
+            throw e;
+        }
     }
 
     @Transactional
     public TodoResponse update(Long id, TodoRequest request) {
-        Todo todo = todoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Todo not found: " + id));
-        Category category = resolveCategory(request.categoryId());
-        Set<Tag> tags = resolveTags(request.tagIds());
-        boolean completed = request.completed() != null && request.completed();
-        todo.update(request.title(), request.description(), request.priority(),
-                request.dueDate(), category, tags, completed, LocalDateTime.now());
-
-        return TodoResponse.from(todo);
+        try {
+            Todo todo = todoRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Todo not found: " + id));
+            Category category = resolveCategory(request.categoryId());
+            Set<Tag> tags = resolveTags(request.tagIds());
+            boolean completed = request.completed() != null && request.completed();
+            todo.update(request.title(), request.description(), request.priority(),
+                    request.dueDate(), category, tags, completed, LocalDateTime.now());
+            return TodoResponse.from(todo);
+        } catch (RuntimeException e) {
+            log.error("Todo 수정 중 오류가 발생했습니다. id: {}", id, e);
+            throw e;
+        }
     }
 
     public TodoResponse findById(Long id) {
-        Todo todo = todoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Todo not found: " + id));
-        return TodoResponse.from(todo);
+        try {
+            return todoRepository.findById(id)
+                    .map(TodoResponse::from)
+                    .orElseThrow(() -> new EntityNotFoundException("Todo not found: " + id));
+        } catch (RuntimeException e) {
+            log.error("Todo 단건 조회 중 오류가 발생했습니다. id: {}", id, e);
+            throw e;
+        }
     }
 
     @Transactional
     public void patch(Long id, TodoPatchRequest request) {
-        Todo todo = todoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Todo not found: " + id));
+        try {
+            Todo todo = todoRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Todo not found: " + id));
 
-        if (request.completed() == null || request.completed() == todo.isCompleted()) {
-            return;
+            if (request.completed() == null || request.completed() == todo.isCompleted()) {
+                return;
+            }
+
+            boolean newCompleted = request.completed();
+            int oldPosition = todo.getPosition();
+            todoRepository.incrementPositions(newCompleted);
+            todoRepository.decrementPositionsAfter(!newCompleted, oldPosition);
+            todo.toggleCompleted(newCompleted, LocalDateTime.now());
+            todo.updatePosition(0);
+        } catch (RuntimeException e) {
+            log.error("Todo 상태 변경 중 오류가 발생했습니다. id: {}", id, e);
+            throw e;
         }
-
-        boolean newCompleted = request.completed();
-        int oldPosition = todo.getPosition();
-        todoRepository.incrementPositions(newCompleted);
-        todoRepository.decrementPositionsAfter(!newCompleted, oldPosition);
-        todo.toggleCompleted(newCompleted, LocalDateTime.now());
-        todo.updatePosition(0);
     }
 
     @Transactional
     public void reorder(List<ReorderRequest.ReorderItem> items) {
-        Map<Long, Integer> positionById = items.stream()
-                .collect(Collectors.toMap(ReorderRequest.ReorderItem::id, ReorderRequest.ReorderItem::position));
+        try {
+            Map<Long, Integer> positionById = items.stream()
+                    .collect(Collectors.toMap(ReorderRequest.ReorderItem::id, ReorderRequest.ReorderItem::position));
 
-        List<Todo> todos = todoRepository.findAllById(positionById.keySet());
-        if (todos.size() != items.size()) {
-            throw new EntityNotFoundException("일부 Todo를 찾을 수 없습니다");
+            List<Todo> todos = todoRepository.findAllById(positionById.keySet());
+            if (todos.size() != items.size()) {
+                throw new EntityNotFoundException("일부 Todo를 찾을 수 없습니다");
+            }
+
+            todoJdbcRepository.bulkUpdatePositions(items);
+            entityManager.clear();
+        } catch (RuntimeException e) {
+            log.error("Todo 순서 변경 중 오류가 발생했습니다. items: {}", items, e);
+            throw e;
         }
-
-        todoJdbcRepository.bulkUpdatePositions(items);
-        entityManager.clear();
     }
 
     @Transactional
     public void delete(Long id) {
-        if (todoRepository.deleteByIdReturningCount(id) == 0) {
-            throw new EntityNotFoundException("Todo not found: " + id);
+        try {
+            if (todoRepository.deleteByIdReturningCount(id) == 0) {
+                throw new EntityNotFoundException("Todo not found: " + id);
+            }
+        } catch (RuntimeException e) {
+            log.error("Todo 삭제 중 오류가 발생했습니다. id: {}", id, e);
+            throw e;
         }
     }
 
@@ -134,16 +169,22 @@ public class TodoService {
         if (ObjectUtils.isEmpty(categoryId)) {
             return null;
         }
-
         return categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new EntityNotFoundException("Category not found: " + categoryId));
+                .orElseThrow(() -> {
+                    log.error("카테고리를 찾을 수 없습니다. categoryId: {}", categoryId);
+                    return new EntityNotFoundException("Category not found: " + categoryId);
+                });
     }
 
     private Set<Tag> resolveTags(List<Long> tagIds) {
         if (ObjectUtils.isEmpty(tagIds)) {
             return new HashSet<>();
         }
-
-        return new HashSet<>(tagRepository.findAllById(tagIds));
+        try {
+            return new HashSet<>(tagRepository.findAllById(tagIds));
+        } catch (RuntimeException e) {
+            log.error("태그 조회 중 오류가 발생했습니다. tagIds: {}", tagIds, e);
+            throw e;
+        }
     }
 }
