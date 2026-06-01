@@ -110,7 +110,12 @@ export function CalendarView() {
   const { toggleTodo, deleteTodo, reorderTodos } = useTodoMutations()
   const [localTodos, setLocalTodos] = useLocalTodoSync(rawTodos)
 
-  const { onDragStart, onDragEnd } = useDragDrop({ localTodos, setLocalTodos, reorderTodos })
+  const { onDragStart, onDragEnd } = useDragDrop({
+    localTodos,
+    setLocalTodos,
+    reorderTodos,
+    filterFn: selectedDate ? (t) => dayjs(t.dueDate).isSame(selectedDate, "day") : undefined,
+  })
 
   const [togglingIds, setTogglingIds] = useState<Set<number>>(new Set())
 
