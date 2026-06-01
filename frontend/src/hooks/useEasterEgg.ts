@@ -30,9 +30,7 @@ export function useEasterEgg(apiPath: string) {
     const browserVercel = entry ? Math.round(entry.responseStart - entry.requestStart) : 0
 
     const res = await fetch(`/api/timing?path=${encodeURIComponent(apiPath)}`)
-    const serverTiming = res.headers.get('Server-Timing') ?? ''
-    const gcpSupabase = parseFloat(serverTiming.match(/db[^,]*dur=([\d.]+)/)?.[1] ?? '0')
-    const vercelGcp = parseFloat(serverTiming.match(/vercel_gcp[^,]*dur=([\d.]+)/)?.[1] ?? '0')
+    const { vercelGcp, gcpSupabase } = await res.json()
 
     setLatency({ browserVercel, vercelGcp, gcpSupabase })
     setVisible(true)

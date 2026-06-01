@@ -12,11 +12,7 @@ export async function GET(request: Request) {
   const vercelGcp = Date.now() - start
 
   const gcpTiming = upstream.headers.get('Server-Timing') ?? ''
-  const vercelTiming = `vercel_gcp;desc="Vercel-GCP";dur=${vercelGcp}`
-  const serverTiming = gcpTiming ? `${gcpTiming}, ${vercelTiming}` : vercelTiming
+  const gcpSupabase = parseFloat(gcpTiming.match(/db[^,]*dur=([\d.]+)/)?.[1] ?? '0')
 
-  return new Response(null, {
-    status: 204,
-    headers: { 'Server-Timing': serverTiming },
-  })
+  return Response.json({ vercelGcp, gcpSupabase })
 }
