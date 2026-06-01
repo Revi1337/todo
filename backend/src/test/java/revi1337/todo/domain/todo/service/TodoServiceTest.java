@@ -178,6 +178,8 @@ class TodoServiceTest {
                 new ReorderRequest.ReorderItem(b.id(), 1)));
 
         todoCommandService.patch(a.id(), new TodoPatchRequest(true));
+        entityManager.flush();
+        entityManager.clear();
 
         TodoResponse result = todoQueryService.findById(a.id());
         assertThat(result.completed()).isTrue();
@@ -197,6 +199,8 @@ class TodoServiceTest {
         todoCommandService.patch(completedTodo.id(), new TodoPatchRequest(true));
 
         todoCommandService.patch(completedTodo.id(), new TodoPatchRequest(false));
+        entityManager.flush();
+        entityManager.clear();
 
         TodoResponse result = todoQueryService.findById(completedTodo.id());
         assertThat(result.completed()).isFalse();
@@ -217,6 +221,7 @@ class TodoServiceTest {
                 new ReorderRequest.ReorderItem(a.id(), 2),
                 new ReorderRequest.ReorderItem(b.id(), 0),
                 new ReorderRequest.ReorderItem(c.id(), 1)));
+        entityManager.clear();
 
         assertThat(todoQueryService.findById(a.id()).position()).isEqualTo(2);
         assertThat(todoQueryService.findById(b.id()).position()).isEqualTo(0);

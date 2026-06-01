@@ -1,6 +1,5 @@
 package revi1337.todo.domain.todo.service;
 
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,16 +32,13 @@ public class DefaultTodoCommandService implements TodoCommandService {
     private final TodoJdbcRepository todoJdbcRepository;
     private final CategoryRepository categoryRepository;
     private final TagRepository tagRepository;
-    private final EntityManager entityManager;
 
     public DefaultTodoCommandService(TodoRepository todoRepository, TodoJdbcRepository todoJdbcRepository,
-            CategoryRepository categoryRepository, TagRepository tagRepository,
-            EntityManager entityManager) {
+            CategoryRepository categoryRepository, TagRepository tagRepository) {
         this.todoRepository = todoRepository;
         this.todoJdbcRepository = todoJdbcRepository;
         this.categoryRepository = categoryRepository;
         this.tagRepository = tagRepository;
-        this.entityManager = entityManager;
     }
 
     @Override
@@ -70,9 +66,7 @@ public class DefaultTodoCommandService implements TodoCommandService {
 
     @Override
     public void patch(Long id, TodoPatchRequest request) {
-        Todo todo = todoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Todo not found: " + id));
-
+        Todo todo = lockGroupAndGetTodo(id);
         if (request.completed() == null || request.completed() == todo.isCompleted()) {
             return;
         }
@@ -80,10 +74,22 @@ public class DefaultTodoCommandService implements TodoCommandService {
         boolean newCompleted = request.completed();
         int oldPosition = todo.getPosition();
         LocalDate dueDate = todo.getDueDate();
+
         incrementPositions(newCompleted, dueDate);
         decrementPositionsAfter(!newCompleted, oldPosition, dueDate);
         todo.toggleCompleted(newCompleted, LocalDateTime.now());
         todo.updatePosition(0);
+    }
+
+    private Todo lockGroupAndGetTodo(Long id) {
+        List<Todo> locked = todoRepository.lockGroupByTodoId(id);
+        if (locked.isEmpty()) {
+            locked = todoRepository.lockNullDueDateGroup();
+        }
+        return locked.stream()
+                .filter(t -> t.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Todo not found: " + id));
     }
 
     @Override
@@ -97,7 +103,6 @@ public class DefaultTodoCommandService implements TodoCommandService {
         }
 
         todoJdbcRepository.bulkUpdatePositions(items);
-        entityManager.clear();
     }
 
     @Override

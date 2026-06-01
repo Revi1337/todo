@@ -1,10 +1,12 @@
 package revi1337.todo.domain.todo.repository;
 
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -41,6 +43,14 @@ public interface TodoRepository extends JpaRepository<Todo, Long>, JpaSpecificat
             GROUP BY completed_at::date
             """, nativeQuery = true)
     List<Object[]> findDailyCompletedBetween(@Param("from") LocalDate from, @Param("to") LocalDate to);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT t FROM Todo t WHERE t.dueDate = (SELECT t2.dueDate FROM Todo t2 WHERE t2.id = :id)")
+    List<Todo> lockGroupByTodoId(@Param("id") Long id);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT t FROM Todo t WHERE t.dueDate IS NULL")
+    List<Todo> lockNullDueDateGroup();
 
     @Modifying
     @Query("UPDATE Todo t SET t.position = t.position + 1 WHERE t.completed = :completed AND t.dueDate = :dueDate")
