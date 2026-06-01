@@ -10,7 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import revi1337.todo.domain.todo.entity.Priority;
-import revi1337.todo.domain.todo.service.TodoService;
+import revi1337.todo.domain.todo.service.TodoCommandService;
+import revi1337.todo.domain.todo.service.TodoQueryService;
 import revi1337.todo.domain.todo.service.dto.ReorderRequest;
 import revi1337.todo.domain.todo.service.dto.TodoFilterRequest;
 import revi1337.todo.domain.todo.service.dto.TodoPatchRequest;
@@ -35,7 +36,8 @@ class TodoControllerTest {
 
     @Autowired private MockMvc mockMvc;
     @Autowired private ObjectMapper objectMapper;
-    @MockitoBean private TodoService todoService;
+    @MockitoBean private TodoQueryService todoQueryService;
+    @MockitoBean private TodoCommandService todoCommandService;
 
     private static final LocalDateTime NOW = LocalDateTime.of(2026, 5, 28, 0, 0);
 
@@ -48,7 +50,7 @@ class TodoControllerTest {
     @Test
     @DisplayName("POST /api/todos — Todo를 생성하고 201을 반환한다")
     void create() throws Exception {
-        given(todoService.create(any(TodoRequest.class))).willReturn(sampleTodoResponse());
+        given(todoCommandService.create(any(TodoRequest.class))).willReturn(sampleTodoResponse());
 
         mockMvc.perform(post("/api/todos").session(authSession())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -71,7 +73,7 @@ class TodoControllerTest {
     @Test
     @DisplayName("GET /api/todos — 전체 목록을 반환한다")
     void findAll() throws Exception {
-        given(todoService.findAll(any(TodoFilterRequest.class))).willReturn(List.of(sampleTodoResponse()));
+        given(todoQueryService.findAll(any(TodoFilterRequest.class))).willReturn(List.of(sampleTodoResponse()));
 
         mockMvc.perform(get("/api/todos"))
                 .andExpect(status().isOk())
@@ -82,7 +84,7 @@ class TodoControllerTest {
     @Test
     @DisplayName("PUT /api/todos/{id} — Todo를 수정하고 200을 반환한다")
     void updateTodo() throws Exception {
-        given(todoService.update(any(), any(TodoRequest.class))).willReturn(sampleTodoResponse());
+        given(todoCommandService.update(any(), any(TodoRequest.class))).willReturn(sampleTodoResponse());
 
         mockMvc.perform(put("/api/todos/1").session(authSession())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -95,7 +97,7 @@ class TodoControllerTest {
     @Test
     @DisplayName("GET /api/todos/{id} — 단건 조회하고 200을 반환한다")
     void findById() throws Exception {
-        given(todoService.findById(1L)).willReturn(sampleTodoResponse());
+        given(todoQueryService.findById(1L)).willReturn(sampleTodoResponse());
 
         mockMvc.perform(get("/api/todos/1"))
                 .andExpect(status().isOk())
@@ -106,7 +108,7 @@ class TodoControllerTest {
     @Test
     @DisplayName("GET /api/todos/{id} — 존재하지 않으면 404를 반환한다")
     void findById_notFound_returns404() throws Exception {
-        given(todoService.findById(999L))
+        given(todoQueryService.findById(999L))
                 .willThrow(new EntityNotFoundException("Todo not found: 999"));
 
         mockMvc.perform(get("/api/todos/999"))
@@ -126,7 +128,7 @@ class TodoControllerTest {
     @DisplayName("PATCH /api/todos/{id} — 존재하지 않으면 404를 반환한다")
     void patchTodo_notFound_returns404() throws Exception {
         willThrow(new EntityNotFoundException("Todo not found: 999"))
-                .given(todoService).patch(any(), any(TodoPatchRequest.class));
+                .given(todoCommandService).patch(any(), any(TodoPatchRequest.class));
 
         mockMvc.perform(patch("/api/todos/999").session(authSession())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -145,7 +147,7 @@ class TodoControllerTest {
     @DisplayName("DELETE /api/todos/{id} — 존재하지 않으면 404를 반환한다")
     void deleteTodo_notFound_returns404() throws Exception {
         willThrow(new EntityNotFoundException("Todo not found: 999"))
-                .given(todoService).delete(999L);
+                .given(todoCommandService).delete(999L);
 
         mockMvc.perform(delete("/api/todos/999").session(authSession()))
                 .andExpect(status().isNotFound());

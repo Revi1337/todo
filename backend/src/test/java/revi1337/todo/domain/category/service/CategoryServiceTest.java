@@ -18,12 +18,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class CategoryServiceTest {
 
     @Autowired
-    private CategoryService categoryService;
+    private CategoryQueryService categoryQueryService;
+    @Autowired
+    private CategoryCommandService categoryCommandService;
 
     @Test
     @DisplayName("name과 color로 Category를 저장한다")
     void save() {
-        CategoryResponse result = categoryService.save("개발", "#6366f1");
+        CategoryResponse result = categoryCommandService.save("개발", "#6366f1");
 
         assertThat(result.id()).isNotNull();
         assertThat(result.name()).isEqualTo("개발");
@@ -34,10 +36,10 @@ class CategoryServiceTest {
     @Test
     @DisplayName("전체 Category 목록을 반환한다")
     void findAll() {
-        categoryService.save("개발", "#6366f1");
-        categoryService.save("운동", "#f59e0b");
+        categoryCommandService.save("개발", "#6366f1");
+        categoryCommandService.save("운동", "#f59e0b");
 
-        List<CategoryResponse> result = categoryService.findAll();
+        List<CategoryResponse> result = categoryQueryService.findAll();
 
         assertThat(result).hasSize(2);
     }
@@ -45,9 +47,9 @@ class CategoryServiceTest {
     @Test
     @DisplayName("Category의 name과 color를 수정한다")
     void update() {
-        CategoryResponse saved = categoryService.save("개발", "#6366f1");
+        CategoryResponse saved = categoryCommandService.save("개발", "#6366f1");
 
-        CategoryResponse result = categoryService.update(saved.id(), "업무", "#f59e0b");
+        CategoryResponse result = categoryCommandService.update(saved.id(), "업무", "#f59e0b");
 
         assertThat(result.name()).isEqualTo("업무");
         assertThat(result.color()).isEqualTo("#f59e0b");
@@ -56,17 +58,17 @@ class CategoryServiceTest {
     @Test
     @DisplayName("존재하지 않는 Category 수정 시 예외를 던진다")
     void update_notFound_throws() {
-        assertThatThrownBy(() -> categoryService.update(999L, "업무", "#f59e0b"))
+        assertThatThrownBy(() -> categoryCommandService.update(999L, "업무", "#f59e0b"))
                 .isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
     @DisplayName("ID로 Category를 삭제하면 조회되지 않는다")
     void deleteById() {
-        CategoryResponse saved = categoryService.save("개발", "#6366f1");
+        CategoryResponse saved = categoryCommandService.save("개발", "#6366f1");
 
-        categoryService.deleteById(saved.id());
+        categoryCommandService.deleteById(saved.id());
 
-        assertThat(categoryService.findAll()).isEmpty();
+        assertThat(categoryQueryService.findAll()).isEmpty();
     }
 }

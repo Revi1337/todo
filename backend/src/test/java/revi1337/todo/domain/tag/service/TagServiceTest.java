@@ -18,12 +18,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class TagServiceTest {
 
     @Autowired
-    private TagService tagService;
+    private TagQueryService tagQueryService;
+    @Autowired
+    private TagCommandService tagCommandService;
 
     @Test
     @DisplayName("name과 color로 Tag를 저장한다")
     void save() {
-        TagResponse result = tagService.save("JPA", "#94a3b8");
+        TagResponse result = tagCommandService.save("JPA", "#94a3b8");
 
         assertThat(result.id()).isNotNull();
         assertThat(result.name()).isEqualTo("JPA");
@@ -33,10 +35,10 @@ class TagServiceTest {
     @Test
     @DisplayName("전체 Tag 목록을 반환한다")
     void findAll() {
-        tagService.save("JPA", null);
-        tagService.save("Spring", null);
+        tagCommandService.save("JPA", null);
+        tagCommandService.save("Spring", null);
 
-        List<TagResponse> result = tagService.findAll();
+        List<TagResponse> result = tagQueryService.findAll();
 
         assertThat(result).hasSize(2);
     }
@@ -44,9 +46,9 @@ class TagServiceTest {
     @Test
     @DisplayName("Tag의 name과 color를 수정한다")
     void update() {
-        TagResponse saved = tagService.save("JPA", "#94a3b8");
+        TagResponse saved = tagCommandService.save("JPA", "#94a3b8");
 
-        TagResponse result = tagService.update(saved.id(), "Kotlin", "#6366f1");
+        TagResponse result = tagCommandService.update(saved.id(), "Kotlin", "#6366f1");
 
         assertThat(result.name()).isEqualTo("Kotlin");
         assertThat(result.color()).isEqualTo("#6366f1");
@@ -55,24 +57,24 @@ class TagServiceTest {
     @Test
     @DisplayName("존재하지 않는 Tag 수정 시 예외를 던진다")
     void update_notFound_throws() {
-        assertThatThrownBy(() -> tagService.update(999L, "Kotlin", "#6366f1"))
+        assertThatThrownBy(() -> tagCommandService.update(999L, "Kotlin", "#6366f1"))
                 .isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
     @DisplayName("ID로 Tag를 삭제한다")
     void deleteById() {
-        TagResponse saved = tagService.save("JPA", null);
+        TagResponse saved = tagCommandService.save("JPA", null);
 
-        tagService.deleteById(saved.id());
+        tagCommandService.deleteById(saved.id());
 
-        assertThat(tagService.findAll()).isEmpty();
+        assertThat(tagQueryService.findAll()).isEmpty();
     }
 
     @Test
     @DisplayName("존재하지 않는 Tag 삭제 시 예외를 던진다")
     void deleteById_notFound_throws() {
-        assertThatThrownBy(() -> tagService.deleteById(999L))
+        assertThatThrownBy(() -> tagCommandService.deleteById(999L))
                 .isInstanceOf(EntityNotFoundException.class);
     }
 }

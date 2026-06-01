@@ -7,7 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import revi1337.todo.common.ApiResponse;
 import revi1337.todo.domain.todo.entity.Priority;
-import revi1337.todo.domain.todo.service.TodoService;
+import revi1337.todo.domain.todo.service.TodoCommandService;
+import revi1337.todo.domain.todo.service.TodoQueryService;
 import revi1337.todo.domain.todo.service.dto.ReorderRequest;
 import revi1337.todo.domain.todo.service.dto.TodoFilterRequest;
 import revi1337.todo.domain.todo.service.dto.TodoPatchRequest;
@@ -22,12 +23,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TodoController {
 
-    private final TodoService todoService;
+    private final TodoQueryService todoQueryService;
+    private final TodoCommandService todoCommandService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<TodoResponse> create(@RequestBody @Valid TodoRequest request) {
-        return ApiResponse.ok(todoService.create(request));
+        return ApiResponse.ok(todoCommandService.create(request));
     }
 
     @GetMapping
@@ -38,35 +40,35 @@ public class TodoController {
             @RequestParam(required = false) Boolean completed,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDate) {
-        return ApiResponse.ok(todoService.findAll(
+        return ApiResponse.ok(todoQueryService.findAll(
                 new TodoFilterRequest(category, tag, priority, completed, search, dueDate)));
     }
 
     @GetMapping("/{id}")
     public ApiResponse<TodoResponse> findById(@PathVariable Long id) {
-        return ApiResponse.ok(todoService.findById(id));
+        return ApiResponse.ok(todoQueryService.findById(id));
     }
 
     @PutMapping("/{id}")
     public ApiResponse<TodoResponse> update(@PathVariable Long id, @RequestBody @Valid TodoRequest request) {
-        return ApiResponse.ok(todoService.update(id, request));
+        return ApiResponse.ok(todoCommandService.update(id, request));
     }
 
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void patch(@PathVariable Long id, @RequestBody TodoPatchRequest request) {
-        todoService.patch(id, request);
+        todoCommandService.patch(id, request);
     }
 
     @PatchMapping("/reorder")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void reorder(@RequestBody ReorderRequest request) {
-        todoService.reorder(request.items());
+        todoCommandService.reorder(request.items());
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
-        todoService.delete(id);
+        todoCommandService.delete(id);
     }
 }
