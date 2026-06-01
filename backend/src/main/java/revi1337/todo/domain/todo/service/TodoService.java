@@ -22,6 +22,7 @@ import revi1337.todo.domain.todo.service.dto.TodoPatchRequest;
 import revi1337.todo.domain.todo.service.dto.TodoRequest;
 import revi1337.todo.domain.todo.service.dto.TodoResponse;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -55,7 +56,7 @@ public class TodoService {
         try {
             Category category = resolveCategory(request.categoryId());
             Set<Tag> tags = resolveTags(request.tagIds());
-            todoRepository.incrementPositions(false);
+            incrementPositions(false, request.dueDate());
             Todo todo = todoRepository.save(new Todo(
                     request.title(), request.description(), request.priority(),
                     request.dueDate(), category, tags, LocalDateTime.now()));
@@ -124,8 +125,9 @@ public class TodoService {
 
             boolean newCompleted = request.completed();
             int oldPosition = todo.getPosition();
-            todoRepository.incrementPositions(newCompleted);
-            todoRepository.decrementPositionsAfter(!newCompleted, oldPosition);
+            LocalDate dueDate = todo.getDueDate();
+            incrementPositions(newCompleted, dueDate);
+            decrementPositionsAfter(!newCompleted, oldPosition, dueDate);
             todo.toggleCompleted(newCompleted, LocalDateTime.now());
             todo.updatePosition(0);
         } catch (RuntimeException e) {
@@ -162,6 +164,22 @@ public class TodoService {
         } catch (RuntimeException e) {
             log.error("Todo 삭제 중 오류가 발생했습니다. id: {}", id, e);
             throw e;
+        }
+    }
+
+    private void incrementPositions(boolean completed, LocalDate dueDate) {
+        if (dueDate != null) {
+            todoRepository.incrementPositions(completed, dueDate);
+        } else {
+            todoRepository.incrementPositionsNullDueDate(completed);
+        }
+    }
+
+    private void decrementPositionsAfter(boolean completed, int afterPosition, LocalDate dueDate) {
+        if (dueDate != null) {
+            todoRepository.decrementPositionsAfter(completed, afterPosition, dueDate);
+        } else {
+            todoRepository.decrementPositionsAfterNullDueDate(completed, afterPosition);
         }
     }
 

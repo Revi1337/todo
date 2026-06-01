@@ -43,12 +43,20 @@ public interface TodoRepository extends JpaRepository<Todo, Long>, JpaSpecificat
     List<Object[]> findDailyCompletedBetween(@Param("from") LocalDate from, @Param("to") LocalDate to);
 
     @Modifying
-    @Query("UPDATE Todo t SET t.position = t.position + 1 WHERE t.completed = :completed")
-    void incrementPositions(@Param("completed") boolean completed);
+    @Query("UPDATE Todo t SET t.position = t.position + 1 WHERE t.completed = :completed AND t.dueDate = :dueDate")
+    void incrementPositions(@Param("completed") boolean completed, @Param("dueDate") LocalDate dueDate);
 
     @Modifying
-    @Query("UPDATE Todo t SET t.position = t.position - 1 WHERE t.completed = :completed AND t.position > :afterPosition")
-    void decrementPositionsAfter(@Param("completed") boolean completed, @Param("afterPosition") int afterPosition);
+    @Query("UPDATE Todo t SET t.position = t.position + 1 WHERE t.completed = :completed AND t.dueDate IS NULL")
+    void incrementPositionsNullDueDate(@Param("completed") boolean completed);
+
+    @Modifying
+    @Query("UPDATE Todo t SET t.position = t.position - 1 WHERE t.completed = :completed AND t.position > :afterPosition AND t.dueDate = :dueDate")
+    void decrementPositionsAfter(@Param("completed") boolean completed, @Param("afterPosition") int afterPosition, @Param("dueDate") LocalDate dueDate);
+
+    @Modifying
+    @Query("UPDATE Todo t SET t.position = t.position - 1 WHERE t.completed = :completed AND t.position > :afterPosition AND t.dueDate IS NULL")
+    void decrementPositionsAfterNullDueDate(@Param("completed") boolean completed, @Param("afterPosition") int afterPosition);
 
     @Modifying
     @Query("DELETE FROM Todo t WHERE t.id = :id")

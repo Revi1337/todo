@@ -129,7 +129,7 @@ class TodoRepositoryTest {
         b.updatePosition(1);
         todoRepository.flush();
 
-        todoRepository.incrementPositions(false);
+        todoRepository.incrementPositionsNullDueDate(false);
         todoRepository.flush();
         entityManager.clear();
 
@@ -148,7 +148,7 @@ class TodoRepositoryTest {
         c.updatePosition(2);
         todoRepository.flush();
 
-        todoRepository.decrementPositionsAfter(false, 0);
+        todoRepository.decrementPositionsAfterNullDueDate(false, 0);
         todoRepository.flush();
         entityManager.clear();
 
