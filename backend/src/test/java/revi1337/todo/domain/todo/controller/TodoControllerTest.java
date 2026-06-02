@@ -82,6 +82,19 @@ class TodoControllerTest {
     }
 
     @Test
+    @DisplayName("GET /api/todos — dueDateFrom·dueDateTo 범위 파라미터를 받고 200을 반환한다")
+    void findAll_withDueDateRange() throws Exception {
+        given(todoQueryService.findAll(any(TodoFilterRequest.class))).willReturn(List.of(sampleTodoResponse()));
+
+        mockMvc.perform(get("/api/todos")
+                        .param("dueDateFrom", "2026-06-01")
+                        .param("dueDateTo", "2026-06-30"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.length()").value(1));
+    }
+
+    @Test
     @DisplayName("PUT /api/todos/{id} — Todo를 수정하고 200을 반환한다")
     void updateTodo() throws Exception {
         given(todoCommandService.update(any(), any(TodoRequest.class))).willReturn(sampleTodoResponse());

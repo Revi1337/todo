@@ -28,7 +28,8 @@ public class DefaultTodoQueryService implements TodoQueryService {
                 .and(TodoSpecification.hasPriority(filter.priority()))
                 .and(TodoSpecification.isCompleted(filter.completed()))
                 .and(TodoSpecification.hasKeyword(filter.search()))
-                .and(TodoSpecification.hasDueDate(filter.dueDate()));
+                .and(TodoSpecification.hasDueDate(filter.dueDate()))
+                .and(TodoSpecification.hasDueDateBetween(filter.dueDateFrom(), filter.dueDateTo()));
 
         return todoRepository.findAll(spec, Sort.by(Sort.Direction.ASC, "position")).stream()
                 .map(TodoResponse::from)

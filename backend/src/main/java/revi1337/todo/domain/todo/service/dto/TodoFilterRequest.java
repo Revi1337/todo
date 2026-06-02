@@ -10,6 +10,8 @@ public record TodoFilterRequest(
         Priority priority,
         Boolean completed,
         String search,
-        LocalDate dueDate
+        LocalDate dueDate,
+        LocalDate dueDateFrom,
+        LocalDate dueDateTo
 ) {
 }

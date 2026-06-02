@@ -225,7 +225,9 @@ AuthFilter — 세션에 authenticated=true ? → 통과
 | priority | String | HIGH / MEDIUM / LOW |
 | completed | Boolean | 완료 여부 필터 |
 | search | String | 제목/설명 키워드 |
-| dueDate | String | 특정 날짜의 Todo (캘린더용, YYYY-MM-DD) |
+| dueDate | String | 특정 날짜 정확 일치 (대시보드용, YYYY-MM-DD) |
+| dueDateFrom | String | 기준일 이후 필터 (캘린더 월 범위 시작, YYYY-MM-DD) |
+| dueDateTo | String | 기준일 이전 필터 (캘린더 월 범위 종료, YYYY-MM-DD) |
 
 #### GET /api/todos/{id}
 **200** 단건 Todo / **404** 없음
@@ -316,9 +318,14 @@ Todo 순서 일괄 변경.
 - `completed=true` → `completedAt = 현재 시각`, `updatedAt = 현재 시각`
 - `completed=false` → `completedAt = null`, `updatedAt = 현재 시각`
 
+### 캘린더 월 단위 조회
+- 월 범위: `GET /api/todos?dueDateFrom=2026-06-01&dueDateTo=2026-06-30` → `WHERE due_date BETWEEN '2026-06-01' AND '2026-06-30'`
+- 월 이동 시 `currentDate` 기준으로 `startOf("month")` ~ `endOf("month")` 자동 계산
+
 ### 캘린더 날짜 클릭
-- 조회: `GET /api/todos?dueDate=2026-06-01` → `WHERE due_date = '2026-06-01'`
+- 조회: 이미 로드된 월 데이터에서 클라이언트 사이드 필터링 (`dayjs.isSame(date, "day")`)
 - 생성: 프론트에서 클릭한 날짜를 `dueDate` 필드에 자동 세팅 후 POST
+- 대시보드 단일 날짜: `GET /api/todos?dueDate=2026-06-01` → `WHERE due_date = '2026-06-01'` (기존 유지)
 
 ### 이번 주 완료 추이
 ```sql

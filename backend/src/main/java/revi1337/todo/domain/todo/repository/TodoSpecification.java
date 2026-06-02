@@ -77,4 +77,13 @@ public class TodoSpecification {
             return cb.equal(root.get("dueDate"), dueDate);
         };
     }
+
+    public static Specification<Todo> hasDueDateBetween(LocalDate from, LocalDate to) {
+        return (root, query, cb) -> {
+            if (ObjectUtils.isEmpty(from) && ObjectUtils.isEmpty(to)) return null;
+            if (ObjectUtils.isEmpty(from)) return cb.lessThanOrEqualTo(root.get("dueDate"), to);
+            if (ObjectUtils.isEmpty(to)) return cb.greaterThanOrEqualTo(root.get("dueDate"), from);
+            return cb.between(root.get("dueDate"), from, to);
+        };
+    }
 }

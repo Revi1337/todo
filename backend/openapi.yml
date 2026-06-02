@@ -82,7 +82,21 @@ paths:
             type: string
         - name: dueDate
           in: query
-          description: Filter by due date (ISO 8601 date)
+          description: Filter by due date (ISO 8601 date) — exact match
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: dueDateFrom
+          in: query
+          description: Filter todos with dueDate >= this date (ISO 8601 date, used for calendar month range)
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: dueDateTo
+          in: query
+          description: Filter todos with dueDate <= this date (ISO 8601 date, used for calendar month range)
           required: false
           schema:
             type: string

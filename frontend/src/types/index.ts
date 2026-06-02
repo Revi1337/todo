@@ -53,6 +53,8 @@ export interface TodoFilter {
   completed?: boolean;
   search?: string;
   dueDate?: string;
+  dueDateFrom?: string;
+  dueDateTo?: string;
 }
 
 export interface CategoryStat {

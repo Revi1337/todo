@@ -65,7 +65,7 @@ class TodoServiceTest {
         todoCommandService.create(new TodoRequest("Todo1", null, null, null, null, null, null));
         todoCommandService.create(new TodoRequest("Todo2", null, null, null, null, null, null));
 
-        List<TodoResponse> result = todoQueryService.findAll(new TodoFilterRequest(null, null, null, null, null, null));
+        List<TodoResponse> result = todoQueryService.findAll(new TodoFilterRequest(null, null, null, null, null, null, null, null));
 
         assertThat(result).hasSize(2);
     }
@@ -82,7 +82,7 @@ class TodoServiceTest {
                 new ReorderRequest.ReorderItem(a.id(), 1),
                 new ReorderRequest.ReorderItem(b.id(), 2)));
 
-        List<TodoResponse> result = todoQueryService.findAll(new TodoFilterRequest(null, null, null, null, null, null));
+        List<TodoResponse> result = todoQueryService.findAll(new TodoFilterRequest(null, null, null, null, null, null, null, null));
 
         assertThat(result).extracting(TodoResponse::title)
                 .containsExactly("C", "A", "B");
@@ -107,7 +107,7 @@ class TodoServiceTest {
 
         todoCommandService.delete(created.id());
 
-        TodoFilterRequest filter = new TodoFilterRequest(null, null, null, null, null, null);
+        TodoFilterRequest filter = new TodoFilterRequest(null, null, null, null, null, null, null, null);
         assertThat(todoQueryService.findAll(filter)).isEmpty();
     }
 
@@ -208,6 +208,49 @@ class TodoServiceTest {
 
         TodoResponse shifted = todoQueryService.findById(active.id());
         assertThat(shifted.position()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("dueDateFrom ~ dueDateTo 범위로 필터링한다")
+    void findAll_dueDateRange() {
+        todoCommandService.create(new TodoRequest("6월 1일", null, null, LocalDate.of(2026, 6, 1), null, null, null));
+        todoCommandService.create(new TodoRequest("6월 15일", null, null, LocalDate.of(2026, 6, 15), null, null, null));
+        todoCommandService.create(new TodoRequest("7월 1일", null, null, LocalDate.of(2026, 7, 1), null, null, null));
+
+        List<TodoResponse> result = todoQueryService.findAll(new TodoFilterRequest(
+                null, null, null, null, null, null,
+                LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 30)));
+
+        assertThat(result).hasSize(2);
+        assertThat(result).extracting(TodoResponse::title).containsExactlyInAnyOrder("6월 1일", "6월 15일");
+    }
+
+    @Test
+    @DisplayName("dueDateFrom만 전달하면 해당 날짜 이후를 필터링한다")
+    void findAll_dueDateFrom_only() {
+        todoCommandService.create(new TodoRequest("5월", null, null, LocalDate.of(2026, 5, 31), null, null, null));
+        todoCommandService.create(new TodoRequest("6월", null, null, LocalDate.of(2026, 6, 1), null, null, null));
+
+        List<TodoResponse> result = todoQueryService.findAll(new TodoFilterRequest(
+                null, null, null, null, null, null,
+                LocalDate.of(2026, 6, 1), null));
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).title()).isEqualTo("6월");
+    }
+
+    @Test
+    @DisplayName("dueDateTo만 전달하면 해당 날짜 이전을 필터링한다")
+    void findAll_dueDateTo_only() {
+        todoCommandService.create(new TodoRequest("5월", null, null, LocalDate.of(2026, 5, 31), null, null, null));
+        todoCommandService.create(new TodoRequest("7월", null, null, LocalDate.of(2026, 7, 1), null, null, null));
+
+        List<TodoResponse> result = todoQueryService.findAll(new TodoFilterRequest(
+                null, null, null, null, null, null,
+                null, LocalDate.of(2026, 6, 30)));
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).title()).isEqualTo("5월");
     }
 
     @Test

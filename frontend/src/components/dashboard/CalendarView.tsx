@@ -3,6 +3,7 @@
 import { useState, useCallback, useMemo } from "react"
 import dayjs from "dayjs"
 import { DragDropContext, Droppable } from "@hello-pangea/dnd"
+import { buildQuery } from "@/lib/queryBuilder"
 import { useTodos, useTodoMutations, useLocalTodoSync, useDragDrop } from "@/hooks"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
@@ -106,7 +107,12 @@ export function CalendarView() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null)
 
-  const { rawTodos, refetch, isLoading } = useTodos()
+  const monthQueryParams = useMemo(() => buildQuery({
+    dueDateFrom: currentDate.startOf("month").format("YYYY-MM-DD"),
+    dueDateTo: currentDate.endOf("month").format("YYYY-MM-DD"),
+  }), [currentDate])
+
+  const { rawTodos, refetch, isLoading } = useTodos(monthQueryParams)
   const { toggleTodo, deleteTodo, reorderTodos } = useTodoMutations()
   const [localTodos, setLocalTodos] = useLocalTodoSync(rawTodos)
 

@@ -39,9 +39,11 @@ public class TodoController {
             @RequestParam(required = false) Priority priority,
             @RequestParam(required = false) Boolean completed,
             @RequestParam(required = false) String search,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDate) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDateFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDateTo) {
         return ApiResponse.ok(todoQueryService.findAll(
-                new TodoFilterRequest(category, tag, priority, completed, search, dueDate)));
+                new TodoFilterRequest(category, tag, priority, completed, search, dueDate, dueDateFrom, dueDateTo)));
     }
 
     @GetMapping("/{id}")
