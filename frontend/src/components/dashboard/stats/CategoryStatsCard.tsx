@@ -11,7 +11,7 @@ export function CategoryStatsCard({ categoryStats }: Props) {
   return (
     <div className="bg-card/50 p-6 rounded-card border border-border/50 shadow-sm md:col-span-1 backdrop-blur-sm">
       <h3 className="text-lg font-bold text-muted-foreground mb-4">카테고리별 현황</h3>
-      <div className="h-[200px] w-full">
+      <div className="h-[200px] w-full [&_svg]:outline-none">
         <ResponsiveContainer width="99%" height="100%">
           <PieChart>
             <Pie
