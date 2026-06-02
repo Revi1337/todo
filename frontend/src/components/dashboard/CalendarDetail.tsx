@@ -4,7 +4,7 @@ import { useMemo } from "react"
 import type { Dayjs } from "dayjs"
 import { DragDropContext, Droppable } from "@hello-pangea/dnd"
 import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
+import { Ban, Plus } from "lucide-react"
 import { Todo } from "@/types"
 import { CalendarTodoCard } from "./CalendarTodoCard"
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner"
@@ -14,6 +14,7 @@ interface CalendarDetailProps {
   selectedTodos: Todo[]
   isLoading: boolean
   togglingIds: Set<number>
+  draggingFromId: string | null
   onCreateTodo: () => void
   onEdit: (todo: Todo) => void
   onToggle: (todo: Todo) => void
@@ -26,6 +27,7 @@ export function CalendarDetail({
   selectedTodos,
   isLoading,
   togglingIds,
+  draggingFromId,
   onCreateTodo,
   onEdit,
   onToggle,
@@ -73,12 +75,20 @@ export function CalendarDetail({
                   <span className="text-xs font-bold text-primary/70">{pendingTodos.length}</span>
                 </div>
                 <Droppable droppableId="ACTIVE">
-                  {(provided) => (
+                  {(provided, snapshot) => {
+                    const showBlocked = draggingFromId === "COMPLETED" && snapshot.isDraggingOver
+                    return (
                     <div
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      className="flex-1 xl:overflow-y-auto scrollbar-hide flex flex-col px-0.5 py-0.5"
+                      className={`relative flex-1 xl:overflow-y-auto scrollbar-hide flex flex-col px-0.5 py-0.5 rounded-lg transition-all duration-200 ${showBlocked ? "outline outline-1 outline-red-500/40" : ""}`}
                     >
+                      {showBlocked && (
+                        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 rounded-lg bg-background/60 backdrop-blur-[4px]">
+                          <Ban className="w-6 h-6 text-red-400" />
+                          <span className="text-xs font-bold text-red-400">체크박스로 처리하세요</span>
+                        </div>
+                      )}
                       {pendingTodos.length === 0 ? (
                         <div className="text-center py-4 text-muted-foreground text-sm font-medium">모두 완료했습니다!</div>
                       ) : (
@@ -95,7 +105,7 @@ export function CalendarDetail({
                       )}
                       {provided.placeholder}
                     </div>
-                  )}
+                  )}}
                 </Droppable>
               </div>
 
@@ -105,12 +115,20 @@ export function CalendarDetail({
                   <span className="text-xs font-bold text-primary/70">{completedTodos.length}</span>
                 </div>
                 <Droppable droppableId="COMPLETED">
-                  {(provided) => (
+                  {(provided, snapshot) => {
+                    const showBlocked = draggingFromId === "ACTIVE" && snapshot.isDraggingOver
+                    return (
                     <div
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      className="flex-1 xl:overflow-y-auto scrollbar-hide flex flex-col px-0.5 py-0.5"
+                      className={`relative flex-1 xl:overflow-y-auto scrollbar-hide flex flex-col px-0.5 py-0.5 rounded-lg transition-all duration-200 ${showBlocked ? "outline outline-1 outline-red-500/40" : ""}`}
                     >
+                      {showBlocked && (
+                        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 rounded-lg bg-background/60 backdrop-blur-[4px]">
+                          <Ban className="w-6 h-6 text-red-400" />
+                          <span className="text-xs font-bold text-red-400">체크박스로 처리하세요</span>
+                        </div>
+                      )}
                       {completedTodos.length === 0 ? (
                         <div className="text-center py-4 text-muted-foreground text-sm font-medium">완료된 일정이 없습니다.</div>
                       ) : (
@@ -127,7 +145,7 @@ export function CalendarDetail({
                       )}
                       {provided.placeholder}
                     </div>
-                  )}
+                  )}}
                 </Droppable>
               </div>
             </>

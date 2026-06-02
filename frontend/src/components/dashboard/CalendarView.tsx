@@ -22,6 +22,7 @@ export function CalendarView() {
     togglingIds,
     handleToggle,
     handleDelete,
+    draggingFromId,
     onDragStart,
     onDragEnd,
   } = useCalendarTodos({ currentDate, selectedDate })
@@ -43,6 +44,7 @@ export function CalendarView() {
           selectedTodos={selectedTodos}
           isLoading={isLoading}
           togglingIds={togglingIds}
+          draggingFromId={draggingFromId}
           onCreateTodo={openCreate}
           onEdit={openEdit}
           onToggle={handleToggle}

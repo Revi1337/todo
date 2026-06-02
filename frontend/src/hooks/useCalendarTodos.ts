@@ -20,7 +20,7 @@ export function useCalendarTodos({ currentDate, selectedDate }: UseCalendarTodos
   const { toggleTodo, deleteTodo, reorderTodos } = useTodoMutations()
   const [localTodos, setLocalTodos] = useLocalTodoSync(rawTodos)
 
-  const { onDragStart, onDragEnd } = useDragDrop({
+  const { draggingFromId, onDragStart, onDragEnd } = useDragDrop({
     localTodos,
     setLocalTodos,
     reorderTodos,
@@ -70,6 +70,7 @@ export function useCalendarTodos({ currentDate, selectedDate }: UseCalendarTodos
     togglingIds,
     handleToggle,
     handleDelete,
+    draggingFromId,
     onDragStart,
     onDragEnd,
   }
