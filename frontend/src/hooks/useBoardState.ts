@@ -2,7 +2,23 @@ import { useState, useCallback } from "react"
 import dayjs, { Dayjs } from "dayjs"
 import { Todo, TodoFilter } from "@/types"
 
-export function useBoardState() {
+interface BoardState {
+  selectedDate: Dayjs
+  filter: TodoFilter
+  setFilter: (filter: TodoFilter) => void
+  search: string
+  setSearch: (search: string) => void
+  dialogOpen: boolean
+  editingTodo: Todo | null
+  goToPrevDay: () => void
+  goToNextDay: () => void
+  openCreate: () => void
+  openEdit: (todo: Todo) => void
+  closeDialog: () => void
+  resetFilter: () => void
+}
+
+export function useBoardState(): BoardState {
   const [selectedDate, setSelectedDate] = useState<Dayjs>(() => dayjs())
   const [filter, setFilter] = useState<TodoFilter>({})
   const [search, setSearch] = useState("")
