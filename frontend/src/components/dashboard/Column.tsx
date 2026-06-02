@@ -20,7 +20,10 @@ export function Column({ title, id, todos, scrollable, draggingFromId, isLoading
   return (
     <Droppable droppableId={id}>
       {(provided, snapshot) => {
-        const showBlocked = id === "COMPLETED" && draggingFromId === "ACTIVE" && snapshot.isDraggingOver
+        const showBlocked = (
+          (id === "COMPLETED" && draggingFromId === "ACTIVE") ||
+          (id === "ACTIVE" && draggingFromId === "COMPLETED")
+        ) && snapshot.isDraggingOver
         return (
           <div className={`relative flex flex-col gap-4 bg-muted/40 rounded-card p-5 border h-full min-h-0 overflow-hidden transition-all duration-200 ${showBlocked ? "border-red-500/40" : "border-border/60"}`}>
             {showBlocked && (
