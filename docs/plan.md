@@ -289,6 +289,84 @@ git init
 
 ---
 
+---
+
+> **일간 플래너 고도화 (Phase 21~24)**
+> 전략: UI 선행 (Phase 21) → API 명세 확정 (Phase 22) → 백엔드 구현 (Phase 23) → 프론트 연동 (Phase 24)
+---
+
+### Phase 21. 일간 플래너 UI (목업)
+**목적**: 실제 API 없이 플래너 페이지의 UI 껍데기를 mock 데이터로 완성한다.
+**UI 레퍼런스**: Stitch 프로젝트 `8074316594367710553` > "일간 플래너 - 드래그 앤 드롭" 스크린
+**의존 단계**: Phase 20 완료 후
+
+#### Tasks
+- [ ] `Sidebar.tsx` — "플래너" 네비 항목 추가 (`/planner`, CalendarClock 아이콘)
+- [ ] `src/app/(main)/planner/page.tsx` — 페이지 shell 생성
+- [ ] `src/lib/planner.ts` — 시간 상수 & 유틸 (HOUR_HEIGHT_PX, HOURS, timeToOffsetPx, offsetPxToTime, formatTime)
+- [ ] `src/hooks/usePlannerState.ts` — 날짜 네비 + 다이얼로그 상태 훅
+- [ ] `src/hooks/usePlannerTodos.ts` — DnD 로직 훅 (Phase 21에서는 mock 데이터)
+- [ ] `src/components/planner/PlannerView.tsx` — DragDropContext 루트, 날짜 헤더, 좌우 레이아웃
+- [ ] `src/components/planner/PlannerTimeGrid.tsx` — 시간 그리드 (Droppable id="TIMEGRID", 06:00~익일05:59, 24슬롯 × 60px)
+- [ ] `src/components/planner/PlannerPool.tsx` — 태스크 풀 (Droppable id="POOL")
+- [ ] `src/components/planner/PlannerEventCard.tsx` — 그리드 절대위치 이벤트 카드 (좌측 컬러 보더)
+- [ ] `src/components/planner/PlannerPoolCard.tsx` — 풀 목록 아이템 (Draggable, category dot + title + grip)
+
+#### 검증
+- `/planner` 접근 → 사이드바 "플래너" 활성화, 시간 그리드 + 태스크 풀 레이아웃 렌더링
+
+---
+
+### Phase 22. 플래너 API 명세 확정
+**목적**: Phase 21 UI에서 필요한 API를 정리하고 프론트엔드 타입을 추가한다.
+**의존 단계**: Phase 21 완료 후
+
+#### Tasks
+- [ ] `src/types/index.ts` — `TodoSchedule` 인터페이스 추가 (`id, todoId, startTime, endTime, scheduleDate`)
+- [ ] 신규 API 명세 확인 (`docs/spec.md` TodoSchedules 섹션 참조)
+
+---
+
+### Phase 23. 백엔드: TodoSchedule 도메인 구현
+**목적**: TodoSchedule Entity → Repository → Service → Controller 순서로 구현하고 각 레이어마다 테스트를 작성한다.
+**의존 단계**: Phase 22 완료 후
+
+> **구현 순서: Entity → Repository → Service → Controller**  
+> `ddl-auto: update` 이므로 Entity 필드 추가 시 Hibernate가 `todo_schedules` 테이블을 자동 생성한다.
+
+#### Tasks
+- [ ] `TodoSchedule` Entity 구현 및 `@SpringBootTest` 기반 영속성 테스트
+- [ ] `TodoScheduleRepository` 구현 및 `@DataJpaTest` 기반 쿼리 테스트
+- [ ] `ScheduleRequest`, `ScheduleUpdateRequest`, `ScheduleResponse` DTO 구현
+- [ ] `TodoScheduleService` 인터페이스 + `DefaultTodoScheduleService` 구현 및 `@SpringBootTest` 기반 서비스 테스트
+- [ ] `TodoScheduleController` 구현 및 `@WebMvcTest` 기반 컨트롤러 테스트
+
+#### 검증
+```bash
+./gradlew test
+```
+백엔드 재시작 후 DB에 `todo_schedules` 테이블 자동 생성 확인
+
+---
+
+### Phase 24. 프론트엔드 API 연동
+**목적**: Phase 21 mock 데이터를 실제 API 호출로 교체한다.
+**의존 단계**: Phase 23 완료 후
+
+#### Tasks
+- [ ] `src/hooks/useTodoSchedules.ts` — SWR 기반 GET/POST/PUT/DELETE 훅 구현
+- [ ] `usePlannerTodos.ts` — mock 제거, `useTodos` + `useTodoSchedules` 병렬 호출로 교체
+  - `todoId`로 조인: `scheduledTodos` / `unscheduledTodos` 분리
+  - DnD `onDragEnd` → POST/DELETE API 호출 + 낙관적 업데이트 + 실패 시 롤백
+- [ ] `docs/spec.md`, `docs/prd.md` 업데이트 (이미 반영됨)
+
+#### 검증
+- 풀 → 10:00 슬롯 드래그 → 이벤트 카드 10:00 렌더링, DB `todo_schedules` 행 생성
+- 이벤트 → 풀 드래그 → 행 삭제
+- 날짜 이동 → 해당 날짜 데이터 갱신
+
+---
+
 ## 4. 위험 요소 & 대응
 
 | 위험 | 가능성 | 대응 |
