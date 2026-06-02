@@ -28,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen mesh-bg text-foreground selection:bg-primary/30`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-[100dvh] mesh-bg text-foreground selection:bg-primary/30`}
       >
         <SWRConfig value={{ revalidateOnFocus: false }}>
           <ThemeProvider

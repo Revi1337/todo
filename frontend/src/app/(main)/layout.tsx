@@ -8,7 +8,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   return (
     <AuthGuard>
       <FilterSheetProvider>
-        <div className="flex min-h-screen">
+        <div className="flex min-h-[100dvh]">
           <Header />
           <Sidebar />
           <main className="flex-1 lg:pl-[260px] pt-16">
