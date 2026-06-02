@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Calendar, BarChart3, LucideIcon } from "lucide-react"
+import { LayoutDashboard, Calendar, BarChart3, CalendarClock, LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useEasterEgg } from "@/hooks/useEasterEgg"
 import { LatencyPopup } from "./LatencyPopup"
@@ -10,6 +10,7 @@ import { LatencyPopup } from "./LatencyPopup"
 const navItems = [
   { title: "대시보드", href: "/", icon: LayoutDashboard, apiPath: "/api/todos" },
   { title: "캘린더", href: "/calendar", icon: Calendar, apiPath: "/api/todos" },
+  { title: "플래너", href: "/planner", icon: CalendarClock, apiPath: "/api/todos" },
   { title: "통계", href: "/stats", icon: BarChart3, apiPath: "/api/stats" },
 ]
 

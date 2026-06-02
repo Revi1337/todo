@@ -301,16 +301,16 @@ git init
 **의존 단계**: Phase 20 완료 후
 
 #### Tasks
-- [ ] `Sidebar.tsx` — "플래너" 네비 항목 추가 (`/planner`, CalendarClock 아이콘)
-- [ ] `src/app/(main)/planner/page.tsx` — 페이지 shell 생성
-- [ ] `src/lib/planner.ts` — 시간 상수 & 유틸 (HOUR_HEIGHT_PX, HOURS, timeToOffsetPx, offsetPxToTime, formatTime)
-- [ ] `src/hooks/usePlannerState.ts` — 날짜 네비 + 다이얼로그 상태 훅
-- [ ] `src/hooks/usePlannerTodos.ts` — DnD 로직 훅 (Phase 21에서는 mock 데이터)
-- [ ] `src/components/planner/PlannerView.tsx` — DragDropContext 루트, 날짜 헤더, 좌우 레이아웃
-- [ ] `src/components/planner/PlannerTimeGrid.tsx` — 시간 그리드 (Droppable id="TIMEGRID", 06:00~익일05:59, 24슬롯 × 60px)
-- [ ] `src/components/planner/PlannerPool.tsx` — 태스크 풀 (Droppable id="POOL")
-- [ ] `src/components/planner/PlannerEventCard.tsx` — 그리드 절대위치 이벤트 카드 (좌측 컬러 보더)
-- [ ] `src/components/planner/PlannerPoolCard.tsx` — 풀 목록 아이템 (Draggable, category dot + title + grip)
+- [x] `Sidebar.tsx` — "플래너" 네비 항목 추가 (`/planner`, CalendarClock 아이콘)
+- [x] `src/app/(main)/planner/page.tsx` — 페이지 shell 생성
+- [x] `src/lib/planner.ts` — 시간 상수 & 유틸 (HOUR_HEIGHT_PX, HOURS, timeToOffsetPx, offsetPxToTime, formatTime)
+- [x] `src/hooks/usePlannerState.ts` — 날짜 네비 + 다이얼로그 상태 훅
+- [x] `src/hooks/usePlannerTodos.ts` — DnD 로직 훅 (Phase 21에서는 mock 데이터)
+- [x] `src/components/planner/PlannerView.tsx` — DragDropContext 루트, 날짜 헤더, 좌우 레이아웃
+- [x] `src/components/planner/PlannerTimeGrid.tsx` — 시간 그리드 (Droppable id="TIMEGRID", 06:00~익일05:59, 24슬롯 × 60px)
+- [x] `src/components/planner/PlannerPool.tsx` — 태스크 풀 (Droppable id="POOL")
+- [x] `src/components/planner/PlannerEventCard.tsx` — 그리드 절대위치 이벤트 카드 (좌측 컬러 보더)
+- [x] `src/components/planner/PlannerPoolCard.tsx` — 풀 목록 아이템 (Draggable, category dot + title + grip)
 
 #### 검증
 - `/planner` 접근 → 사이드바 "플래너" 활성화, 시간 그리드 + 태스크 풀 레이아웃 렌더링
