@@ -77,3 +77,25 @@ export interface StatsResponse {
   weeklyTrend: DailyStat[];
   monthlyTrend: DailyStat[];
 }
+
+// ── 일간 플래너 ──────────────────────────────────────────────────────────────
+
+export interface TodoSchedule {
+  id: number;
+  todoId: number;
+  startTime: string;    // "HH:mm:ss" — Java LocalTime 직렬화 형식
+  endTime: string;      // "HH:mm:ss"
+  scheduleDate: string; // "YYYY-MM-DD"
+}
+
+export interface ScheduleRequest {
+  todoId: number;
+  startTime: string;    // "HH:mm:ss"
+  endTime: string;      // "HH:mm:ss"
+  scheduleDate: string; // "YYYY-MM-DD"
+}
+
+export interface ScheduleUpdateRequest {
+  startTime: string;    // "HH:mm:ss"
+  endTime: string;      // "HH:mm:ss"
+}

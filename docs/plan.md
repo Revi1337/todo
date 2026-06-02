@@ -322,8 +322,8 @@ git init
 **의존 단계**: Phase 21 완료 후
 
 #### Tasks
-- [ ] `src/types/index.ts` — `TodoSchedule` 인터페이스 추가 (`id, todoId, startTime, endTime, scheduleDate`)
-- [ ] 신규 API 명세 확인 (`docs/spec.md` TodoSchedules 섹션 참조)
+- [x] `src/types/index.ts` — `TodoSchedule` 인터페이스 추가 (`id, todoId, startTime, endTime, scheduleDate`)
+- [x] 신규 API 명세 확인 (`docs/spec.md` TodoSchedules 섹션 참조)
 
 ---
 
