@@ -13,11 +13,12 @@ interface PlannerPoolProps {
   isLoading: boolean
   onEdit: (todo: Todo) => void
   onCreateTodo: () => void
+  className?: string
 }
 
-export function PlannerPool({ unscheduledTodos, totalCount, isLoading, onEdit, onCreateTodo }: PlannerPoolProps) {
+export function PlannerPool({ unscheduledTodos, totalCount, isLoading, onEdit, onCreateTodo, className = "flex-[4]" }: PlannerPoolProps) {
   return (
-    <div className="flex-[3] bg-muted/20 rounded-card border border-border/50 flex flex-col min-h-0 h-full overflow-hidden">
+    <div className={`${className} bg-muted/20 rounded-card border border-border/50 flex flex-col min-h-0 h-full overflow-hidden`}>
       {/* 헤더 */}
       <div className="flex items-center justify-between px-4 pt-4 pb-3 shrink-0">
         <div className="flex items-center gap-2">

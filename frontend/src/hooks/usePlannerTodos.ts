@@ -3,97 +3,51 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from "react"
 import type { Dayjs } from "dayjs"
 import type { DragStart, DropResult } from "@hello-pangea/dnd"
+import { toast } from "sonner"
 import { HOURS, HOUR_HEIGHT_PX, offsetPxToTime, absoluteMinutesToTimeString, parseTimeToMinutes } from "@/lib/planner"
-import { Todo } from "@/types"
+import { buildQuery } from "@/lib/queryBuilder"
+import { useTodos } from "./useTodos"
+import { useTodoSchedules } from "./useTodoSchedules"
+import { useTodoMutations } from "./useTodoMutations"
+import { Todo, TodoSchedule } from "@/types"
 
-// Phase 21 mock: 추후 API 연동 시 TodoSchedule 타입으로 교체
-export interface MockSchedule {
-  todoId: number
-  startTime: string  // "HH:mm:ss"
-  endTime: string    // "HH:mm:ss"
+export type ScheduledTodo = Todo & {
+  startTime: string   // "HH:mm:ss"
+  endTime: string     // "HH:mm:ss"
+  scheduleId: number
 }
-
-export type ScheduledTodo = Todo & { startTime: string; endTime: string }
-
-// ── Mock 데이터 ──────────────────────────────────────────────────────────────
-
-const MOCK_TODOS: Todo[] = [
-  {
-    id: 1,
-    title: "집중 업무 (Focus Work)",
-    description: null,
-    completed: false,
-    priority: "HIGH",
-    dueDate: null,
-    completedAt: null,
-    category: { id: 1, name: "Product Development", color: "#3b82f6", createdAt: "" },
-    tags: [],
-    createdAt: "",
-    updatedAt: "",
-    position: 0,
-  },
-  {
-    id: 2,
-    title: "이메일 정리 (Email Catch-up)",
-    description: null,
-    completed: false,
-    priority: "MEDIUM",
-    dueDate: null,
-    completedAt: null,
-    category: { id: 2, name: "Admin", color: "#b45309", createdAt: "" },
-    tags: [],
-    createdAt: "",
-    updatedAt: "",
-    position: 1,
-  },
-  {
-    id: 3,
-    title: "팀 싱크 (Team Sync)",
-    description: null,
-    completed: false,
-    priority: "MEDIUM",
-    dueDate: null,
-    completedAt: null,
-    category: { id: 3, name: "Meeting", color: "#16a34a", createdAt: "" },
-    tags: [],
-    createdAt: "",
-    updatedAt: "",
-    position: 2,
-  },
-  {
-    id: 4,
-    title: "아침 식사 (Breakfast)",
-    description: "Daily Routine",
-    completed: false,
-    priority: "LOW",
-    dueDate: null,
-    completedAt: null,
-    category: { id: 4, name: "Daily Routine", color: "#15803d", createdAt: "" },
-    tags: [],
-    createdAt: "",
-    updatedAt: "",
-    position: 3,
-  },
-]
-
-const MOCK_SCHEDULES: MockSchedule[] = [
-  { todoId: 4, startTime: "08:00:00", endTime: "09:00:00" },
-]
-
-// ── Hook ─────────────────────────────────────────────────────────────────────
 
 interface UsePlannerTodosOptions {
   selectedDate: Dayjs
 }
 
-export function usePlannerTodos({ selectedDate: _selectedDate }: UsePlannerTodosOptions) {
-  const [todos] = useState<Todo[]>(MOCK_TODOS)
-  const [schedules, setSchedules] = useState<MockSchedule[]>(MOCK_SCHEDULES)
+export function usePlannerTodos({ selectedDate }: UsePlannerTodosOptions) {
+  const dateStr = selectedDate.format("YYYY-MM-DD")
+  const queryParams = useMemo(() => buildQuery({ dueDate: dateStr }), [dateStr])
 
+  const { todos, rawTodos, isLoading: todosLoading, refetch: refetchTodos } = useTodos(queryParams)
+  const {
+    schedules,
+    setSchedules,
+    isLoading: schedulesLoading,
+    refetch: refetchSchedules,
+    createSchedule,
+    deleteSchedule,
+  } = useTodoSchedules(selectedDate)
+
+  const { toggleTodo, deleteTodo } = useTodoMutations()
+
+  const isLoading = todosLoading || schedulesLoading
+
+  const refetch = useCallback(async () => {
+    await Promise.all([refetchTodos(), refetchSchedules()])
+  }, [refetchTodos, refetchSchedules])
+
+  // todos와 schedules를 todoId로 조인
   const scheduledTodos = useMemo<ScheduledTodo[]>(() => {
     return schedules.flatMap(s => {
       const todo = todos.find(t => t.id === s.todoId)
-      return todo ? [{ ...todo, startTime: s.startTime, endTime: s.endTime }] : []
+      return todo ? [{ ...todo, startTime: s.startTime, endTime: s.endTime, scheduleId: s.id }] : []
     })
   }, [todos, schedules])
 
@@ -102,7 +56,7 @@ export function usePlannerTodos({ selectedDate: _selectedDate }: UsePlannerTodos
     [todos, schedules]
   )
 
-  // 포인터 Y 좌표 추적 (DragDropContext는 onDragEnd에서 좌표를 제공하지 않음)
+  // 포인터 Y 좌표 추적 — @hello-pangea/dnd는 onDragEnd에서 좌표를 제공하지 않음
   const pointerYRef = useRef(0)
   const gridRef = useRef<HTMLDivElement | null>(null)
   const scrollRef = useRef<HTMLDivElement | null>(null)
@@ -121,47 +75,87 @@ export function usePlannerTodos({ selectedDate: _selectedDate }: UsePlannerTodos
 
   const onDragStart = useCallback((_start: DragStart) => {}, [])
 
-  const onDragEnd = useCallback((result: DropResult) => {
+  const onDragEnd = useCallback(async (result: DropResult) => {
     if (!result.destination) return
 
     const todoId = Number(result.draggableId)
-    const src = result.source.droppableId
     const dst = result.destination.droppableId
 
     if (dst === "POOL") {
-      // 그리드 → 풀: 스케줄 제거
+      // 그리드 → 풀: 스케줄 삭제
+      const schedule = schedules.find(s => s.todoId === todoId)
+      if (!schedule) return
+
+      const snapshot = schedules
       setSchedules(prev => prev.filter(s => s.todoId !== todoId))
+      try {
+        await deleteSchedule(schedule.id)
+      } catch {
+        setSchedules(snapshot)
+        toast.error("일정을 삭제하지 못했습니다.")
+      }
       return
     }
 
     if (dst === "TIMEGRID") {
-      // 풀 → 그리드: 포인터 Y로 시작 시각 계산
+      // 풀 → 그리드: 포인터 Y로 시작 시각 계산 후 스케줄 생성
       const gridTop = gridRef.current?.getBoundingClientRect().top ?? 0
       const scrollTop = scrollRef.current?.scrollTop ?? 0
       const offsetPx = pointerYRef.current - gridTop + scrollTop
       const startTime = offsetPxToTime(offsetPx)
-      const startMinutes = parseTimeToMinutes(startTime)
-      const endTime = absoluteMinutesToTimeString(startMinutes + 60)
+      const endTime = absoluteMinutesToTimeString(parseTimeToMinutes(startTime) + 60)
 
+      // 낙관적 업데이트: 임시 id 사용
+      const tempSchedule: TodoSchedule = {
+        id: -Date.now(),
+        todoId,
+        startTime,
+        endTime,
+        scheduleDate: dateStr,
+      }
+      const snapshot = schedules
       setSchedules(prev => {
         const filtered = prev.filter(s => s.todoId !== todoId)
-        return [...filtered, { todoId, startTime, endTime }]
+        return [...filtered, tempSchedule]
       })
+
+      try {
+        const created = await createSchedule({ todoId, startTime, endTime, scheduleDate: dateStr })
+        // 임시 항목을 실제 응답으로 교체
+        setSchedules(prev => prev.map(s => s.id === tempSchedule.id ? created : s))
+      } catch {
+        setSchedules(snapshot)
+        toast.error("일정을 저장하지 못했습니다.")
+      }
     }
-  }, [])
+  }, [schedules, setSchedules, createSchedule, deleteSchedule, dateStr])
 
-  // 완료 토글 (mock)
-  const handleToggle = useCallback((_todo: Todo) => {}, [])
+  const handleToggle = useCallback(async (todo: Todo) => {
+    try {
+      await toggleTodo(todo.id, !todo.completed)
+      await refetchTodos()
+    } catch {
+      // useTodoMutations 내부에서 toast 처리
+    }
+  }, [toggleTodo, refetchTodos])
 
-  // 삭제 (mock)
-  const handleDelete = useCallback((_id: number) => {}, [])
+  const handleDelete = useCallback(async (id: number) => {
+    const schedule = schedules.find(s => s.todoId === id)
+    try {
+      if (schedule) await deleteSchedule(schedule.id)
+      await deleteTodo(id)
+      await refetch()
+    } catch {
+      // useTodoMutations 내부에서 toast 처리
+    }
+  }, [schedules, deleteSchedule, deleteTodo, refetch])
 
   return {
     todos,
     scheduledTodos,
     unscheduledTodos,
-    isLoading: false,
-    refetch: () => {},
+    isLoading,
+    refetch,
     handleToggle,
     handleDelete,
     pointerYRef,
@@ -169,7 +163,6 @@ export function usePlannerTodos({ selectedDate: _selectedDate }: UsePlannerTodos
     scrollRef,
     onDragStart,
     onDragEnd,
-    // HOURS 범위 상수 노출
     hours: HOURS,
     hourHeightPx: HOUR_HEIGHT_PX,
   }

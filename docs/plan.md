@@ -354,11 +354,11 @@ git init
 **의존 단계**: Phase 23 완료 후
 
 #### Tasks
-- [ ] `src/hooks/useTodoSchedules.ts` — SWR 기반 GET/POST/PUT/DELETE 훅 구현
-- [ ] `usePlannerTodos.ts` — mock 제거, `useTodos` + `useTodoSchedules` 병렬 호출로 교체
+- [x] `src/hooks/useTodoSchedules.ts` — GET/POST/PUT/DELETE 훅 구현
+- [x] `usePlannerTodos.ts` — mock 제거, `useTodos` + `useTodoSchedules` 병렬 호출로 교체
   - `todoId`로 조인: `scheduledTodos` / `unscheduledTodos` 분리
   - DnD `onDragEnd` → POST/DELETE API 호출 + 낙관적 업데이트 + 실패 시 롤백
-- [ ] `docs/spec.md`, `docs/prd.md` 업데이트 (이미 반영됨)
+- [x] `docs/spec.md`, `docs/prd.md` 업데이트 (이미 반영됨)
 
 #### 검증
 - 풀 → 10:00 슬롯 드래그 → 이벤트 카드 10:00 렌더링, DB `todo_schedules` 행 생성

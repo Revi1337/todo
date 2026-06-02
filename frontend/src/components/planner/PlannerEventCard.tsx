@@ -1,9 +1,11 @@
 "use client"
 
-import { CheckCircle2, Circle } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Badge } from "@/components/ui/badge"
 import { ScheduledTodo } from "@/hooks/usePlannerTodos"
 import { Todo } from "@/types"
 import { timeToOffsetPx, durationMinutes, formatTime, HOUR_HEIGHT_PX } from "@/lib/planner"
+import { PRIORITY_META } from "@/constants/priority"
 
 interface PlannerEventCardProps {
   todo: ScheduledTodo
@@ -13,42 +15,57 @@ interface PlannerEventCardProps {
 
 export function PlannerEventCard({ todo, onEdit, onToggle }: PlannerEventCardProps) {
   const topPx = timeToOffsetPx(todo.startTime)
-  const durationPx = Math.max(durationMinutes(todo.startTime, todo.endTime), 30)
-  // 높이는 분 수와 px/시간 비율로 계산 (60분 = HOUR_HEIGHT_PX)
-  const heightPx = Math.max((durationPx / 60) * HOUR_HEIGHT_PX, 30)
+  const heightPx = Math.max((durationMinutes(todo.startTime, todo.endTime) / 60) * HOUR_HEIGHT_PX, 30)
   const categoryColor = todo.category?.color ?? "var(--primary)"
 
   return (
     <div
-      className="absolute right-2 rounded-lg border-l-4 bg-card shadow-sm hover:shadow-md transition-shadow overflow-hidden z-10 cursor-pointer group"
-      style={{
-        top: topPx,
-        height: heightPx,
-        left: "3.75rem",
-        borderLeftColor: categoryColor,
-      }}
+      className="absolute right-2 rounded-lg border-l-4 bg-card shadow-sm hover:shadow-md transition-shadow overflow-hidden z-10 cursor-pointer"
+      style={{ top: topPx, height: heightPx, left: "3.75rem", borderLeftColor: categoryColor }}
       onClick={() => onEdit(todo)}
     >
-      <div className="px-2.5 py-1.5 h-full flex flex-col justify-between">
-        <div className="flex items-start justify-between gap-1">
-          <p className={`text-xs font-semibold leading-tight line-clamp-2 flex-1 ${todo.completed ? "line-through text-muted-foreground" : ""}`}>
-            {todo.title}
-          </p>
-          <button
-            className="shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={e => { e.stopPropagation(); onToggle(todo) }}
-          >
-            {todo.completed
-              ? <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
-              : <Circle className="w-3.5 h-3.5 text-muted-foreground" />
-            }
-          </button>
+      <div className="px-3 h-full flex items-center gap-3">
+        {/* 완료 체크박스 */}
+        <div
+          onPointerDown={e => e.stopPropagation()}
+          onMouseDown={e => e.stopPropagation()}
+          onClick={e => { e.stopPropagation(); onToggle(todo) }}
+          className="shrink-0 flex items-center"
+        >
+          <Checkbox checked={todo.completed} className="w-5 h-5 rounded-[4px]" />
         </div>
-        {heightPx >= 44 && (
-          <p className="text-[10px] text-muted-foreground">
-            {formatTime(todo.startTime)} – {formatTime(todo.endTime)}
-          </p>
-        )}
+
+        {/* 제목 */}
+        <span className={`flex-1 font-medium leading-tight truncate ${todo.completed ? "line-through text-muted-foreground" : ""}`}>
+          {todo.title}
+        </span>
+
+        {/* 시간 범위 */}
+        <span className="shrink-0 text-[10px] text-muted-foreground tabular-nums">
+          {formatTime(todo.startTime)}–{formatTime(todo.endTime)}
+        </span>
+
+        {/* 태그 · 카테고리 · 우선순위 */}
+        <div className="flex items-center gap-2 shrink-0 ml-auto">
+          {todo.tags?.length > 0 && (
+            <div className="hidden sm:flex items-center gap-1">
+              {todo.tags.map(tag => (
+                <span key={tag.id} className="text-[10px] font-medium text-muted-foreground bg-muted/40 px-2 py-0.5 rounded-full border border-border/50">
+                  #{tag.name}
+                </span>
+              ))}
+            </div>
+          )}
+          {todo.category && (
+            <div className="hidden sm:flex items-center gap-1 text-[10px] font-medium text-muted-foreground bg-muted/30 px-2 py-0.5 rounded-full">
+              <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: todo.category.color }} />
+              {todo.category.name}
+            </div>
+          )}
+          <Badge variant="outline" className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${PRIORITY_META[todo.priority].badgeColor}`}>
+            {PRIORITY_META[todo.priority].label}
+          </Badge>
+        </div>
       </div>
     </div>
   )

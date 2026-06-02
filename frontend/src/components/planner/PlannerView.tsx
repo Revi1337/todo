@@ -59,10 +59,10 @@ export function PlannerView() {
 
   return (
     <div className="flex flex-col h-full gap-4">
-      {/* 날짜 네비게이션 — 하단 패널 비율(flex-[7] / flex-[3])에 맞춰 정렬 */}
+      {/* 날짜 네비게이션 — 하단 패널 비율(flex-[6] / flex-[4])에 맞춰 정렬 */}
       <div className="flex gap-4 shrink-0">
-        {/* 시간 그리드 폭(flex-[7])과 동일한 영역에 날짜 + 버튼 배치 */}
-        <div className="flex-[7]">
+        {/* 시간 그리드 폭(flex-[6])과 동일한 영역에 날짜 + 버튼 배치 */}
+        <div className="flex-[6]">
           {dayPrefix && (
             <p className="text-xs text-muted-foreground font-medium mb-0.5">{dayPrefix}</p>
           )}
@@ -86,8 +86,8 @@ export function PlannerView() {
             </div>
           </div>
         </div>
-        {/* 태스크 풀 폭(flex-[3]) 스페이서 */}
-        <div className="flex-[3]" />
+        {/* 태스크 풀 폭(flex-[4]) 스페이서 */}
+        <div className="flex-[4]" />
       </div>
 
       {/* 메인 콘텐츠 */}
@@ -100,6 +100,7 @@ export function PlannerView() {
             scrollRef={scrollRef}
             onEdit={handleEdit}
             onToggle={handleToggle}
+            className="flex-[6]"
           />
           <PlannerPool
             unscheduledTodos={unscheduledTodos}
@@ -107,6 +108,7 @@ export function PlannerView() {
             isLoading={isLoading}
             onEdit={handleEdit}
             onCreateTodo={openCreate}
+            className="flex-[4]"
           />
         </div>
       </DragDropContext>
