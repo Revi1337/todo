@@ -43,12 +43,11 @@ export function MonthlyTrendChart({ monthlyTrend }: Props) {
               tickMargin={12}
               stroke="currentColor"
               opacity={0.6}
-              ticks={fullMonthlyTrend.map(d => d.date).filter(date => {
-                const day = parseInt(date.slice(8), 10)
-                return day === 1 || day % 5 === 0
-              })}
-              tickFormatter={(v: string) => `${parseInt(v.slice(8), 10)}일`}
-              interval="preserveStartEnd"
+              interval={0}
+              tickFormatter={(v: string) => {
+                const day = parseInt(v.slice(8), 10)
+                return (day === 1 || day % 5 === 0) ? `${day}일` : ""
+              }}
             />
             <YAxis axisLine={false} tickLine={false} fontSize={12} fontWeight={600} stroke="currentColor" opacity={0.6} />
             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
