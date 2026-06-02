@@ -8,6 +8,14 @@ export function useTodos(queryParams = '') {
   const [data, setData] = useState<Todo[] | undefined>(undefined)
   const [error, setError] = useState<unknown>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [prevQuery, setPrevQuery] = useState(queryParams)
+
+  if (queryParams !== prevQuery) {
+    setPrevQuery(queryParams)
+    setData(undefined)
+    setIsLoading(true)
+    setError(null)
+  }
 
   useEffect(() => {
     let cancelled = false
