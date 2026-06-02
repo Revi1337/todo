@@ -11,7 +11,7 @@ export function StatsView() {
   const { stats, isLoading } = useStats()
 
   return (
-    <div className="flex flex-col gap-6 h-full pb-8">
+    <div className="flex flex-col gap-6 min-h-full pb-8">
       <div>
         <h2 className="text-2xl font-bold tracking-tight mb-2">통계 대시보드</h2>
         <p className="text-muted-foreground">당신의 생산성 현황을 한눈에 확인하세요.</p>
