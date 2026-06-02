@@ -32,8 +32,8 @@ class TagControllerTest {
 
     @Autowired private MockMvc mockMvc;
     @Autowired private ObjectMapper objectMapper;
-    @MockitoBean private TagQueryService tagQueryService;
-    @MockitoBean private TagCommandService tagCommandService;
+    @MockitoBean(name = "cachedTagQueryService") private TagQueryService tagQueryService;
+    @MockitoBean(name = "defaultTagCommandService") private TagCommandService tagCommandService;
 
     private MockHttpSession authSession() {
         MockHttpSession session = new MockHttpSession();

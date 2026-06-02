@@ -1,24 +1,28 @@
 package revi1337.todo.domain.category.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import revi1337.todo.domain.category.repository.CategoryRepository;
 import revi1337.todo.domain.category.service.dto.CategoryResponse;
 
-import java.util.List;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class DefaultCategoryQueryService implements CategoryQueryService {
 
     private final CategoryRepository categoryRepository;
 
     @Override
     public List<CategoryResponse> findAll() {
-        return categoryRepository.findAll().stream()
-                .map(CategoryResponse::from)
-                .toList();
+        try {
+            return categoryRepository.findAll().stream()
+                    .map(CategoryResponse::from)
+                    .toList();
+        } catch (RuntimeException e) {
+            log.error("카테고리 목록 조회 중 오류가 발생했습니다", e);
+            throw e;
+        }
     }
 }

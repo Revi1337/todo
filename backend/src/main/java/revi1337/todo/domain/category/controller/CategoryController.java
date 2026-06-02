@@ -1,7 +1,7 @@
 package revi1337.todo.domain.category.controller;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import revi1337.todo.common.ApiResponse;
@@ -15,11 +15,17 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
-@RequiredArgsConstructor
 public class CategoryController {
 
     private final CategoryQueryService categoryQueryService;
     private final CategoryCommandService categoryCommandService;
+
+    public CategoryController(
+            @Qualifier("cachedCategoryQueryService") CategoryQueryService categoryQueryService,
+            @Qualifier("defaultCategoryCommandService") CategoryCommandService categoryCommandService) {
+        this.categoryQueryService = categoryQueryService;
+        this.categoryCommandService = categoryCommandService;
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

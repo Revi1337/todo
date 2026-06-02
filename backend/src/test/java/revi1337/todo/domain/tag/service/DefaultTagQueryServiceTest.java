@@ -15,12 +15,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @Transactional
-class TagServiceTest {
+class DefaultTagQueryServiceTest {
 
     @Autowired
-    private TagQueryService tagQueryService;
-    @Autowired
     private TagCommandService tagCommandService;
+    @Autowired
+    private DefaultTagQueryService defaultTagQueryService;
 
     @Test
     @DisplayName("name과 color로 Tag를 저장한다")
@@ -33,12 +33,12 @@ class TagServiceTest {
     }
 
     @Test
-    @DisplayName("전체 Tag 목록을 반환한다")
+    @DisplayName("전체 Tag 목록을 DB에서 반환한다")
     void findAll() {
         tagCommandService.save("JPA", null);
         tagCommandService.save("Spring", null);
 
-        List<TagResponse> result = tagQueryService.findAll();
+        List<TagResponse> result = defaultTagQueryService.findAll();
 
         assertThat(result).hasSize(2);
     }
@@ -62,13 +62,12 @@ class TagServiceTest {
     }
 
     @Test
-    @DisplayName("ID로 Tag를 삭제한다")
+    @DisplayName("ID로 Tag를 삭제하면 DB에서 사라진다")
     void deleteById() {
         TagResponse saved = tagCommandService.save("JPA", null);
-
         tagCommandService.deleteById(saved.id());
 
-        assertThat(tagQueryService.findAll()).isEmpty();
+        assertThat(defaultTagQueryService.findAll()).isEmpty();
     }
 
     @Test

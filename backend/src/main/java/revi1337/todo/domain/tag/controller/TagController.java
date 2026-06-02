@@ -2,6 +2,8 @@ package revi1337.todo.domain.tag.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import revi1337.todo.common.ApiResponse;
@@ -15,11 +17,16 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/tags")
-@RequiredArgsConstructor
 public class TagController {
 
-    private final TagQueryService tagQueryService;
     private final TagCommandService tagCommandService;
+    private final TagQueryService tagQueryService;
+
+    public TagController(@Qualifier("defaultTagCommandService") TagCommandService tagCommandService,
+                         @Qualifier("cachedTagQueryService") TagQueryService tagQueryService) {
+        this.tagQueryService = tagQueryService;
+        this.tagCommandService = tagCommandService;
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

@@ -33,8 +33,8 @@ class CategoryControllerTest {
 
     @Autowired private MockMvc mockMvc;
     @Autowired private ObjectMapper objectMapper;
-    @MockitoBean private CategoryQueryService categoryQueryService;
-    @MockitoBean private CategoryCommandService categoryCommandService;
+    @MockitoBean(name = "cachedCategoryQueryService") private CategoryQueryService categoryQueryService;
+    @MockitoBean(name = "defaultCategoryCommandService") private CategoryCommandService categoryCommandService;
 
     private static final LocalDateTime NOW = LocalDateTime.of(2026, 5, 28, 0, 0);
 
