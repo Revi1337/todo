@@ -40,11 +40,14 @@ export function PlannerView() {
   } = usePlannerState()
 
   const {
-    scheduledTodos,
-    unscheduledTodos,
     todos,
+    scheduledTodos,
+    unscheduledActive,
+    unscheduledCompleted,
     isLoading,
     refetch,
+    draggingFromId,
+    hoverHourIndex,
     handleToggle,
     handleDelete,
     gridRef,
@@ -98,14 +101,17 @@ export function PlannerView() {
             isLoading={isLoading}
             gridRef={gridRef}
             scrollRef={scrollRef}
+            hoverHourIndex={hoverHourIndex}
             onEdit={handleEdit}
             onToggle={handleToggle}
             className="flex-[6]"
           />
           <PlannerPool
-            unscheduledTodos={unscheduledTodos}
+            activeTodos={unscheduledActive}
+            completedTodos={unscheduledCompleted}
             totalCount={todos.length}
             isLoading={isLoading}
+            draggingFromId={draggingFromId}
             onEdit={handleEdit}
             onCreateTodo={openCreate}
             className="flex-[4]"

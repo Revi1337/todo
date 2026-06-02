@@ -12,6 +12,7 @@ interface PlannerTimeGridProps {
   isLoading: boolean
   gridRef: React.MutableRefObject<HTMLDivElement | null>
   scrollRef: React.MutableRefObject<HTMLDivElement | null>
+  hoverHourIndex: number | null
   onEdit: (todo: ScheduledTodo) => void
   onToggle: (todo: Todo) => void
   className?: string
@@ -22,6 +23,7 @@ export function PlannerTimeGrid({
   isLoading,
   gridRef,
   scrollRef,
+  hoverHourIndex,
   onEdit,
   onToggle,
   className = "flex-[6]",
@@ -30,7 +32,6 @@ export function PlannerTimeGrid({
 
   return (
     <div className={`${className} bg-card rounded-card border border-border/50 flex flex-col min-h-0 h-full overflow-hidden`}>
-      {/* 헤더 */}
       <div className="px-4 pt-4 pb-3 shrink-0 border-b border-border/30">
         <h3 className="text-sm font-bold tracking-tight">오늘의 일정</h3>
       </div>
@@ -40,7 +41,6 @@ export function PlannerTimeGrid({
           <LoadingSpinner />
         </div>
       ) : (
-        /* 스크롤 컨테이너 — scrollRef 바인딩 */
         <div ref={scrollRef} className="flex-1 overflow-y-auto scrollbar-hide">
           <Droppable droppableId="TIMEGRID">
             {(provided, snapshot) => (
@@ -50,28 +50,36 @@ export function PlannerTimeGrid({
                   gridRef.current = el
                 }}
                 {...provided.droppableProps}
-                className={`relative transition-colors ${snapshot.isDraggingOver ? "bg-primary/[0.02]" : ""}`}
+                className="relative"
                 style={{ height: totalHeight }}
               >
-                {/* 시간 줄 (배경) */}
-                {HOURS.map((hour, i) => (
-                  <div
-                    key={hour}
-                    className="absolute left-0 right-0 flex border-b border-border/20"
-                    style={{ top: i * HOUR_HEIGHT_PX, height: HOUR_HEIGHT_PX }}
-                  >
-                    <span className="w-14 shrink-0 text-[10px] text-muted-foreground/60 px-2 pt-1 select-none tabular-nums">
-                      {String(hour).padStart(2, "0")}:00
-                    </span>
-                    <div className="flex-1 border-l border-border/20" />
-                  </div>
-                ))}
+                {/* 시간 줄 */}
+                {HOURS.map((hour, i) => {
+                  const isHovered = hoverHourIndex === i && snapshot.isDraggingOver
+                  return (
+                    <div
+                      key={hour}
+                      className="absolute left-0 right-0 flex"
+                      style={{ top: i * HOUR_HEIGHT_PX, height: HOUR_HEIGHT_PX }}
+                    >
+                      <span className="w-14 shrink-0 text-[10px] text-muted-foreground/60 px-2 pt-1 select-none tabular-nums">
+                        {String(hour).padStart(2, "0")}:00
+                      </span>
+                      <div
+                        className={`flex-1 border-b border-border/20 transition-colors ${
+                          isHovered ? "bg-primary/5" : ""
+                        }`}
+                      />
+                    </div>
+                  )
+                })}
 
-                {/* 이벤트 카드 (절대위치) */}
-                {scheduledTodos.map(todo => (
+                {/* 이벤트 카드 — z-[1]로 drag clone보다 낮게 유지 */}
+                {scheduledTodos.map((todo, i) => (
                   <PlannerEventCard
-                    key={todo.id}
+                    key={todo.scheduleId}
                     todo={todo}
+                    index={i}
                     onEdit={onEdit}
                     onToggle={onToggle}
                   />

@@ -1,4 +1,4 @@
-export const HOUR_HEIGHT_PX = 60
+export const HOUR_HEIGHT_PX = 52
 
 // 06:00 ~ 익일 05:00 — 24슬롯 ([6,7,...,23, 0,1,2,3,4,5])
 export const HOURS: number[] = [
@@ -13,11 +13,11 @@ export function timeToOffsetPx(time: string): number {
   return index * HOUR_HEIGHT_PX + (m / 60) * HOUR_HEIGHT_PX
 }
 
-// offsetPx → "HH:mm:ss" (15분 단위 스냅)
+// offsetPx → "HH:mm:ss" (10분 단위 스냅)
 export function offsetPxToTime(px: number): string {
   const clampedPx = Math.max(0, Math.min(px, HOUR_HEIGHT_PX * HOURS.length - 1))
   const hourIndex = Math.floor(clampedPx / HOUR_HEIGHT_PX)
-  const minute = Math.floor((clampedPx % HOUR_HEIGHT_PX) / (HOUR_HEIGHT_PX / 4)) * 15
+  const minute = Math.floor((clampedPx % HOUR_HEIGHT_PX) / (HOUR_HEIGHT_PX / 6)) * 10
   const hour = HOURS[hourIndex]
   return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}:00`
 }
