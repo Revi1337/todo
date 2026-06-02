@@ -335,11 +335,11 @@ git init
 > `ddl-auto: update` 이므로 Entity 필드 추가 시 Hibernate가 `todo_schedules` 테이블을 자동 생성한다.
 
 #### Tasks
-- [ ] `TodoSchedule` Entity 구현 및 `@SpringBootTest` 기반 영속성 테스트
-- [ ] `TodoScheduleRepository` 구현 및 `@DataJpaTest` 기반 쿼리 테스트
-- [ ] `ScheduleRequest`, `ScheduleUpdateRequest`, `ScheduleResponse` DTO 구현
-- [ ] `TodoScheduleService` 인터페이스 + `DefaultTodoScheduleService` 구현 및 `@SpringBootTest` 기반 서비스 테스트
-- [ ] `TodoScheduleController` 구현 및 `@WebMvcTest` 기반 컨트롤러 테스트
+- [x] `TodoSchedule` Entity 구현 및 Entity 단위 테스트
+- [x] `TodoScheduleRepository` 구현 및 `@DataJpaTest` 기반 쿼리 테스트
+- [x] `ScheduleRequest`, `ScheduleUpdateRequest`, `ScheduleResponse` DTO 구현
+- [x] `TodoScheduleService` 인터페이스 + `DefaultTodoScheduleService` 구현 및 `@SpringBootTest` 기반 서비스 테스트
+- [x] `TodoScheduleController` 구현 및 `@WebMvcTest` 기반 컨트롤러 테스트
 
 #### 검증
 ```bash

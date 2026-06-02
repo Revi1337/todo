@@ -15,6 +15,8 @@ tags:
     description: Category management
   - name: tags
     description: Tag management
+  - name: schedules
+    description: Daily planner schedule management
   - name: stats
     description: Statistics
   - name: auth
@@ -373,6 +375,101 @@ paths:
         "404":
           $ref: "#/components/responses/NotFound"
 
+  /api/todo-schedules:
+    get:
+      tags: [schedules]
+      summary: List schedules by date
+      parameters:
+        - name: date
+          in: query
+          required: true
+          description: Planner date (ISO 8601 date)
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponseBase"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ScheduleResponse"
+
+    post:
+      tags: [schedules]
+      summary: Create a schedule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScheduleRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponseBase"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ScheduleResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
+  /api/todo-schedules/{id}:
+    put:
+      tags: [schedules]
+      summary: Update schedule time
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScheduleUpdateRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponseBase"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ScheduleResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    delete:
+      tags: [schedules]
+      summary: Delete a schedule
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "204":
+          description: No Content
+        "404":
+          $ref: "#/components/responses/NotFound"
+
   /api/auth/login:
     post:
       tags: [auth]
@@ -630,6 +727,61 @@ components:
           type: integer
           description: Order within the completed/active group (0-based)
 
+    ScheduleRequest:
+      type: object
+      required: [todoId, startTime, endTime, scheduleDate]
+      properties:
+        todoId:
+          type: integer
+          format: int64
+        startTime:
+          type: string
+          format: time
+          example: "10:00:00"
+        endTime:
+          type: string
+          format: time
+          example: "11:00:00"
+        scheduleDate:
+          type: string
+          format: date
+          example: "2026-06-03"
+
+    ScheduleUpdateRequest:
+      type: object
+      required: [startTime, endTime]
+      properties:
+        startTime:
+          type: string
+          format: time
+          example: "14:00:00"
+        endTime:
+          type: string
+          format: time
+          example: "15:30:00"
+
+    ScheduleResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        todoId:
+          type: integer
+          format: int64
+        startTime:
+          type: string
+          format: time
+          example: "10:00:00"
+        endTime:
+          type: string
+          format: time
+          example: "11:00:00"
+        scheduleDate:
+          type: string
+          format: date
+          example: "2026-06-03"
+
     StatsResponse:
       type: object
       properties:
@@ -707,6 +859,12 @@ components:
             $ref: "#/components/schemas/ErrorResponse"
     Unauthorized:
       description: Unauthorized – session not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Conflict:
+      description: Conflict – resource already exists
       content:
         application/json:
           schema:
