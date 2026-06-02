@@ -49,7 +49,6 @@ export function MonthlyTrendChart({ monthlyTrend }: Props) {
                 return (day === 1 || day % 5 === 0) ? `${day}일` : ""
               }}
             />
-            <YAxis axisLine={false} tickLine={false} fontSize={12} fontWeight={600} stroke="currentColor" opacity={0.6} />
             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             <Tooltip isAnimationActive={false} cursor={{ fill: 'var(--color-primary)', opacity: 0.05 }} content={MonthlyTooltip as any} />
             <Bar dataKey="completed" fill={CHART_COLORS.monthly} opacity={0.9} radius={[6, 6, 0, 0]} />
