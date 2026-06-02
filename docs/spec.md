@@ -64,10 +64,11 @@ Spring Boot(백엔드) + Next.js 15(프론트엔드) + Supabase PostgreSQL(DB)�
 ```
 revi1337.todo
 ├── domain
-│   ├── todo        (Todo, TodoRepository, TodoService, TodoController)
-│   ├── category    (Category, CategoryRepository, CategoryService, CategoryController)
-│   ├── tag         (Tag, TagRepository, TagController)
-│   └── stats       (StatsController)
+│   ├── todo        (Todo, TodoRepository, TodoQueryService, TodoCommandService, LoggingTodoService, TodoController)
+│   ├── category    (Category, CategoryRepository, CategoryQueryService, CategoryCommandService, LoggingCategoryService, CategoryController)
+│   ├── tag         (Tag, TagRepository, TagQueryService, TagCommandService, TagController)
+│   ├── stats       (StatsController)
+│   └── health      (HealthController)
 └── common
     ├── ApiResponse  (공통 응답 래퍼)
     ├── WebConfig    (CORS 설정, AuthFilter 등록)
@@ -75,6 +76,8 @@ revi1337.todo
         ├── AuthFilter      (OncePerRequestFilter, 세션 체크)
         └── AuthController  (login / logout / me)
 ```
+
+> 각 도메인은 CQRS 패턴을 적용한다. `QueryService` (조회), `CommandService` (쓰기), `LoggingService` (데코레이터 계층)으로 분리.
 
 ---
 
@@ -268,6 +271,7 @@ Todo 순서 일괄 변경.
 |--------|------|------|------|
 | GET | `/api/categories` | 전체 목록 | 200 |
 | POST | `/api/categories` | 생성 (name, color) | 201 |
+| PUT | `/api/categories/{id}` | 수정 (name, color) | 200 |
 | DELETE | `/api/categories/{id}` | 삭제, 연결 Todo의 category → null | 204 |
 
 ---

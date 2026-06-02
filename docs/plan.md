@@ -19,7 +19,6 @@
 ### 환경
 - [ ] Java 17 설치 확인 (`java -version`)
 - [ ] Node.js 20+ 설치 확인 (`node -v`)
-- [ ] SQLite CLI 설치 확인 (`sqlite3 --version`)
 - [ ] Git 설치 확인 (`git --version`)
 
 ---
@@ -117,7 +116,9 @@ git init
 - [x] `TodoController` 작성
   - GET `/api/todos` — 목록 조회 (category, tag, priority, completed, search, dueDate 필터)
   - POST `/api/todos` — 생성
-  - PUT `/api/todos/{id}` — 수정 (완료 토글 포함)
+  - PUT `/api/todos/{id}` — 수정
+  - PATCH `/api/todos/{id}` — 완료 상태 부분 수정 (`{ completed: true/false }`)
+  - PATCH `/api/todos/reorder` — 순서 일괄 변경 (`{ items: [{ id, position }] }`)
   - DELETE `/api/todos/{id}` — 삭제
 
 ---
@@ -140,7 +141,7 @@ git init
 **의존 단계**: Phase 4 완료 후 (Phase 5~7과 병렬 진행 가능)
 
 #### Tasks
-- [x] `frontend/` 디렉토리에 Next.js 15 프로젝트 생성 (TypeScript, Tailwind, App Router, src/)
+- [x] `frontend/` 디렉토리에 Next.js 16 프로젝트 생성 (TypeScript, Tailwind, App Router, src/)
 - [x] `lucide-react`, `dayjs`, `react-chartjs-2`, `chart.js` 설치
 - [x] `next.config.ts` — `/api/**` → `localhost:8080` 프록시 설정 (rewrites)
 - [x] `src/types/index.ts` — 공통 타입 정의 (Category, Tag, Todo, ApiResponse 등)
@@ -249,7 +250,7 @@ git init
 
 #### Tasks
 - [x] `src/hooks/useAuth.ts` — `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me` 호출
-- [x] `src/middleware.ts` (루트 레벨) — 미인증 시 `/login` 리다이렉트
+- [x] `src/proxy.ts` (Next.js 16 규칙, 구 `middleware.ts`) — 미인증 시 `/login` 리다이렉트, 세션 유효성 백엔드 검증
 - [x] `src/app/login/page.tsx` — 폼 제출을 `useAuth.login`으로 교체 (Phase 12 mock 제거)
 
 ---
