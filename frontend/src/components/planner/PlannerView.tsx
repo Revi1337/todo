@@ -50,6 +50,7 @@ export function PlannerView() {
     handleEventResize,
     handleEventReceive,
     handleUnschedule,
+    togglingIds,
     handleToggle,
     handleDelete,
   } = usePlannerTodos({ selectedDate })
@@ -98,6 +99,7 @@ export function PlannerView() {
           onUnschedule={handleUnschedule}
           onEdit={handleEdit}
           onToggle={handleToggle}
+          togglingIds={togglingIds}
           className="flex-[6]"
         />
         <PlannerPool

@@ -224,7 +224,31 @@
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
+  outline: none !important;
   padding: 1px 2px !important;
+}
+
+/* 드래그/리사이즈/선택 상태 박스 제거 */
+.fc-planner-wrap .fc-event-dragging,
+.fc-planner-wrap .fc-event-resizing,
+.fc-planner-wrap .fc-event-selected,
+.fc-planner-wrap .fc-event:focus,
+.fc-planner-wrap .fc-event:focus-visible {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* 드래그/리사이즈 중 원위치 잔상 제거 */
+.fc-planner-wrap .fc-event-dragging:not(.fc-event-mirror),
+.fc-planner-wrap .fc-event-resizing:not(.fc-event-mirror) {
+  opacity: 0 !important;
+}
+
+/* 드롭존 highlight 박스 제거 */
+.fc-planner-wrap .fc-highlight {
+  background: transparent !important;
+  border: none !important;
 }
 
 /* 드래그 drop preview — 커스텀 eventContent가 카드 스타일을 직접 그림 */
@@ -258,6 +282,11 @@
   bottom: 0;
   height: 8px;
   cursor: s-resize;
+}
+.fc-planner-wrap .fc-event-resizer-start {
+  top: 0;
+  height: 8px;
+  cursor: n-resize;
 }
 
 /* 현재 시간 표시선 */

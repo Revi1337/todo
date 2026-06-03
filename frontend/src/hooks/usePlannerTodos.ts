@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useMemo } from "react"
+import { useCallback, useMemo, useState } from "react"
 import type { Dayjs } from "dayjs"
 import { toast } from "sonner"
 import { buildQuery } from "@/lib/queryBuilder"
@@ -36,7 +36,8 @@ export function usePlannerTodos({ selectedDate }: UsePlannerTodosOptions) {
   } = useTodoSchedules(selectedDate)
 
   const { toggleTodo, deleteTodo } = useTodoMutations()
-  const [localTodos] = useLocalTodoSync(rawTodos)
+  const [localTodos, setLocalTodos] = useLocalTodoSync(rawTodos)
+  const [togglingIds, setTogglingIds] = useState<Set<number>>(new Set())
 
   const isLoading = todosLoading || schedulesLoading
 
@@ -126,11 +127,21 @@ export function usePlannerTodos({ selectedDate }: UsePlannerTodosOptions) {
   }, [schedules, setSchedules, deleteSchedule])
 
   const handleToggle = useCallback(async (todo: Todo) => {
+    if (togglingIds.has(todo.id)) return
+    const next = !todo.completed
+    const snapshot = localTodos
+    setTogglingIds(prev => new Set(prev).add(todo.id))
+    setLocalTodos(prev => prev.map(t =>
+      t.id === todo.id ? { ...t, completed: next, completedAt: next ? new Date().toISOString() : null } : t
+    ))
     try {
-      await toggleTodo(todo.id, !todo.completed)
-      await refetchTodos()
-    } catch { }
-  }, [toggleTodo, refetchTodos])
+      await toggleTodo(todo.id, next)
+    } catch {
+      setLocalTodos(snapshot)
+    } finally {
+      setTogglingIds(prev => { const s = new Set(prev); s.delete(todo.id); return s })
+    }
+  }, [localTodos, togglingIds, setLocalTodos, toggleTodo])
 
   const handleDelete = useCallback(async (id: number) => {
     const schedule = schedules.find(s => s.todoId === id)
@@ -152,6 +163,7 @@ export function usePlannerTodos({ selectedDate }: UsePlannerTodosOptions) {
     handleEventResize,
     handleEventReceive,
     handleUnschedule,
+    togglingIds,
     handleToggle,
     handleDelete,
   }

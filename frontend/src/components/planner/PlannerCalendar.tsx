@@ -27,6 +27,7 @@ interface PlannerCalendarProps {
   onUnschedule: (scheduleId: number) => Promise<void>
   onEdit: (todo: ScheduledTodo) => void
   onToggle: (todo: Todo) => void
+  togglingIds: Set<number>
   className?: string
 }
 
@@ -50,6 +51,7 @@ export function PlannerCalendar({
   onUnschedule,
   onEdit,
   onToggle,
+  togglingIds,
   className = "flex-[6]",
 }: PlannerCalendarProps) {
   const dateStr = selectedDate.format("YYYY-MM-DD")
@@ -119,8 +121,11 @@ export function PlannerCalendar({
 
   const handleEventDrop = useCallback(async (info: EventDropArg) => {
     const scheduleId = info.event.extendedProps.scheduleId as number
-    const startTime = toTimeStr(info.event.start!)
-    const endTime = toTimeStr(info.event.end!)
+    const start = info.event.start
+    const end = info.event.end
+    if (!start || !end) { info.revert(); return }
+    const startTime = toTimeStr(start)
+    const endTime = toTimeStr(end)
     try {
       await onEventDrop(scheduleId, startTime, endTime)
     } catch {
@@ -130,8 +135,11 @@ export function PlannerCalendar({
 
   const handleEventResize = useCallback(async (info: EventResizeDoneArg) => {
     const scheduleId = info.event.extendedProps.scheduleId as number
-    const startTime = toTimeStr(info.event.start!)
-    const endTime = toTimeStr(info.event.end!)
+    const start = info.event.start
+    const end = info.event.end
+    if (!start || !end) { info.revert(); return }
+    const startTime = toTimeStr(start)
+    const endTime = toTimeStr(end)
     try {
       await onEventResize(scheduleId, startTime, endTime)
     } catch {
@@ -153,12 +161,16 @@ export function PlannerCalendar({
     }
   }, [onEventReceive])
 
-  const handleEventDragStart = useCallback((_: EventDragStartArg) => {
+  const handleEventDragStart = useCallback((info: EventDragStartArg) => {
     isDraggingRef.current = true
+    info.el.style.opacity = '0'
   }, [])
 
   const handleEventDragStop = useCallback((info: EventDragStopArg) => {
     isDraggingRef.current = false
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      info.el.style.opacity = ''
+    }))
     if (!poolRef.current) return
     const { clientX, clientY } = info.jsEvent
     const rect = poolRef.current.getBoundingClientRect()
@@ -202,8 +214,13 @@ export function PlannerCalendar({
     const categoryColor = todo.category?.color ?? "hsl(var(--primary))"
     return (
       <div
-        className="h-full w-full flex items-center gap-2 px-2 overflow-hidden cursor-default rounded-md border-l-[3px] bg-card shadow-sm"
-        style={{ borderLeftColor: categoryColor }}
+        className="h-full w-full flex items-center gap-2 px-2 overflow-hidden cursor-default rounded-md border-l-[3px] bg-background dark:bg-secondary shadow-sm"
+        style={{
+          borderLeftColor: categoryColor,
+          borderTop: `0.5px solid color-mix(in srgb, ${categoryColor} 25%, transparent)`,
+          borderRight: `0.5px solid color-mix(in srgb, ${categoryColor} 25%, transparent)`,
+          borderBottom: `0.5px solid color-mix(in srgb, ${categoryColor} 25%, transparent)`,
+        }}
         onClick={e => { e.stopPropagation(); onEdit(todo) }}
       >
         <div
@@ -212,7 +229,7 @@ export function PlannerCalendar({
           onClick={e => { e.stopPropagation(); onToggle(todo) }}
           className="shrink-0"
         >
-          <Checkbox checked={todo.completed} className="w-4 h-4 rounded-[4px]" />
+          <Checkbox checked={todo.completed} disabled={togglingIds.has(todo.id)} className="w-4 h-4 rounded-[4px]" />
         </div>
         <span className={`flex-1 text-xs font-medium leading-tight truncate ${todo.completed ? "line-through opacity-50" : ""}`}>
           {todo.title}
@@ -243,7 +260,7 @@ export function PlannerCalendar({
         </Badge>
       </div>
     )
-  }, [onEdit, onToggle])
+  }, [onEdit, onToggle, togglingIds])
 
   return (
     <div className={`${className} bg-card rounded-card border border-border/50 flex flex-col min-h-0 h-full overflow-hidden`}>
@@ -271,6 +288,8 @@ export function PlannerCalendar({
             editable
             droppable
             dragScroll={false}
+            eventDragMinDistance={1}
+            eventResizableFromStart
             dragRevertDuration={0}
             events={fcEvents}
             eventDragStart={handleEventDragStart}
@@ -281,7 +300,6 @@ export function PlannerCalendar({
             eventContent={renderEventContent}
             height="100%"
             slotLabelFormat={{ hour: "2-digit", minute: "2-digit", hour12: false }}
-            nowIndicator
           />
         </div>
       )}
