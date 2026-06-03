@@ -156,3 +156,115 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;             /* Chrome, Safari, Opera */
 }
+
+/* ────────────────────────────────────────────────────────────
+   FullCalendar planner overrides
+   .fc-planner-wrap 안에서만 적용되도록 스코프 제한
+──────────────────────────────────────────────────────────── */
+.fc-planner-wrap {
+  height: 100%;
+}
+
+.fc-planner-wrap .fc {
+  height: 100%;
+  font-family: inherit;
+  font-size: 0.75rem;
+  color: inherit;
+}
+
+/* 컬럼 헤더(요일 표시) 제거 */
+.fc-planner-wrap .fc-col-header {
+  display: none;
+}
+
+/* 스크롤바 숨김 */
+.fc-planner-wrap .fc-scroller {
+  scrollbar-width: none;
+}
+.fc-planner-wrap .fc-scroller::-webkit-scrollbar {
+  display: none;
+}
+
+/* 이벤트 컬럼 오른쪽 여백 제거 — FC 기본값 margin: 0 2.5% 0 2px */
+.fc-planner-wrap .fc-timegrid-col-events {
+  margin: 0 0 0 2px !important;
+}
+
+/* 배경 투명 */
+.fc-planner-wrap .fc-timegrid-body,
+.fc-planner-wrap .fc-timegrid-col,
+.fc-planner-wrap table,
+.fc-planner-wrap td,
+.fc-planner-wrap th {
+  background: transparent !important;
+  border-color: oklch(0.922 0 0 / 30%) !important;
+}
+
+.dark .fc-planner-wrap table,
+.dark .fc-planner-wrap td,
+.dark .fc-planner-wrap th {
+  border-color: oklch(1 0 0 / 15%) !important;
+}
+
+/* minor slot(10분 단위) 구분선 제거 */
+.fc-planner-wrap .fc-timegrid-slot-minor {
+  border-top: none !important;
+}
+
+/* 시간 라벨 */
+.fc-planner-wrap .fc-timegrid-slot-label-cushion {
+  font-size: 10px;
+  color: oklch(0.556 0 0 / 0.6);
+  padding: 2px 8px;
+}
+
+/* FC 기본 이벤트 스타일 제거 — eventContent로 완전 커스텀
+   .fc-event-mirror(드래그 drop preview)는 제외하여 가시성 유지 */
+.fc-planner-wrap .fc-event:not(.fc-event-mirror) {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 1px 2px !important;
+}
+
+/* 드래그 drop preview — 커스텀 eventContent가 카드 스타일을 직접 그림 */
+.fc-planner-wrap .fc-event-mirror {
+  background: transparent !important;
+  border: none !important;
+  opacity: 0.85;
+  padding: 1px 2px !important;
+}
+.fc-planner-wrap .fc-event-main {
+  padding: 0 !important;
+  color: inherit !important;
+  height: 100%;
+}
+.fc-planner-wrap .fc-event-title,
+.fc-planner-wrap .fc-event-time {
+  display: none !important;
+}
+
+/* 캘린더 이벤트 진입 애니메이션 */
+@keyframes fc-event-enter {
+  from { opacity: 0; transform: translateY(-4px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+.fc-planner-wrap .fc-timegrid-event:not(.fc-event-mirror) {
+  animation: fc-event-enter 0.2s ease-out;
+}
+
+/* 리사이즈 핸들 */
+.fc-planner-wrap .fc-event-resizer-end {
+  bottom: 0;
+  height: 8px;
+  cursor: s-resize;
+}
+
+/* 현재 시간 표시선 */
+.fc-planner-wrap .fc-timegrid-now-indicator-line {
+  border-color: hsl(var(--primary));
+}
+.fc-planner-wrap .fc-timegrid-now-indicator-arrow {
+  border-top-color: hsl(var(--primary));
+  border-bottom-color: hsl(var(--primary));
+}

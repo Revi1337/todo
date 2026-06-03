@@ -1,12 +1,12 @@
 "use client"
 
+import { useRef } from "react"
 import dayjs from "dayjs"
-import { DragDropContext } from "@hello-pangea/dnd"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { usePlannerState } from "@/hooks/usePlannerState"
 import { usePlannerTodos } from "@/hooks/usePlannerTodos"
-import { PlannerTimeGrid } from "./PlannerTimeGrid"
+import { PlannerCalendar } from "./PlannerCalendar"
 import { PlannerPool } from "./PlannerPool"
 import { TodoFormDialog } from "@/components/dashboard/TodoFormDialog"
 import { ScheduledTodo } from "@/hooks/usePlannerTodos"
@@ -46,25 +46,23 @@ export function PlannerView() {
     unscheduledCompleted,
     isLoading,
     refetch,
-    draggingFromId,
-    hoverHourIndex,
+    handleEventDrop,
+    handleEventResize,
+    handleEventReceive,
+    handleUnschedule,
     handleToggle,
     handleDelete,
-    gridRef,
-    scrollRef,
-    onDragStart,
-    onDragEnd,
   } = usePlannerTodos({ selectedDate })
 
-  const handleEdit = (todo: Todo | ScheduledTodo) => openEdit(todo)
+  // 풀 컨테이너 ref — FullCalendar Draggable 초기화 + 드래그 투 언스케줄 감지에 공유
+  const poolRef = useRef<HTMLDivElement | null>(null)
 
+  const handleEdit = (todo: Todo | ScheduledTodo) => openEdit(todo)
   const dayPrefix = getDayPrefix(selectedDate)
 
   return (
     <div className="flex flex-col h-full gap-4">
-      {/* 날짜 네비게이션 — 하단 패널 비율(flex-[6] / flex-[4])에 맞춰 정렬 */}
       <div className="flex gap-4 shrink-0">
-        {/* 시간 그리드 폭(flex-[6])과 동일한 영역에 날짜 + 버튼 배치 */}
         <div className="flex-[6]">
           {dayPrefix && (
             <p className="text-xs text-muted-foreground font-medium mb-0.5">{dayPrefix}</p>
@@ -72,12 +70,7 @@ export function PlannerView() {
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold tracking-tight">{formatMainDate(selectedDate)}</h2>
             <div className="flex items-center gap-1">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={goToToday}
-                className="text-xs h-7 px-2.5 rounded-full"
-              >
+              <Button variant="outline" size="sm" onClick={goToToday} className="text-xs h-7 px-2.5 rounded-full">
                 오늘
               </Button>
               <Button variant="outline" size="icon" className="w-7 h-7 rounded-full" onClick={goToPrevDay}>
@@ -89,35 +82,35 @@ export function PlannerView() {
             </div>
           </div>
         </div>
-        {/* 태스크 풀 폭(flex-[4]) 스페이서 */}
         <div className="flex-[4]" />
       </div>
 
-      {/* 메인 콘텐츠 */}
-      <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
-        <div className="flex gap-4 flex-1 min-h-0">
-          <PlannerTimeGrid
-            scheduledTodos={scheduledTodos}
-            isLoading={isLoading}
-            gridRef={gridRef}
-            scrollRef={scrollRef}
-            hoverHourIndex={hoverHourIndex}
-            onEdit={handleEdit}
-            onToggle={handleToggle}
-            className="flex-[6]"
-          />
-          <PlannerPool
-            activeTodos={unscheduledActive}
-            completedTodos={unscheduledCompleted}
-            totalCount={todos.length}
-            isLoading={isLoading}
-            draggingFromId={draggingFromId}
-            onEdit={handleEdit}
-            onCreateTodo={openCreate}
-            className="flex-[4]"
-          />
-        </div>
-      </DragDropContext>
+      <div className="flex gap-4 flex-1 min-h-0">
+        <PlannerCalendar
+          selectedDate={selectedDate}
+          scheduledTodos={scheduledTodos}
+          unscheduledTodos={[...unscheduledActive, ...unscheduledCompleted]}
+          isLoading={isLoading}
+          poolRef={poolRef}
+          onEventDrop={handleEventDrop}
+          onEventResize={handleEventResize}
+          onEventReceive={handleEventReceive}
+          onUnschedule={handleUnschedule}
+          onEdit={handleEdit}
+          onToggle={handleToggle}
+          className="flex-[6]"
+        />
+        <PlannerPool
+          activeTodos={unscheduledActive}
+          completedTodos={unscheduledCompleted}
+          totalCount={todos.length}
+          isLoading={isLoading}
+          poolRef={poolRef}
+          onEdit={handleEdit}
+          onCreateTodo={openCreate}
+          className="flex-[4]"
+        />
+      </div>
 
       <TodoFormDialog
         open={dialogOpen}
