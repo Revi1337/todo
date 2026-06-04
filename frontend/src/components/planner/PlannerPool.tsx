@@ -17,6 +17,7 @@ interface PlannerPoolProps {
   poolRef: React.RefObject<HTMLDivElement | null>
   onEdit: (todo: Todo) => void
   onCreateTodo: () => void
+  disableDnd?: boolean
   className?: string
 }
 
@@ -28,14 +29,16 @@ export function PlannerPool({
   poolRef,
   onEdit,
   onCreateTodo,
+  disableDnd = false,
   className = "flex-[4]",
 }: PlannerPoolProps) {
   useEffect(() => {
+    if (disableDnd) return
     const el = poolRef.current
     if (!el) return
     const draggable = new Draggable(el, { itemSelector: ".fc-pool-item" })
     return () => draggable.destroy()
-  }, [poolRef])
+  }, [poolRef, disableDnd])
 
   return (
     <div

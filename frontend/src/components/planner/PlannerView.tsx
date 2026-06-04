@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useRef, useState, useEffect } from "react"
 import dayjs from "dayjs"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -61,6 +61,15 @@ export function PlannerView() {
 
   const poolRef = useRef<HTMLDivElement | null>(null)
   const [activeTab, setActiveTab] = useState<MobileTab>("calendar")
+  const [isTabMode, setIsTabMode] = useState(false)
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1279px)")
+    setIsTabMode(mq.matches)
+    const handler = (e: MediaQueryListEvent) => setIsTabMode(e.matches)
+    mq.addEventListener("change", handler)
+    return () => mq.removeEventListener("change", handler)
+  }, [])
 
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false)
   const [scheduleModalTodo, setScheduleModalTodo] = useState<(Todo | ScheduledTodo) | null>(null)
@@ -139,6 +148,7 @@ export function PlannerView() {
             onEdit={handleEdit}
             onToggle={handleToggle}
             togglingIds={togglingIds}
+            disableDnd={isTabMode}
             className="h-full"
           />
         ) : (
@@ -150,6 +160,7 @@ export function PlannerView() {
             poolRef={poolRef}
             onEdit={handleEdit}
             onCreateTodo={openCreate}
+            disableDnd={isTabMode}
             className="h-full"
           />
         )}

@@ -25,6 +25,7 @@ interface PlannerCalendarProps {
   onEdit: (todo: ScheduledTodo) => void
   onToggle: (todo: Todo) => void
   togglingIds: Set<number>
+  disableDnd?: boolean
   className?: string
 }
 
@@ -47,6 +48,7 @@ export function PlannerCalendar({
   onEdit,
   onToggle,
   togglingIds,
+  disableDnd = false,
   className = "flex-[6]",
 }: PlannerCalendarProps) {
   const dateStr = selectedDate.format("YYYY-MM-DD")
@@ -288,8 +290,8 @@ export function PlannerCalendar({
             slotMaxTime="24:00:00"
             slotDuration="00:10:00"
             snapDuration="00:10:00"
-            editable
-            droppable
+            editable={!disableDnd}
+            droppable={!disableDnd}
             dragScroll={false}
             eventDragMinDistance={1}
             eventResizableFromStart
