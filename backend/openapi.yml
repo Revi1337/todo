@@ -21,6 +21,8 @@ tags:
     description: Statistics
   - name: auth
     description: Authentication
+  - name: health
+    description: Server health check
 
 paths:
   /api/todos:
@@ -518,6 +520,18 @@ paths:
                     properties:
                       data:
                         type: boolean
+
+  /api/health:
+    get:
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseBase"
 
   /api/stats:
     get:

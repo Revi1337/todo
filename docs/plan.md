@@ -303,14 +303,10 @@ git init
 #### Tasks
 - [x] `Sidebar.tsx` — "플래너" 네비 항목 추가 (`/planner`, CalendarClock 아이콘)
 - [x] `src/app/(main)/planner/page.tsx` — 페이지 shell 생성
-- [x] `src/lib/planner.ts` — 시간 상수 & 유틸 (HOUR_HEIGHT_PX, HOURS, timeToOffsetPx, offsetPxToTime, formatTime)
 - [x] `src/hooks/usePlannerState.ts` — 날짜 네비 + 다이얼로그 상태 훅
-- [x] `src/hooks/usePlannerTodos.ts` — DnD 로직 훅 (Phase 21에서는 mock 데이터)
-- [x] `src/components/planner/PlannerView.tsx` — DragDropContext 루트, 날짜 헤더, 좌우 레이아웃
-- [x] `src/components/planner/PlannerTimeGrid.tsx` — 시간 그리드 (Droppable id="TIMEGRID", 06:00~익일05:59, 24슬롯 × 60px)
-- [x] `src/components/planner/PlannerPool.tsx` — 태스크 풀 (Droppable id="POOL")
-- [x] `src/components/planner/PlannerEventCard.tsx` — 그리드 절대위치 이벤트 카드 (좌측 컬러 보더)
-- [x] `src/components/planner/PlannerPoolCard.tsx` — 풀 목록 아이템 (Draggable, category dot + title + grip)
+- [x] `src/components/planner/PlannerView.tsx` — 날짜 헤더, 좌우 레이아웃
+- [x] `src/components/planner/PlannerPool.tsx` — 태스크 풀 목록
+- [x] 초기 커스텀 그리드(`PlannerTimeGrid`, `PlannerEventCard`, `PlannerPoolCard`) 구현 → Phase 25에서 FullCalendar 기반으로 전면 대체
 
 #### 검증
 - `/planner` 접근 → 사이드바 "플래너" 활성화, 시간 그리드 + 태스크 풀 레이아웃 렌더링
@@ -364,6 +360,37 @@ git init
 - 풀 → 10:00 슬롯 드래그 → 이벤트 카드 10:00 렌더링, DB `todo_schedules` 행 생성
 - 이벤트 → 풀 드래그 → 행 삭제
 - 날짜 이동 → 해당 날짜 데이터 갱신
+
+---
+
+---
+
+### Phase 25. 플래너 FullCalendar 마이그레이션
+**목적**: 커스텀 픽셀 계산 그리드를 FullCalendar `timeGridDay` 기반으로 전면 교체하여 이벤트 DnD·리사이즈·렌더링을 프레임워크에 위임한다.
+**의존 단계**: Phase 24 완료 후
+
+#### Tasks
+- [x] `@fullcalendar/react`, `@fullcalendar/timegrid`, `@fullcalendar/interaction` 설치
+- [x] `PlannerCalendar.tsx` 구현 — FullCalendar 기반 시간 그리드 (00:00~24:00, 10분 스냅)
+  - `eventDrop` / `eventResize` / `eventReceive` 핸들러로 PUT/POST/DELETE API 연동
+  - `eventContent` 커스텀 렌더러 — Checkbox, 시간, 태그, 카테고리, 우선순위 뱃지
+  - 드래그 중 자동 스크롤 (RAF 기반 마우스 Y 감지)
+- [x] `globals.css` — FullCalendar 스타일 오버라이드 (`.fc-planner-wrap` 스코프)
+- [x] `PlannerPool.tsx` — `@fullcalendar/interaction`의 `Draggable` API로 풀 아이템 외부 드래그 연동
+- [x] 기존 커스텀 그리드 컴포넌트(`PlannerTimeGrid`, `PlannerEventCard`, `PlannerPoolCard`) 및 `src/lib/planner.ts` 제거
+
+---
+
+### Phase 26. 플래너 모바일 대응 및 UX 개선
+**목적**: 모바일/태블릿에서 플래너를 탭 방식으로 표시하고 전반적인 레이아웃·스타일을 개선한다.
+**의존 단계**: Phase 25 완료 후
+
+#### Tasks
+- [x] `PlannerView.tsx` — 1280px 미만에서 탭 모드 전환 (`useMediaQuery`)
+  - '일정' / '할 일' 탭으로 `PlannerCalendar`·`PlannerPool` 토글
+  - 탭 모드에서 `PlannerCalendar`에 `disableDnd={true}` 전달 → FullCalendar `editable`/`droppable` 비활성화
+- [x] `PlannerScheduleModal.tsx` — 스케줄 생성/수정/삭제 다이얼로그
+- [x] 전반적인 레이아웃 및 스타일 개선 (카드 border, 라벨, 반응형 여백 등)
 
 ---
 
