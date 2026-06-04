@@ -18,13 +18,6 @@ export function PlannerPoolCard({ todo, onEdit }: PlannerPoolCardProps) {
     extendedProps: { todoId: todo.id },
   })
 
-  const handlePointerDown = (e: React.PointerEvent) => {
-    const target = e.target as Element
-    if (!target.closest("[data-drag-handle]")) {
-      e.stopPropagation()
-    }
-  }
-
   return (
     <motion.div
       layout
@@ -32,19 +25,10 @@ export function PlannerPoolCard({ todo, onEdit }: PlannerPoolCardProps) {
       animate={{ opacity: 1, x: 0, scale: 1 }}
       exit={{ opacity: 0, x: -16, scale: 0.97 }}
       transition={{ duration: 0.18, ease: "easeOut" }}
-      className="fc-pool-item group bg-card text-card-foreground px-3 py-3 rounded-xl shadow-sm border border-border/80 flex items-center gap-3 mb-2 hover:ring-2 hover:ring-primary transition-[box-shadow]"
+      className="fc-pool-item group bg-card text-card-foreground px-3 py-3 rounded-xl shadow-sm border border-border/80 flex items-center gap-3 mb-2 cursor-grab"
       data-event={eventData}
-      onPointerDown={handlePointerDown}
       onClick={() => onEdit(todo)}
     >
-      <div
-        data-drag-handle
-        className="shrink-0 cursor-grab text-muted-foreground/40 hover:text-muted-foreground/70 transition-colors"
-        onClick={e => e.stopPropagation()}
-      >
-        <GripVertical className="w-4 h-4" />
-      </div>
-
       <span className={`flex-1 font-medium leading-tight truncate ${todo.completed ? "line-through text-muted-foreground" : ""}`}>
         {todo.title}
       </span>

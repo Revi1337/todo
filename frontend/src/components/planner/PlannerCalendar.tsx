@@ -5,7 +5,7 @@ import FullCalendar from "@fullcalendar/react"
 import timeGridPlugin from "@fullcalendar/timegrid"
 import interactionPlugin from "@fullcalendar/interaction"
 import type { EventDropArg } from "@fullcalendar/core"
-import type { EventDragStopArg, EventDragStartArg, EventResizeDoneArg, EventReceiveArg } from "@fullcalendar/interaction"
+import type { EventDragStartArg, EventDragStopArg, EventResizeDoneArg, EventReceiveArg } from "@fullcalendar/interaction"
 import type { EventContentArg } from "@fullcalendar/core"
 import type { Dayjs } from "dayjs"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -20,11 +20,9 @@ interface PlannerCalendarProps {
   scheduledTodos: ScheduledTodo[]
   unscheduledTodos: Todo[]
   isLoading: boolean
-  poolRef: React.RefObject<HTMLDivElement | null>
   onEventDrop: (scheduleId: number, startTime: string, endTime: string) => Promise<void>
   onEventResize: (scheduleId: number, startTime: string, endTime: string) => Promise<void>
   onEventReceive: (todoId: number, startTime: string, endTime: string) => Promise<void>
-  onUnschedule: (scheduleId: number) => Promise<void>
   onEdit: (todo: ScheduledTodo) => void
   onToggle: (todo: Todo) => void
   togglingIds: Set<number>
@@ -44,11 +42,9 @@ export function PlannerCalendar({
   scheduledTodos,
   unscheduledTodos,
   isLoading,
-  poolRef,
   onEventDrop,
   onEventResize,
   onEventReceive,
-  onUnschedule,
   onEdit,
   onToggle,
   togglingIds,
@@ -64,10 +60,6 @@ export function PlannerCalendar({
     calendarRef.current?.getApi().gotoDate(dateStr)
   }, [dateStr])
 
-  // dragScroll={false}로 FC auto-scroll 비활성화 후 직접 구현
-  // - isDraggingRef: eventDragStart는 최소 드래그 거리 이후 발동 → pointerdown 기준으로 추적
-  // - 스크롤 타겟: FC 소스의 scrollerElRef.current = .fc-scroller-liquid-absolute (scrollTop 직접 설정)
-  // - scrollHeight>clientHeight는 FC 소스에서 "unreliable" 명시 → selector로 직접 타겟
   useEffect(() => {
     let rafId: number
     const onMouseMove = (e: MouseEvent) => { mouseYRef.current = e.clientY }
@@ -85,7 +77,7 @@ export function PlannerCalendar({
           const rect = scroller.getBoundingClientRect()
           const y = mouseYRef.current - rect.top
           const threshold = 80
-          const speed = 20  // px/frame — 일반 스크롤과 유사한 속도
+          const speed = 20
           if (y >= 0 && y < threshold) {
             scroller.scrollTop -= speed
           } else if (y > rect.height - threshold && y <= rect.height) {
@@ -108,9 +100,6 @@ export function PlannerCalendar({
     }
   }, [])
 
-  // FC event ID = todoId (변하지 않음) — scheduleId는 낙관적 업데이트 시 임시값 → 실제값으로
-  // 바뀌는데, ID가 바뀌면 FullCalendar가 다른 이벤트로 인식해 DOM을 교체하고 애니메이션이 두 번 재생됨.
-  // todoId를 ID로 쓰면 scheduleId가 바뀌어도 FullCalendar는 동일 이벤트로 인식(위치만 업데이트).
   const fcEvents = scheduledTodos.map(todo => ({
     id: String(todo.id),
     title: todo.title,
@@ -152,7 +141,6 @@ export function PlannerCalendar({
     const startTime = toTimeStr(info.event.start!)
     const endDt = info.event.end ?? new Date(info.event.start!.getTime() + 30 * 60 * 1000)
     const endTime = toTimeStr(endDt)
-    // FC가 임시로 추가한 이벤트 제거 — 실제 이벤트는 schedules state가 주도
     info.event.remove()
     try {
       await onEventReceive(todoId, startTime, endTime)
@@ -161,34 +149,20 @@ export function PlannerCalendar({
     }
   }, [onEventReceive])
 
-  const handleEventDragStart = useCallback((info: EventDragStartArg) => {
+  const handleEventDragStart = useCallback((_info: EventDragStartArg) => {
     isDraggingRef.current = true
-    info.el.style.opacity = '0'
   }, [])
 
-  const handleEventDragStop = useCallback((info: EventDragStopArg) => {
+  const handleEventDragStop = useCallback((_info: EventDragStopArg) => {
     isDraggingRef.current = false
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      info.el.style.opacity = ''
-    }))
-    if (!poolRef.current) return
-    const { clientX, clientY } = info.jsEvent
-    const rect = poolRef.current.getBoundingClientRect()
-    if (clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom) {
-      info.event.remove()
-      onUnschedule(info.event.extendedProps.scheduleId as number)
-    }
-  }, [poolRef, onUnschedule])
+  }, [])
 
   const renderEventContent = useCallback((arg: EventContentArg) => {
     const todo: ScheduledTodo = arg.event.extendedProps.todo
 
     if (!todo) {
-      // eventReceive 임시 이벤트 (isMirror=false) — 즉시 투명 처리하여 flicker 방지
-      // 실제 이벤트는 state 업데이트 후 fcEvents를 통해 렌더링됨
       if (!arg.isMirror) return <div style={{ display: "none" }} />
 
-      // 드래그 미리보기 (isMirror=true) — 풀 카드와 동일하게 렌더링
       const todoId = arg.event.extendedProps.todoId as number | undefined
       const sourceTodo = todoId != null ? unscheduledTodos.find(t => t.id === todoId) : undefined
       const categoryColor = sourceTodo?.category?.color ?? "hsl(var(--primary))"
@@ -201,12 +175,29 @@ export function PlannerCalendar({
             {arg.event.title}
           </span>
           {sourceTodo && (
-            <Badge
-              variant="outline"
-              className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${PRIORITY_META[sourceTodo.priority].badgeColor}`}
-            >
-              {PRIORITY_META[sourceTodo.priority].label}
-            </Badge>
+            <div className="flex items-center gap-2 shrink-0 ml-auto">
+              {sourceTodo.tags?.length > 0 && (
+                <div className="hidden sm:flex items-center gap-1">
+                  {sourceTodo.tags.map(tag => (
+                    <span key={tag.id} className="text-[10px] font-medium text-muted-foreground bg-muted/40 px-2 py-0.5 rounded-full border border-border/50">
+                      #{tag.name}
+                    </span>
+                  ))}
+                </div>
+              )}
+              {sourceTodo.category && (
+                <div className="hidden sm:flex items-center gap-1 text-[10px] font-medium text-muted-foreground bg-muted/30 px-2 py-0.5 rounded-full">
+                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: sourceTodo.category.color }} />
+                  {sourceTodo.category.name}
+                </div>
+              )}
+              <Badge
+                variant="outline"
+                className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${PRIORITY_META[sourceTodo.priority].badgeColor}`}
+              >
+                {PRIORITY_META[sourceTodo.priority].label}
+              </Badge>
+            </div>
           )}
         </div>
       )
@@ -214,12 +205,12 @@ export function PlannerCalendar({
     const categoryColor = todo.category?.color ?? "hsl(var(--primary))"
     return (
       <div
-        className="h-full w-full flex items-center gap-2 px-2 overflow-hidden cursor-default rounded-md border-l-[3px] bg-background dark:bg-secondary shadow-sm"
+        className="h-full w-full flex items-center gap-2 px-2 overflow-hidden cursor-default rounded-md border-l-[4px] bg-background dark:bg-secondary shadow-sm"
         style={{
           borderLeftColor: categoryColor,
-          borderTop: `0.5px solid color-mix(in srgb, ${categoryColor} 25%, transparent)`,
-          borderRight: `0.5px solid color-mix(in srgb, ${categoryColor} 25%, transparent)`,
-          borderBottom: `0.5px solid color-mix(in srgb, ${categoryColor} 25%, transparent)`,
+          borderTop: `1.5px solid color-mix(in srgb, ${categoryColor} 25%, transparent)`,
+          borderRight: `1.5px solid color-mix(in srgb, ${categoryColor} 25%, transparent)`,
+          borderBottom: `1.5px solid color-mix(in srgb, ${categoryColor} 25%, transparent)`,
         }}
         onClick={e => { e.stopPropagation(); onEdit(todo) }}
       >
@@ -298,6 +289,7 @@ export function PlannerCalendar({
             eventReceive={handleEventReceive}
             eventDragStop={handleEventDragStop}
             eventContent={renderEventContent}
+            scrollTime="00:00:00"
             height="100%"
             slotLabelFormat={{ hour: "2-digit", minute: "2-digit", hour12: false }}
           />

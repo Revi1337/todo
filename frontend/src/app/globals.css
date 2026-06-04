@@ -239,11 +239,6 @@
   box-shadow: none !important;
 }
 
-/* 드래그/리사이즈 중 원위치 잔상 제거 */
-.fc-planner-wrap .fc-event-dragging:not(.fc-event-mirror),
-.fc-planner-wrap .fc-event-resizing:not(.fc-event-mirror) {
-  opacity: 0 !important;
-}
 
 /* 드롭존 highlight 박스 제거 */
 .fc-planner-wrap .fc-highlight {

@@ -70,6 +70,10 @@ export function usePlannerTodos({ selectedDate }: UsePlannerTodosOptions) {
 
   // ── 이벤트 시간 재배치 (그리드 내 드래그) ───────────────────
   const handleEventDrop = useCallback(async (scheduleId: number, startTime: string, endTime: string) => {
+    if (scheduleId < 0) {
+      toast.error("일정이 아직 저장 중입니다. 잠시 후 다시 시도해주세요.")
+      throw new Error("revert")
+    }
     const snapshot = schedules
     setSchedules(prev => prev.map(s => s.id === scheduleId ? { ...s, startTime, endTime } : s))
     try {
@@ -83,6 +87,10 @@ export function usePlannerTodos({ selectedDate }: UsePlannerTodosOptions) {
 
   // ── 이벤트 기간 조정 (리사이즈) ─────────────────────────────
   const handleEventResize = useCallback(async (scheduleId: number, startTime: string, endTime: string) => {
+    if (scheduleId < 0) {
+      toast.error("일정이 아직 저장 중입니다. 잠시 후 다시 시도해주세요.")
+      throw new Error("revert")
+    }
     const snapshot = schedules
     setSchedules(prev => prev.map(s => s.id === scheduleId ? { ...s, startTime, endTime } : s))
     try {
@@ -113,18 +121,6 @@ export function usePlannerTodos({ selectedDate }: UsePlannerTodosOptions) {
       toast.error("일정을 저장하지 못했습니다.")
     }
   }, [schedules, setSchedules, createSchedule, dateStr])
-
-  // ── 그리드 → 풀: 스케줄 해제 ────────────────────────────
-  const handleUnschedule = useCallback(async (scheduleId: number) => {
-    const snapshot = schedules
-    setSchedules(prev => prev.filter(s => s.id !== scheduleId))
-    try {
-      await deleteSchedule(scheduleId)
-    } catch {
-      setSchedules(snapshot)
-      toast.error("일정을 해제하지 못했습니다.")
-    }
-  }, [schedules, setSchedules, deleteSchedule])
 
   const handleToggle = useCallback(async (todo: Todo) => {
     if (togglingIds.has(todo.id)) return
@@ -162,7 +158,6 @@ export function usePlannerTodos({ selectedDate }: UsePlannerTodosOptions) {
     handleEventDrop,
     handleEventResize,
     handleEventReceive,
-    handleUnschedule,
     togglingIds,
     handleToggle,
     handleDelete,

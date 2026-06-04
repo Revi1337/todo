@@ -49,13 +49,12 @@ export function PlannerView() {
     handleEventDrop,
     handleEventResize,
     handleEventReceive,
-    handleUnschedule,
     togglingIds,
     handleToggle,
     handleDelete,
   } = usePlannerTodos({ selectedDate })
 
-  // 풀 컨테이너 ref — FullCalendar Draggable 초기화 + 드래그 투 언스케줄 감지에 공유
+  // 풀 컨테이너 ref — FullCalendar Draggable 초기화에 사용
   const poolRef = useRef<HTMLDivElement | null>(null)
 
   const handleEdit = (todo: Todo | ScheduledTodo) => openEdit(todo)
@@ -65,11 +64,11 @@ export function PlannerView() {
     <div className="flex flex-col h-full gap-4">
       <div className="flex gap-4 shrink-0">
         <div className="flex-[6]">
-          {dayPrefix && (
-            <p className="text-xs text-muted-foreground font-medium mb-0.5">{dayPrefix}</p>
-          )}
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold tracking-tight">{formatMainDate(selectedDate)}</h2>
+            <h2 className="text-xl font-bold tracking-tight">
+              {formatMainDate(selectedDate)}
+              {dayPrefix && <span className="text-base font-medium text-muted-foreground ml-2">({dayPrefix})</span>}
+            </h2>
             <div className="flex items-center gap-1">
               <Button variant="outline" size="sm" onClick={goToToday} className="text-xs h-7 px-2.5 rounded-full">
                 오늘
@@ -92,11 +91,9 @@ export function PlannerView() {
           scheduledTodos={scheduledTodos}
           unscheduledTodos={[...unscheduledActive, ...unscheduledCompleted]}
           isLoading={isLoading}
-          poolRef={poolRef}
           onEventDrop={handleEventDrop}
           onEventResize={handleEventResize}
           onEventReceive={handleEventReceive}
-          onUnschedule={handleUnschedule}
           onEdit={handleEdit}
           onToggle={handleToggle}
           togglingIds={togglingIds}

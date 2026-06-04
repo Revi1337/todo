@@ -28,7 +28,7 @@ function PlannerPoolSection({ title, todos, isEmpty, onEdit }: PlannerPoolSectio
       </div>
       <div className="flex-1 overflow-y-auto scrollbar-hide flex flex-col px-2 pt-1.5 pb-2 min-h-[52px]">
         {todos.length === 0 ? (
-          <div className="flex items-center justify-center py-3 text-muted-foreground/40">
+          <div className="flex-1 flex items-center justify-center py-3 text-muted-foreground/40">
             <CalendarClock className="w-4 h-4 mr-1.5" />
             <span className="text-xs">{isEmpty ? "할 일이 없습니다" : "완료된 항목 없음"}</span>
           </div>
@@ -74,7 +74,7 @@ export function PlannerPool({
   return (
     <div
       ref={poolRef}
-      className={`${className} bg-muted/20 rounded-card border border-border/50 flex flex-col min-h-0 h-full overflow-hidden`}
+      className={`group/pool ${className} bg-muted/20 rounded-card border border-border/50 flex flex-col min-h-0 h-full overflow-hidden`}
     >
       <div className="flex items-center justify-between px-4 pt-4 pb-3 shrink-0">
         <div className="flex items-center gap-2">
@@ -96,8 +96,18 @@ export function PlannerPool({
         </div>
       ) : (
         <div className="flex-1 min-h-0 overflow-hidden px-3 pb-3 flex flex-col gap-3">
-          <PlannerPoolSection title="할 일" todos={activeTodos} isEmpty onEdit={onEdit} />
-          <PlannerPoolSection title="완료됨" todos={completedTodos} isEmpty={false} onEdit={onEdit} />
+          <PlannerPoolSection
+            title="할 일"
+            todos={activeTodos}
+            isEmpty={activeTodos.length === 0}
+            onEdit={onEdit}
+          />
+          <PlannerPoolSection
+            title="완료됨"
+            todos={completedTodos}
+            isEmpty={completedTodos.length === 0}
+            onEdit={onEdit}
+          />
         </div>
       )}
     </div>
