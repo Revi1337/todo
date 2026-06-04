@@ -17,7 +17,7 @@ public class DefaultTagQueryService implements TagQueryService {
     @Override
     public List<TagResponse> findAll() {
         try {
-            return tagRepository.findAll().stream()
+            return tagRepository.findAllByOrderByIdDesc().stream()
                     .map(TagResponse::from)
                     .toList();
         } catch (RuntimeException e) {

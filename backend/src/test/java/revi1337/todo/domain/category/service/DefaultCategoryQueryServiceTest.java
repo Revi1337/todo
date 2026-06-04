@@ -34,14 +34,17 @@ class DefaultCategoryQueryServiceTest {
     }
 
     @Test
-    @DisplayName("전체 Category 목록을 DB에서 반환한다")
+    @DisplayName("전체 Category 목록을 ID 오름차순으로 반환한다")
     void findAll() {
-        categoryCommandService.save("개발", "#6366f1");
-        categoryCommandService.save("운동", "#f59e0b");
+        CategoryResponse first = categoryCommandService.save("개발", "#6366f1");
+        CategoryResponse second = categoryCommandService.save("운동", "#f59e0b");
 
         List<CategoryResponse> result = defaultCategoryQueryService.findAll();
 
         assertThat(result).hasSize(2);
+        assertThat(result.get(0).id()).isEqualTo(first.id());
+        assertThat(result.get(1).id()).isEqualTo(second.id());
+        assertThat(result.get(0).id()).isLessThan(result.get(1).id());
     }
 
     @Test

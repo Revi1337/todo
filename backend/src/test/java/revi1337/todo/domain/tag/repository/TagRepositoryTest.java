@@ -28,13 +28,16 @@ class TagRepositoryTest {
     }
 
     @Test
-    @DisplayName("전체 Tag 목록을 조회한다")
-    void findAll() {
-        tagRepository.save(new Tag("JPA", "#94a3b8"));
-        tagRepository.save(new Tag("Spring", "#6366f1"));
+    @DisplayName("전체 Tag 목록을 ID 내림차순으로 조회한다")
+    void findAllByOrderByIdDesc() {
+        Tag first = tagRepository.save(new Tag("JPA", "#94a3b8"));
+        Tag second = tagRepository.save(new Tag("Spring", "#6366f1"));
 
-        List<Tag> tags = tagRepository.findAll();
+        List<Tag> tags = tagRepository.findAllByOrderByIdDesc();
 
         assertThat(tags).hasSize(2);
+        assertThat(tags.get(0).getId()).isGreaterThan(tags.get(1).getId());
+        assertThat(tags.get(0).getId()).isEqualTo(second.getId());
+        assertThat(tags.get(1).getId()).isEqualTo(first.getId());
     }
 }

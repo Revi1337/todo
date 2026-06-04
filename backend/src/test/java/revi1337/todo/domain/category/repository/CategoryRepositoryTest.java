@@ -36,14 +36,17 @@ class CategoryRepositoryTest {
     }
 
     @Test
-    @DisplayName("전체 Category 목록을 조회한다")
-    void findAll() {
-        categoryRepository.save(new Category("개발", "#6366f1", NOW));
-        categoryRepository.save(new Category("운동", "#f59e0b", NOW));
+    @DisplayName("전체 Category 목록을 ID 오름차순으로 조회한다")
+    void findAllByOrderByIdAsc() {
+        Category first = categoryRepository.save(new Category("개발", "#6366f1", NOW));
+        Category second = categoryRepository.save(new Category("운동", "#f59e0b", NOW));
 
-        List<Category> categories = categoryRepository.findAll();
+        List<Category> categories = categoryRepository.findAllByOrderByIdAsc();
 
         assertThat(categories).hasSize(2);
+        assertThat(categories.get(0).getId()).isLessThan(categories.get(1).getId());
+        assertThat(categories.get(0).getId()).isEqualTo(first.getId());
+        assertThat(categories.get(1).getId()).isEqualTo(second.getId());
     }
 
     @Test

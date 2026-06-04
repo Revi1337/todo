@@ -33,14 +33,17 @@ class DefaultTagQueryServiceTest {
     }
 
     @Test
-    @DisplayName("전체 Tag 목록을 DB에서 반환한다")
+    @DisplayName("전체 Tag 목록을 ID 내림차순으로 반환한다")
     void findAll() {
-        tagCommandService.save("JPA", null);
-        tagCommandService.save("Spring", null);
+        TagResponse first = tagCommandService.save("JPA", null);
+        TagResponse second = tagCommandService.save("Spring", null);
 
         List<TagResponse> result = defaultTagQueryService.findAll();
 
         assertThat(result).hasSize(2);
+        assertThat(result.get(0).id()).isEqualTo(second.id());
+        assertThat(result.get(1).id()).isEqualTo(first.id());
+        assertThat(result.get(0).id()).isGreaterThan(result.get(1).id());
     }
 
     @Test

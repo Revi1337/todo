@@ -17,7 +17,7 @@ public class DefaultCategoryQueryService implements CategoryQueryService {
     @Override
     public List<CategoryResponse> findAll() {
         try {
-            return categoryRepository.findAll().stream()
+            return categoryRepository.findAllByOrderByIdAsc().stream()
                     .map(CategoryResponse::from)
                     .toList();
         } catch (RuntimeException e) {
