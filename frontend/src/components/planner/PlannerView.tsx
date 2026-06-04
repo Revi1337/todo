@@ -60,13 +60,17 @@ export function PlannerView() {
 
   const poolRef = useRef<HTMLDivElement | null>(null)
 
+  const [scheduleModalOpen, setScheduleModalOpen] = useState(false)
   const [scheduleModalTodo, setScheduleModalTodo] = useState<(Todo | ScheduledTodo) | null>(null)
   const scheduleModalScheduled = scheduleModalTodo
     ? scheduledTodos.find(st => st.id === scheduleModalTodo.id)
     : undefined
 
-  const handleEdit = (todo: Todo | ScheduledTodo) => setScheduleModalTodo(todo)
-  const closeScheduleModal = () => setScheduleModalTodo(null)
+  const handleEdit = (todo: Todo | ScheduledTodo) => {
+    setScheduleModalTodo(todo)
+    setScheduleModalOpen(true)
+  }
+  const closeScheduleModal = () => setScheduleModalOpen(false)
 
   const dayPrefix = getDayPrefix(selectedDate)
 
@@ -122,6 +126,7 @@ export function PlannerView() {
       </div>
 
       <PlannerScheduleModal
+        open={scheduleModalOpen}
         todo={scheduleModalTodo}
         scheduledTodo={scheduleModalScheduled}
         onClose={closeScheduleModal}

@@ -163,46 +163,43 @@ export function usePlannerTodos({ selectedDate }: UsePlannerTodosOptions) {
     } catch { }
   }, [schedules, deleteSchedule, deleteTodo, refetch])
 
+  // 모달에서 호출 — optimistic update 없이 API 완료 후 지연 업데이트
+  // 모달 닫힘 애니메이션(~200ms) 이후 캘린더가 반영되도록 250ms 지연
   const handleScheduleCreate = useCallback(async (todoId: number, startTime: string, endTime: string) => {
-    const tempSchedule: TodoSchedule = {
-      id: -Date.now(),
-      todoId,
-      startTime,
-      endTime,
-      scheduleDate: dateStr,
-    }
-    const snapshot = schedules
-    setSchedules(prev => [...prev.filter(s => s.todoId !== todoId), tempSchedule])
     try {
       const created = await createSchedule({ todoId, startTime, endTime, scheduleDate: dateStr })
-      setSchedules(prev => prev.map(s => s.id === tempSchedule.id ? created : s))
+      setTimeout(() => {
+        setSchedules(prev => [...prev.filter(s => s.todoId !== todoId), created])
+      }, 250)
     } catch {
-      setSchedules(snapshot)
       toast.error("일정을 저장하지 못했습니다.")
+      throw new Error("failed")
     }
-  }, [schedules, setSchedules, createSchedule, dateStr])
+  }, [createSchedule, setSchedules, dateStr])
 
   const handleScheduleUpdate = useCallback(async (scheduleId: number, startTime: string, endTime: string) => {
-    const snapshot = schedules
-    setSchedules(prev => prev.map(s => s.id === scheduleId ? { ...s, startTime, endTime } : s))
     try {
       await updateSchedule(scheduleId, { startTime, endTime })
+      setTimeout(() => {
+        setSchedules(prev => prev.map(s => s.id === scheduleId ? { ...s, startTime, endTime } : s))
+      }, 250)
     } catch {
-      setSchedules(snapshot)
       toast.error("일정 시간을 변경하지 못했습니다.")
+      throw new Error("failed")
     }
-  }, [schedules, setSchedules, updateSchedule])
+  }, [updateSchedule, setSchedules])
 
   const handleUnschedule = useCallback(async (scheduleId: number) => {
-    const snapshot = schedules
-    setSchedules(prev => prev.filter(s => s.id !== scheduleId))
     try {
       await deleteSchedule(scheduleId)
+      setTimeout(() => {
+        setSchedules(prev => prev.filter(s => s.id !== scheduleId))
+      }, 250)
     } catch {
-      setSchedules(snapshot)
       toast.error("일정을 취소하지 못했습니다.")
+      throw new Error("failed")
     }
-  }, [schedules, setSchedules, deleteSchedule])
+  }, [deleteSchedule, setSchedules])
 
   return {
     todos: localTodos,

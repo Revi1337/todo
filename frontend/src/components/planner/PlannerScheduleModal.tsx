@@ -1,12 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { Loader2 } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Todo } from "@/types"
 import { ScheduledTodo } from "@/hooks/usePlannerTodos"
 
 interface PlannerScheduleModalProps {
+  open: boolean
   todo: (Todo | ScheduledTodo) | null
   scheduledTodo?: ScheduledTodo
   onClose: () => void
@@ -24,6 +26,7 @@ function toScheduleTime(inputTime: string): string {
 }
 
 export function PlannerScheduleModal({
+  open,
   todo,
   scheduledTodo,
   onClose,
@@ -34,6 +37,7 @@ export function PlannerScheduleModal({
   const [startTime, setStartTime] = useState("")
   const [endTime, setEndTime] = useState("")
   const [loading, setLoading] = useState(false)
+  const [loadingText, setLoadingText] = useState("")
 
   useEffect(() => {
     if (scheduledTodo) {
@@ -49,6 +53,7 @@ export function PlannerScheduleModal({
 
   const handleSave = async () => {
     if (!todo || !startTime || !endTime) return
+    setLoadingText(isScheduled ? "일정을 변경하고 있습니다..." : "일정을 등록하고 있습니다...")
     setLoading(true)
     try {
       if (isScheduled) {
@@ -57,6 +62,8 @@ export function PlannerScheduleModal({
         await onCreate(todo.id, toScheduleTime(startTime), toScheduleTime(endTime))
       }
       onClose()
+    } catch {
+      // 에러 toast는 훅 내부에서 처리, 모달 유지
     } finally {
       setLoading(false)
     }
@@ -64,17 +71,20 @@ export function PlannerScheduleModal({
 
   const handleUnschedule = async () => {
     if (!scheduledTodo) return
+    setLoadingText("일정을 삭제하고 있습니다...")
     setLoading(true)
     try {
       await onUnschedule(scheduledTodo.scheduleId)
       onClose()
+    } catch {
+      // 에러 toast는 훅 내부에서 처리, 모달 유지
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <Dialog open={!!todo} onOpenChange={open => { if (!open) onClose() }}>
+    <Dialog open={open} onOpenChange={v => { if (!v && !loading) onClose() }}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>일정 설정</DialogTitle>
@@ -102,7 +112,8 @@ export function PlannerScheduleModal({
               step="600"
               value={startTime}
               onChange={e => setStartTime(e.target.value)}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+              disabled={loading}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
             />
           </div>
           <div className="flex flex-col gap-1.5">
@@ -112,33 +123,42 @@ export function PlannerScheduleModal({
               step="600"
               value={endTime}
               onChange={e => setEndTime(e.target.value)}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+              disabled={loading}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
             />
           </div>
         </div>
 
         <DialogFooter className="gap-2">
-          {isScheduled && (
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={handleUnschedule}
-              disabled={loading}
-              className="mr-auto"
-            >
-              일정 취소
-            </Button>
+          {loading ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground w-full justify-center py-1">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>{loadingText}</span>
+            </div>
+          ) : (
+            <>
+              {isScheduled && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleUnschedule}
+                  className="mr-auto"
+                >
+                  일정 취소
+                </Button>
+              )}
+              <Button variant="outline" size="sm" onClick={onClose}>
+                닫기
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleSave}
+                disabled={!startTime || !endTime}
+              >
+                {isScheduled ? "저장" : "등록"}
+              </Button>
+            </>
           )}
-          <Button variant="outline" size="sm" onClick={onClose} disabled={loading}>
-            닫기
-          </Button>
-          <Button
-            size="sm"
-            onClick={handleSave}
-            disabled={loading || !startTime || !endTime}
-          >
-            {isScheduled ? "저장" : "등록"}
-          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
