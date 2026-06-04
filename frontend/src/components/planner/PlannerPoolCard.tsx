@@ -1,17 +1,17 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { GripVertical } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Todo } from "@/types"
 import { PRIORITY_META } from "@/constants/priority"
 
 interface PlannerPoolCardProps {
   todo: Todo
+  isScheduled?: boolean
   onEdit: (todo: Todo) => void
 }
 
-export function PlannerPoolCard({ todo, onEdit }: PlannerPoolCardProps) {
+export function PlannerPoolCard({ todo, isScheduled = false, onEdit }: PlannerPoolCardProps) {
   const eventData = JSON.stringify({
     title: todo.title,
     duration: "00:30",
@@ -25,7 +25,11 @@ export function PlannerPoolCard({ todo, onEdit }: PlannerPoolCardProps) {
       animate={{ opacity: 1, x: 0, scale: 1 }}
       exit={{ opacity: 0, x: -16, scale: 0.97 }}
       transition={{ duration: 0.18, ease: "easeOut" }}
-      className="fc-pool-item group bg-card text-card-foreground px-3 py-3 rounded-xl shadow-sm border border-border/80 flex items-center gap-3 mb-2 cursor-grab"
+      className={`fc-pool-item group bg-card text-card-foreground px-3 py-3 rounded-xl shadow-sm flex items-center gap-3 mb-2 cursor-grab ${
+        isScheduled
+          ? "border-2 border-primary/50"
+          : "border border-border/80"
+      }`}
       data-event={eventData}
       onClick={() => onEdit(todo)}
     >

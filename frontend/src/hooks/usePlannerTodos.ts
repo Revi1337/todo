@@ -151,6 +151,7 @@ export function usePlannerTodos({ selectedDate }: UsePlannerTodosOptions) {
   return {
     todos: localTodos,
     scheduledTodos,
+    scheduledIds,
     unscheduledActive,
     unscheduledCompleted,
     isLoading,

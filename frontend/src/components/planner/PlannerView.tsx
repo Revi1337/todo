@@ -42,6 +42,7 @@ export function PlannerView() {
   const {
     todos,
     scheduledTodos,
+    scheduledIds,
     unscheduledActive,
     unscheduledCompleted,
     isLoading,
@@ -100,8 +101,8 @@ export function PlannerView() {
           className="flex-[6]"
         />
         <PlannerPool
-          activeTodos={unscheduledActive}
-          completedTodos={unscheduledCompleted}
+          todos={todos}
+          scheduledIds={scheduledIds}
           totalCount={todos.length}
           isLoading={isLoading}
           poolRef={poolRef}
