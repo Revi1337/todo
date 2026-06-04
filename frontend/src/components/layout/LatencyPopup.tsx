@@ -1,4 +1,4 @@
-import { LatencyInfo } from "@/hooks/useEasterEgg"
+import { type LatencyInfo } from "@/hooks"
 
 export function LatencyPopup({ latency }: { latency: LatencyInfo }) {
   return (

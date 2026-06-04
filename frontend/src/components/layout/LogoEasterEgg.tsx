@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { CheckSquare } from "lucide-react"
-import { useEasterEgg } from "@/hooks/useEasterEgg"
+import { useEasterEgg } from "@/hooks"
 import { LatencyPopup } from "./LatencyPopup"
 
 export function LogoEasterEgg() {

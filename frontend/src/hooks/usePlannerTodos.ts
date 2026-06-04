@@ -60,8 +60,7 @@ export function usePlannerTodos({ selectedDate }: UsePlannerTodosOptions) {
     [unscheduledTodos]
   )
 
-  // ── 이벤트 시간 재배치 (그리드 내 드래그) ───────────────────
-  const handleEventDrop = useCallback(async (scheduleId: number, startTime: string, endTime: string) => {
+  const applyScheduleTimeUpdate = useCallback(async (scheduleId: number, startTime: string, endTime: string, errorMsg: string) => {
     if (scheduleId < 0) {
       toast.error("일정이 아직 저장 중입니다. 잠시 후 다시 시도해주세요.")
       throw new Error("revert")
@@ -72,27 +71,24 @@ export function usePlannerTodos({ selectedDate }: UsePlannerTodosOptions) {
       await updateSchedule(scheduleId, { startTime, endTime })
     } catch {
       setSchedules(snapshot)
-      toast.error("일정 시간을 변경하지 못했습니다.")
+      toast.error(errorMsg)
       throw new Error("revert")
     }
   }, [schedules, setSchedules, updateSchedule])
 
+  // ── 이벤트 시간 재배치 (그리드 내 드래그) ───────────────────
+  const handleEventDrop = useCallback(
+    (scheduleId: number, startTime: string, endTime: string) =>
+      applyScheduleTimeUpdate(scheduleId, startTime, endTime, "일정 시간을 변경하지 못했습니다."),
+    [applyScheduleTimeUpdate]
+  )
+
   // ── 이벤트 기간 조정 (리사이즈) ─────────────────────────────
-  const handleEventResize = useCallback(async (scheduleId: number, startTime: string, endTime: string) => {
-    if (scheduleId < 0) {
-      toast.error("일정이 아직 저장 중입니다. 잠시 후 다시 시도해주세요.")
-      throw new Error("revert")
-    }
-    const snapshot = schedules
-    setSchedules(prev => prev.map(s => s.id === scheduleId ? { ...s, startTime, endTime } : s))
-    try {
-      await updateSchedule(scheduleId, { startTime, endTime })
-    } catch {
-      setSchedules(snapshot)
-      toast.error("일정 기간을 변경하지 못했습니다.")
-      throw new Error("revert")
-    }
-  }, [schedules, setSchedules, updateSchedule])
+  const handleEventResize = useCallback(
+    (scheduleId: number, startTime: string, endTime: string) =>
+      applyScheduleTimeUpdate(scheduleId, startTime, endTime, "일정 기간을 변경하지 못했습니다."),
+    [applyScheduleTimeUpdate]
+  )
 
   // ── 풀 → 그리드: 스케줄 생성 or 시간 변경 ───────────────
   const handleEventReceive = useCallback(async (todoId: number, startTime: string, endTime: string) => {

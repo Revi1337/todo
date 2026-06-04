@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { LayoutDashboard, Calendar, BarChart3, CalendarClock, LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useEasterEgg } from "@/hooks/useEasterEgg"
+import { useEasterEgg } from "@/hooks"
 import { LatencyPopup } from "./LatencyPopup"
 
 const navItems = [
