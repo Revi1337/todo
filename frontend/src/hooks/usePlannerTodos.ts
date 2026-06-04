@@ -102,8 +102,23 @@ export function usePlannerTodos({ selectedDate }: UsePlannerTodosOptions) {
     }
   }, [schedules, setSchedules, updateSchedule])
 
-  // ── 풀 → 그리드: 스케줄 생성 ─────────────────────────────
+  // ── 풀 → 그리드: 스케줄 생성 or 시간 변경 ───────────────
   const handleEventReceive = useCallback(async (todoId: number, startTime: string, endTime: string) => {
+    const existing = schedules.find(s => s.todoId === todoId)
+
+    if (existing) {
+      // 이미 스케줄이 있으면 시간만 업데이트
+      const snapshot = schedules
+      setSchedules(prev => prev.map(s => s.id === existing.id ? { ...s, startTime, endTime } : s))
+      try {
+        await updateSchedule(existing.id, { startTime, endTime })
+      } catch {
+        setSchedules(snapshot)
+        toast.error("일정 시간을 변경하지 못했습니다.")
+      }
+      return
+    }
+
     const tempSchedule: TodoSchedule = {
       id: -Date.now(),
       todoId,
@@ -112,7 +127,7 @@ export function usePlannerTodos({ selectedDate }: UsePlannerTodosOptions) {
       scheduleDate: dateStr,
     }
     const snapshot = schedules
-    setSchedules(prev => [...prev.filter(s => s.todoId !== todoId), tempSchedule])
+    setSchedules(prev => [...prev, tempSchedule])
     try {
       const created = await createSchedule({ todoId, startTime, endTime, scheduleDate: dateStr })
       setSchedules(prev => prev.map(s => s.id === tempSchedule.id ? created : s))
@@ -120,7 +135,7 @@ export function usePlannerTodos({ selectedDate }: UsePlannerTodosOptions) {
       setSchedules(snapshot)
       toast.error("일정을 저장하지 못했습니다.")
     }
-  }, [schedules, setSchedules, createSchedule, dateStr])
+  }, [schedules, setSchedules, createSchedule, updateSchedule, dateStr])
 
   const handleToggle = useCallback(async (todo: Todo) => {
     if (togglingIds.has(todo.id)) return

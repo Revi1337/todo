@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useEffect, useCallback } from "react"
+import { useRef, useEffect, useCallback, useMemo } from "react"
 import FullCalendar from "@fullcalendar/react"
 import timeGridPlugin from "@fullcalendar/timegrid"
 import interactionPlugin from "@fullcalendar/interaction"
@@ -55,6 +55,17 @@ export function PlannerCalendar({
   const isDraggingRef = useRef(false)
   const mouseYRef = useRef(0)
 
+  // renderEventContent 를 안정적으로 유지하기 위한 refs
+  // props 가 바뀌어도 renderEventContent 함수 자체는 재생성되지 않음
+  const onEditRef = useRef(onEdit)
+  const onToggleRef = useRef(onToggle)
+  const togglingIdsRef = useRef(togglingIds)
+  const unscheduledTodosRef = useRef(unscheduledTodos)
+  onEditRef.current = onEdit
+  onToggleRef.current = onToggle
+  togglingIdsRef.current = togglingIds
+  unscheduledTodosRef.current = unscheduledTodos
+
   useEffect(() => {
     calendarRef.current?.getApi().gotoDate(dateStr)
   }, [dateStr])
@@ -99,13 +110,13 @@ export function PlannerCalendar({
     }
   }, [])
 
-  const fcEvents = scheduledTodos.map(todo => ({
+  const fcEvents = useMemo(() => scheduledTodos.map(todo => ({
     id: String(todo.id),
     title: todo.title,
     start: toDateTimeStr(dateStr, todo.startTime),
     end: toDateTimeStr(dateStr, todo.endTime),
     extendedProps: { todo, scheduleId: todo.scheduleId },
-  }))
+  })), [scheduledTodos, dateStr])
 
   const handleEventDrop = useCallback(async (info: EventDropArg) => {
     const scheduleId = info.event.extendedProps.scheduleId as number
@@ -156,6 +167,8 @@ export function PlannerCalendar({
     isDraggingRef.current = false
   }, [])
 
+  // deps 없음 — 항상 동일한 함수 참조 유지
+  // FullCalendar 가 eventContent 변경을 감지하지 않으므로 변경된 이벤트만 re-render
   const renderEventContent = useCallback((arg: EventContentArg) => {
     const todo: ScheduledTodo = arg.event.extendedProps.todo
 
@@ -163,7 +176,7 @@ export function PlannerCalendar({
       if (!arg.isMirror) return <div style={{ display: "none" }} />
 
       const todoId = arg.event.extendedProps.todoId as number | undefined
-      const sourceTodo = todoId != null ? unscheduledTodos.find(t => t.id === todoId) : undefined
+      const sourceTodo = todoId != null ? unscheduledTodosRef.current.find(t => t.id === todoId) : undefined
       const categoryColor = sourceTodo?.category?.color ?? "hsl(var(--primary))"
       return (
         <div
@@ -200,6 +213,7 @@ export function PlannerCalendar({
         </div>
       )
     }
+
     const categoryColor = todo.category?.color ?? "hsl(var(--primary))"
     return (
       <div
@@ -210,15 +224,15 @@ export function PlannerCalendar({
           borderRight: `1.5px solid color-mix(in srgb, ${categoryColor} 25%, transparent)`,
           borderBottom: `1.5px solid color-mix(in srgb, ${categoryColor} 25%, transparent)`,
         }}
-        onClick={e => { e.stopPropagation(); onEdit(todo) }}
+        onClick={e => { e.stopPropagation(); onEditRef.current(todo) }}
       >
         <div
           onPointerDown={e => e.stopPropagation()}
           onMouseDown={e => e.stopPropagation()}
-          onClick={e => { e.stopPropagation(); onToggle(todo) }}
+          onClick={e => { e.stopPropagation(); onToggleRef.current(todo) }}
           className="shrink-0"
         >
-          <Checkbox checked={todo.completed} disabled={togglingIds.has(todo.id)} className="w-4 h-4 rounded-[4px]" />
+          <Checkbox checked={todo.completed} disabled={togglingIdsRef.current.has(todo.id)} className="w-4 h-4 rounded-[4px]" />
         </div>
         <span className={`flex-1 text-xs font-medium leading-tight truncate ${todo.completed ? "line-through opacity-50" : ""}`}>
           {todo.title}
@@ -248,7 +262,7 @@ export function PlannerCalendar({
         </span>
       </div>
     )
-  }, [onEdit, onToggle, togglingIds])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className={`${className} bg-card rounded-card border border-border/50 flex flex-col min-h-0 h-full overflow-hidden`}>
