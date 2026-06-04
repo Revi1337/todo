@@ -9,7 +9,6 @@ import type { EventDragStartArg, EventDragStopArg, EventResizeDoneArg, EventRece
 import type { EventContentArg } from "@fullcalendar/core"
 import type { Dayjs } from "dayjs"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Badge } from "@/components/ui/badge"
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner"
 import { ScheduledTodo } from "@/hooks/usePlannerTodos"
 import { Todo } from "@/types"
@@ -191,12 +190,11 @@ export function PlannerCalendar({
                   {sourceTodo.category.name}
                 </div>
               )}
-              <Badge
-                variant="outline"
-                className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${PRIORITY_META[sourceTodo.priority].badgeColor}`}
+              <span
+                className={`inline-flex items-center justify-center shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${PRIORITY_META[sourceTodo.priority].badgeColor}`}
               >
                 {PRIORITY_META[sourceTodo.priority].label}
-              </Badge>
+              </span>
             </div>
           )}
         </div>
@@ -243,12 +241,11 @@ export function PlannerCalendar({
             {todo.category.name}
           </div>
         )}
-        <Badge
-          variant="outline"
-          className={`shrink-0 rounded-full px-1.5 py-0 text-[9px] font-semibold ${PRIORITY_META[todo.priority].badgeColor}`}
+        <span
+          className={`inline-flex items-center justify-center shrink-0 rounded-full border px-1.5 py-0 text-[9px] font-semibold ${PRIORITY_META[todo.priority].badgeColor}`}
         >
           {PRIORITY_META[todo.priority].label}
-        </Badge>
+        </span>
       </div>
     )
   }, [onEdit, onToggle, togglingIds])
