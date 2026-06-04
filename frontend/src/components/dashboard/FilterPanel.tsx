@@ -64,6 +64,29 @@ function Pagination({ page, total, onChange }: { page: number; total: number; on
   )
 }
 
+function PaginatedGrid({ rows, cols, isLoading, children }: {
+  rows: number
+  cols: number
+  isLoading?: boolean
+  children: React.ReactNode
+}) {
+  return (
+    <div
+      className="grid gap-0.5 [grid-auto-flow:column]"
+      style={{
+        gridTemplateRows: `repeat(${rows}, auto)`,
+        gridTemplateColumns: `repeat(${cols}, 1fr)`,
+      }}
+    >
+      {isLoading
+        ? [...Array(rows * cols)].map((_, i) => (
+            <div key={i} className="h-7 rounded-lg bg-border/60 animate-pulse" />
+          ))
+        : children}
+    </div>
+  )
+}
+
 export function FilterPanel({ filter, search, categories, tags, categoriesLoading, tagsLoading, onFilterChange, onSearchChange, onReset, onCreateTodo, asSheet }: FilterPanelProps) {
   const [tagPage, setTagPage] = useState(0)
   const [catPage, setCatPage] = useState(0)
@@ -131,74 +154,34 @@ export function FilterPanel({ filter, search, categories, tags, categoriesLoadin
           title="카테고리"
           action={<Pagination page={catPage} total={totalCatPages} onChange={setCatPage} />}
         >
-          {categoriesLoading ? (
-            <div
-              className="grid gap-0.5 [grid-auto-flow:column]"
-              style={{
-                gridTemplateRows: `repeat(${CAT_ROWS}, auto)`,
-                gridTemplateColumns: `repeat(${CAT_COLS}, 1fr)`,
-              }}
-            >
-              {[...Array(CAT_PAGE_SIZE)].map((_, i) => (
-                <div key={i} className="h-7 rounded-lg bg-border/60 animate-pulse" />
-              ))}
-            </div>
-          ) : (
-            <div
-              className="grid gap-0.5 [grid-auto-flow:column]"
-              style={{
-                gridTemplateRows: `repeat(${CAT_ROWS}, auto)`,
-                gridTemplateColumns: `repeat(${CAT_COLS}, 1fr)`,
-              }}
-            >
-              {pagedCategories.map(c => (
-                <Button key={String(c.id)} variant={filter.category === c.id ? "default" : "ghost"} size="sm"
-                  className="justify-start rounded-lg w-full px-1.5 text-xs overflow-hidden gap-1"
-                  onClick={() => onFilterChange({ ...filter, category: c.id })}>
-                  {c.color === "foreground"
-                    ? <span className="w-2 h-2 rounded-full shrink-0 bg-foreground" />
-                    : c.color && <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: c.color }} />
-                  }
-                  <span className="truncate min-w-0">{c.name}</span>
-                </Button>
-              ))}
-            </div>
-          )}
+          <PaginatedGrid rows={CAT_ROWS} cols={CAT_COLS} isLoading={categoriesLoading}>
+            {pagedCategories.map(c => (
+              <Button key={String(c.id)} variant={filter.category === c.id ? "default" : "ghost"} size="sm"
+                className="justify-start rounded-lg w-full px-1.5 text-xs overflow-hidden gap-1"
+                onClick={() => onFilterChange({ ...filter, category: c.id })}>
+                {c.color === "foreground"
+                  ? <span className="w-2 h-2 rounded-full shrink-0 bg-foreground" />
+                  : c.color && <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: c.color }} />
+                }
+                <span className="truncate min-w-0">{c.name}</span>
+              </Button>
+            ))}
+          </PaginatedGrid>
         </FilterSection>
 
         <FilterSection
           title="태그"
           action={<Pagination page={tagPage} total={totalTagPages} onChange={setTagPage} />}
         >
-          {tagsLoading ? (
-            <div
-              className="grid gap-0.5 [grid-auto-flow:column]"
-              style={{
-                gridTemplateRows: `repeat(${TAG_ROWS}, auto)`,
-                gridTemplateColumns: `repeat(${TAG_COLS}, 1fr)`,
-              }}
-            >
-              {[...Array(TAG_PAGE_SIZE)].map((_, i) => (
-                <div key={i} className="h-7 rounded-lg bg-border/60 animate-pulse" />
-              ))}
-            </div>
-          ) : (
-            <div
-              className="grid gap-0.5 [grid-auto-flow:column]"
-              style={{
-                gridTemplateRows: `repeat(${TAG_ROWS}, auto)`,
-                gridTemplateColumns: `repeat(${TAG_COLS}, 1fr)`,
-              }}
-            >
-              {pagedTags.map(t => (
-                <Button key={t.id} variant={filter.tag === t.id ? "default" : "ghost"} size="sm"
-                  className="justify-center rounded-lg w-full px-1 text-xs overflow-hidden"
-                  onClick={() => onFilterChange({ ...filter, tag: filter.tag === t.id ? undefined : t.id })}>
-                  <span className="truncate min-w-0">{t.name}</span>
-                </Button>
-              ))}
-            </div>
-          )}
+          <PaginatedGrid rows={TAG_ROWS} cols={TAG_COLS} isLoading={tagsLoading}>
+            {pagedTags.map(t => (
+              <Button key={t.id} variant={filter.tag === t.id ? "default" : "ghost"} size="sm"
+                className="justify-center rounded-lg w-full px-1 text-xs overflow-hidden"
+                onClick={() => onFilterChange({ ...filter, tag: filter.tag === t.id ? undefined : t.id })}>
+                <span className="truncate min-w-0">{t.name}</span>
+              </Button>
+            ))}
+          </PaginatedGrid>
         </FilterSection>
       </div>
     </div>
