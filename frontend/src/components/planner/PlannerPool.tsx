@@ -40,7 +40,7 @@ export function PlannerPool({
   return (
     <div
       ref={poolRef}
-      className={`group/pool ${className} bg-muted/20 rounded-card border border-border/50 flex flex-col min-h-0 h-full overflow-hidden`}
+      className={`group/pool ${className} bg-muted/20 rounded-card border border-border/50 flex flex-col min-h-0 overflow-hidden`}
     >
       <div className="flex items-center justify-between px-4 pt-4 pb-3 shrink-0">
         <div className="flex items-center gap-2">

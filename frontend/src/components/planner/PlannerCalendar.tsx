@@ -265,7 +265,7 @@ export function PlannerCalendar({
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className={`${className} bg-card rounded-card border border-border/50 flex flex-col min-h-0 h-full overflow-hidden`}>
+    <div className={`${className} bg-card rounded-card border border-border/50 flex flex-col min-h-0 overflow-hidden`}>
       <div className="px-4 pt-4 pb-3 shrink-0 border-b border-border/30">
         <h3 className="text-sm font-bold tracking-tight">오늘의 일정</h3>
       </div>

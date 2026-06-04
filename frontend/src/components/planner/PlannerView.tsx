@@ -76,7 +76,7 @@ export function PlannerView() {
   return (
     <div className="flex flex-col h-full gap-4">
       <div className="flex gap-4 shrink-0">
-        <div className="flex-[6]">
+        <div className="flex-1 lg:flex-[6]">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold tracking-tight">
               {formatMainDate(selectedDate)}
@@ -95,10 +95,10 @@ export function PlannerView() {
             </div>
           </div>
         </div>
-        <div className="flex-[4]" />
+        <div className="hidden lg:block lg:flex-[4]" />
       </div>
 
-      <div className="flex gap-4 flex-1 min-h-0">
+      <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0">
         <PlannerCalendar
           selectedDate={selectedDate}
           scheduledTodos={scheduledTodos}
@@ -110,7 +110,7 @@ export function PlannerView() {
           onEdit={handleEdit}
           onToggle={handleToggle}
           togglingIds={togglingIds}
-          className="flex-[6]"
+          className="h-[55vh] lg:h-full lg:flex-[6]"
         />
         <PlannerPool
           todos={todos}
@@ -120,7 +120,7 @@ export function PlannerView() {
           poolRef={poolRef}
           onEdit={handleEdit}
           onCreateTodo={openCreate}
-          className="flex-[4]"
+          className="h-[40vh] lg:h-full lg:flex-[4]"
         />
       </div>
 
