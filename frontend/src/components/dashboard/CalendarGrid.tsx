@@ -72,7 +72,7 @@ function CalendarCell({ dateNum, isToday, isSelected, dayTodos, onClick }: Calen
         )}
       </div>
       {dayTodos.length > 0 && (
-        <div className="hidden sm:flex flex-col gap-1 mt-1 px-1">
+        <div className="hidden sm:flex flex-col gap-1 mt-1 px-1 items-end">
           {priorityRows.map(({ priority, total, completed }) => (
             <PriorityRow key={priority} priority={priority} total={total} completed={completed} />
           ))}
