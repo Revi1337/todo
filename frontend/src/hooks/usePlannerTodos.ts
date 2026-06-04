@@ -148,6 +148,47 @@ export function usePlannerTodos({ selectedDate }: UsePlannerTodosOptions) {
     } catch { }
   }, [schedules, deleteSchedule, deleteTodo, refetch])
 
+  const handleScheduleCreate = useCallback(async (todoId: number, startTime: string, endTime: string) => {
+    const tempSchedule: TodoSchedule = {
+      id: -Date.now(),
+      todoId,
+      startTime,
+      endTime,
+      scheduleDate: dateStr,
+    }
+    const snapshot = schedules
+    setSchedules(prev => [...prev.filter(s => s.todoId !== todoId), tempSchedule])
+    try {
+      const created = await createSchedule({ todoId, startTime, endTime, scheduleDate: dateStr })
+      setSchedules(prev => prev.map(s => s.id === tempSchedule.id ? created : s))
+    } catch {
+      setSchedules(snapshot)
+      toast.error("일정을 저장하지 못했습니다.")
+    }
+  }, [schedules, setSchedules, createSchedule, dateStr])
+
+  const handleScheduleUpdate = useCallback(async (scheduleId: number, startTime: string, endTime: string) => {
+    const snapshot = schedules
+    setSchedules(prev => prev.map(s => s.id === scheduleId ? { ...s, startTime, endTime } : s))
+    try {
+      await updateSchedule(scheduleId, { startTime, endTime })
+    } catch {
+      setSchedules(snapshot)
+      toast.error("일정 시간을 변경하지 못했습니다.")
+    }
+  }, [schedules, setSchedules, updateSchedule])
+
+  const handleUnschedule = useCallback(async (scheduleId: number) => {
+    const snapshot = schedules
+    setSchedules(prev => prev.filter(s => s.id !== scheduleId))
+    try {
+      await deleteSchedule(scheduleId)
+    } catch {
+      setSchedules(snapshot)
+      toast.error("일정을 취소하지 못했습니다.")
+    }
+  }, [schedules, setSchedules, deleteSchedule])
+
   return {
     todos: localTodos,
     scheduledTodos,
@@ -159,6 +200,9 @@ export function usePlannerTodos({ selectedDate }: UsePlannerTodosOptions) {
     handleEventDrop,
     handleEventResize,
     handleEventReceive,
+    handleScheduleCreate,
+    handleScheduleUpdate,
+    handleUnschedule,
     togglingIds,
     handleToggle,
     handleDelete,

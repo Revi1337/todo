@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef } from "react"
+import { useRef, useState } from "react"
 import dayjs from "dayjs"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -8,6 +8,7 @@ import { usePlannerState } from "@/hooks/usePlannerState"
 import { usePlannerTodos } from "@/hooks/usePlannerTodos"
 import { PlannerCalendar } from "./PlannerCalendar"
 import { PlannerPool } from "./PlannerPool"
+import { PlannerScheduleModal } from "./PlannerScheduleModal"
 import { TodoFormDialog } from "@/components/dashboard/TodoFormDialog"
 import { ScheduledTodo } from "@/hooks/usePlannerTodos"
 import { Todo } from "@/types"
@@ -35,7 +36,6 @@ export function PlannerView() {
     goToNextDay,
     goToToday,
     openCreate,
-    openEdit,
     closeDialog,
   } = usePlannerState()
 
@@ -50,15 +50,24 @@ export function PlannerView() {
     handleEventDrop,
     handleEventResize,
     handleEventReceive,
+    handleScheduleCreate,
+    handleScheduleUpdate,
+    handleUnschedule,
     togglingIds,
     handleToggle,
     handleDelete,
   } = usePlannerTodos({ selectedDate })
 
-  // 풀 컨테이너 ref — FullCalendar Draggable 초기화에 사용
   const poolRef = useRef<HTMLDivElement | null>(null)
 
-  const handleEdit = (todo: Todo | ScheduledTodo) => openEdit(todo)
+  const [scheduleModalTodo, setScheduleModalTodo] = useState<(Todo | ScheduledTodo) | null>(null)
+  const scheduleModalScheduled = scheduleModalTodo
+    ? scheduledTodos.find(st => st.id === scheduleModalTodo.id)
+    : undefined
+
+  const handleEdit = (todo: Todo | ScheduledTodo) => setScheduleModalTodo(todo)
+  const closeScheduleModal = () => setScheduleModalTodo(null)
+
   const dayPrefix = getDayPrefix(selectedDate)
 
   return (
@@ -111,6 +120,15 @@ export function PlannerView() {
           className="flex-[4]"
         />
       </div>
+
+      <PlannerScheduleModal
+        todo={scheduleModalTodo}
+        scheduledTodo={scheduleModalScheduled}
+        onClose={closeScheduleModal}
+        onCreate={handleScheduleCreate}
+        onUpdate={handleScheduleUpdate}
+        onUnschedule={handleUnschedule}
+      />
 
       <TodoFormDialog
         open={dialogOpen}
