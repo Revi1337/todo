@@ -122,12 +122,15 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   svg {
     outline: none;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   html {
     @apply font-sans;
   }
@@ -137,9 +140,10 @@
   .glass {
     @apply bg-background/70 backdrop-blur-lg border border-border/50 shadow-sm;
   }
+
   .mesh-bg {
     background-color: var(--background);
-    background-image: 
+    background-image:
       radial-gradient(at 0% 0%, color-mix(in srgb, #6366F1 8%, transparent) 0px, transparent 50%),
       radial-gradient(at 100% 0%, color-mix(in srgb, #A855F7 8%, transparent) 0px, transparent 50%);
     background-attachment: fixed;
@@ -150,11 +154,15 @@
 
 /* Hide scrollbar but keep scroll functionality */
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;     /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
+
 .scrollbar-hide::-webkit-scrollbar {
-  display: none;             /* Chrome, Safari, Opera */
+  display: none;
+  /* Chrome, Safari, Opera */
 }
 
 /* ────────────────────────────────────────────────────────────
@@ -181,6 +189,7 @@
 .fc-planner-wrap .fc-scroller {
   scrollbar-width: none;
 }
+
 .fc-planner-wrap .fc-scroller::-webkit-scrollbar {
   display: none;
 }
@@ -204,6 +213,11 @@
 .dark .fc-planner-wrap td,
 .dark .fc-planner-wrap th {
   border-color: oklch(1 0 0 / 15%) !important;
+}
+
+/* 슬롯 높이 — 10분 단위 카드가 텍스트와 겹치지 않도록 */
+.fc-planner-wrap .fc-timegrid-slot {
+  height: 1.75rem !important;
 }
 
 /* minor slot(10분 단위) 구분선 제거 */
@@ -253,11 +267,13 @@
   opacity: 0.85;
   padding: 1px 2px !important;
 }
+
 .fc-planner-wrap .fc-event-main {
   padding: 0 !important;
   color: inherit !important;
   height: 100%;
 }
+
 .fc-planner-wrap .fc-event-title,
 .fc-planner-wrap .fc-event-time {
   display: none !important;
@@ -265,9 +281,17 @@
 
 /* 캘린더 이벤트 진입 애니메이션 */
 @keyframes fc-event-enter {
-  from { opacity: 0; transform: translateY(-4px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
+
 .fc-planner-wrap .fc-timegrid-event:not(.fc-event-mirror) {
   animation: fc-event-enter 0.2s ease-out;
 }
@@ -278,6 +302,7 @@
   height: 8px;
   cursor: s-resize;
 }
+
 .fc-planner-wrap .fc-event-resizer-start {
   top: 0;
   height: 8px;
@@ -288,6 +313,7 @@
 .fc-planner-wrap .fc-timegrid-now-indicator-line {
   border-color: hsl(var(--primary));
 }
+
 .fc-planner-wrap .fc-timegrid-now-indicator-arrow {
   border-top-color: hsl(var(--primary));
   border-bottom-color: hsl(var(--primary));
