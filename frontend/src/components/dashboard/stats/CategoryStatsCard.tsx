@@ -5,13 +5,14 @@ import { type StatsData } from "@/hooks"
 
 interface Props {
   categoryStats: StatsData["categoryStats"]
+  className?: string
 }
 
-export function CategoryStatsCard({ categoryStats }: Props) {
+export function CategoryStatsCard({ categoryStats, className }: Props) {
   return (
-    <div className="bg-card/50 p-6 rounded-card border border-border/50 shadow-sm md:col-span-1 backdrop-blur-sm">
+    <div className={`bg-card/50 p-6 rounded-card border border-border/50 shadow-sm backdrop-blur-sm flex flex-col ${className || ""}`}>
       <h3 className="text-lg font-bold text-muted-foreground mb-4">카테고리별 현황</h3>
-      <div className="h-[200px] w-full [&_svg]:outline-none [&_svg_*]:outline-none [&_.recharts-wrapper]:outline-none">
+      <div className="flex-1 min-h-[200px] w-full [&_svg]:outline-none [&_svg_*]:outline-none [&_.recharts-wrapper]:outline-none">
         <ResponsiveContainer width="99%" height="100%">
           <PieChart>
             <Pie

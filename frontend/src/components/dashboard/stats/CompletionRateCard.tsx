@@ -1,6 +1,6 @@
 "use client"
 
-import { Progress } from "@/components/ui/progress"
+import { Progress, ProgressTrack, ProgressIndicator } from "@/components/ui/progress"
 
 interface Props {
   rate: number
@@ -14,7 +14,11 @@ export function CompletionRateCard({ rate }: Props) {
         <span className="text-6xl font-black tracking-tighter text-primary">{rate}</span>
         <span className="text-2xl font-bold text-muted-foreground mb-2">%</span>
       </div>
-      <Progress value={rate} className="h-4 rounded-full bg-muted/50" />
+      <Progress value={rate} className="w-full">
+        <ProgressTrack className="h-4 rounded-full bg-muted/50">
+          <ProgressIndicator />
+        </ProgressTrack>
+      </Progress>
     </div>
   )
 }

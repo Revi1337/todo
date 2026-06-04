@@ -278,6 +278,7 @@ export function PlannerCalendar({
         <div ref={wrapRef} className="flex-1 min-h-0 fc-planner-wrap">
           <FullCalendar
             ref={calendarRef}
+            windowResizeDelay={0}
             plugins={[timeGridPlugin, interactionPlugin]}
             initialView="timeGridDay"
             initialDate={dateStr}

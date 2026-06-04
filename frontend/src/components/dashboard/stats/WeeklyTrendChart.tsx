@@ -15,13 +15,14 @@ function WeeklyTooltip({ active, payload }: ChartTooltipProps) {
 
 interface Props {
   weeklyTrend: StatsData["weeklyTrend"]
+  className?: string
 }
 
-export function WeeklyTrendChart({ weeklyTrend }: Props) {
+export function WeeklyTrendChart({ weeklyTrend, className }: Props) {
   return (
-    <div className="bg-card/50 p-6 rounded-card border border-border/50 shadow-sm backdrop-blur-sm">
+    <div className={`bg-card/50 p-6 rounded-card border border-border/50 shadow-sm backdrop-blur-sm flex flex-col ${className || ""}`}>
       <h3 className="text-lg font-bold text-muted-foreground mb-6">이번 주 완료 추이</h3>
-      <div className="h-[220px] w-full">
+      <div className="flex-1 min-h-[220px] w-full">
         <ResponsiveContainer width="99%" height="100%">
           <BarChart data={weeklyTrend}>
             <XAxis dataKey="day" axisLine={false} tickLine={false} fontSize={13} fontWeight={600} tickMargin={12} stroke="currentColor" opacity={0.6} tickFormatter={(v: string) => DAY_MAP[v] ?? v} />

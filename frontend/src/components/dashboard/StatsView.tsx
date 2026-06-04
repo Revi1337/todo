@@ -23,10 +23,10 @@ export function StatsView() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             <CompletionRateCard rate={stats.completionRate} />
             <CategoryStatsCard categoryStats={stats.categoryStats} />
-            <WeeklyTrendChart weeklyTrend={stats.weeklyTrend} />
+            <WeeklyTrendChart weeklyTrend={stats.weeklyTrend} className="md:col-span-2 xl:col-span-1" />
           </div>
 
           <MonthlyTrendChart monthlyTrend={stats.monthlyTrend} />

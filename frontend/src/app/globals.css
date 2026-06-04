@@ -175,9 +175,19 @@
 
 .fc-planner-wrap .fc {
   height: 100%;
+  width: 100% !important;
   font-family: inherit;
   font-size: 0.75rem;
   color: inherit;
+}
+
+/* Make tables stretch fluidly without JS lag */
+.fc-planner-wrap .fc-scrollgrid,
+.fc-planner-wrap .fc-scrollgrid-sync-table,
+.fc-planner-wrap .fc-timegrid-body,
+.fc-planner-wrap .fc-timegrid-cols,
+.fc-planner-wrap table {
+  width: 100% !important;
 }
 
 /* 컬럼 헤더(요일 표시) 제거 */

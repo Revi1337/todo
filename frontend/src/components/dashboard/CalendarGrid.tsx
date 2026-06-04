@@ -1,5 +1,6 @@
 "use client"
 
+import { Fragment } from "react"
 import dayjs from "dayjs"
 import type { Dayjs } from "dayjs"
 import { Button } from "@/components/ui/button"
@@ -18,24 +19,7 @@ export function buildCalendarDays(date: Dayjs): (number | null)[] {
   return days
 }
 
-interface PriorityRowProps {
-  priority: Priority
-  total: number
-  completed: number
-}
 
-function PriorityRow({ priority, total, completed }: PriorityRowProps) {
-  if (total === 0) return null
-  const { dotColor } = PRIORITY_META[priority]
-  return (
-    <div className="flex items-center gap-1.5">
-      <span className={`w-2.5 h-2.5 rounded-[2px] shrink-0 ${dotColor}`} />
-      <span className="text-[11px] font-semibold text-foreground">{total}</span>
-      <span className="text-[11px] text-muted-foreground/40">/</span>
-      <span className="text-[11px] text-muted-foreground">{completed}</span>
-    </div>
-  )
-}
 
 interface CalendarCellProps {
   dateNum: number
@@ -65,17 +49,26 @@ function CalendarCell({ dateNum, isToday, isSelected, dayTodos, onClick }: Calen
         </span>
         {dayTodos.length > 0 && (
           <span className="hidden sm:flex px-1.5 h-5 items-center justify-center bg-muted/80 text-muted-foreground text-[10px] font-bold rounded-full gap-0.5">
-            <span className="text-primary/80">{dayTodos.length}</span>
+            <span className="text-primary/80">{dayTodos.filter(t => t.completed).length}</span>
             <span className="opacity-40">/</span>
-            <span>{dayTodos.filter(t => t.completed).length}</span>
+            <span>{dayTodos.length}</span>
           </span>
         )}
       </div>
       {dayTodos.length > 0 && (
-        <div className="hidden sm:flex flex-col gap-1 mt-1 px-1 items-end">
-          {priorityRows.map(({ priority, total, completed }) => (
-            <PriorityRow key={priority} priority={priority} total={total} completed={completed} />
-          ))}
+        <div className="hidden sm:grid grid-cols-[auto_auto_auto_auto] gap-y-1 gap-x-1.5 mt-1 px-1 justify-end items-center tabular-nums">
+          {priorityRows.map(({ priority, total, completed }) => {
+            if (total === 0) return null
+            const { dotColor } = PRIORITY_META[priority]
+            return (
+              <Fragment key={priority}>
+                <span className={`w-2.5 h-2.5 rounded-[2px] ${dotColor}`} />
+                <span className="text-[11px] font-semibold text-foreground text-right">{completed}</span>
+                <span className="text-[11px] text-muted-foreground/40">/</span>
+                <span className="text-[11px] text-muted-foreground text-right">{total}</span>
+              </Fragment>
+            )
+          })}
         </div>
       )}
       {dayTodos.length > 0 && (
