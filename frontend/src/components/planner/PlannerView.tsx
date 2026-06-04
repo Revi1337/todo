@@ -12,6 +12,8 @@ import { PlannerScheduleModal } from "./PlannerScheduleModal"
 import { TodoFormDialog } from "@/components/dashboard/TodoFormDialog"
 import { Todo, ScheduledTodo } from "@/types"
 
+type MobileTab = "calendar" | "pool"
+
 const KOREAN_DAYS = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"]
 
 function getDayPrefix(date: dayjs.Dayjs): string {
@@ -58,6 +60,7 @@ export function PlannerView() {
   } = usePlannerTodos({ selectedDate })
 
   const poolRef = useRef<HTMLDivElement | null>(null)
+  const [activeTab, setActiveTab] = useState<MobileTab>("calendar")
 
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false)
   const [scheduleModalTodo, setScheduleModalTodo] = useState<(Todo | ScheduledTodo) | null>(null)
@@ -76,7 +79,7 @@ export function PlannerView() {
   return (
     <div className="flex flex-col h-full gap-4">
       <div className="flex gap-4 shrink-0">
-        <div className="flex-1 lg:flex-[6]">
+        <div className="flex-1 xl:flex-[6]">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold tracking-tight">
               {formatMainDate(selectedDate)}
@@ -95,10 +98,65 @@ export function PlannerView() {
             </div>
           </div>
         </div>
-        <div className="hidden lg:block lg:flex-[4]" />
+        <div className="hidden xl:block xl:flex-[4]" />
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0">
+      {/* 모바일 탭 전환 */}
+      <div className="xl:hidden flex shrink-0 bg-muted/40 rounded-lg p-1 gap-1">
+        <button
+          onClick={() => setActiveTab("calendar")}
+          className={`flex-1 text-sm font-medium py-1.5 rounded-md transition-colors ${
+            activeTab === "calendar"
+              ? "bg-background shadow-sm text-foreground"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          일정
+        </button>
+        <button
+          onClick={() => setActiveTab("pool")}
+          className={`flex-1 text-sm font-medium py-1.5 rounded-md transition-colors ${
+            activeTab === "pool"
+              ? "bg-background shadow-sm text-foreground"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          할 일
+        </button>
+      </div>
+
+      {/* 모바일: 탭에 따라 하나만 표시 */}
+      <div className="xl:hidden flex-1 min-h-0">
+        {activeTab === "calendar" ? (
+          <PlannerCalendar
+            selectedDate={selectedDate}
+            scheduledTodos={scheduledTodos}
+            unscheduledTodos={[...unscheduledActive, ...unscheduledCompleted]}
+            isLoading={isLoading}
+            onEventDrop={handleEventDrop}
+            onEventResize={handleEventResize}
+            onEventReceive={handleEventReceive}
+            onEdit={handleEdit}
+            onToggle={handleToggle}
+            togglingIds={togglingIds}
+            className="h-full"
+          />
+        ) : (
+          <PlannerPool
+            todos={todos}
+            scheduledIds={scheduledIds}
+            totalCount={todos.length}
+            isLoading={isLoading}
+            poolRef={poolRef}
+            onEdit={handleEdit}
+            onCreateTodo={openCreate}
+            className="h-full"
+          />
+        )}
+      </div>
+
+      {/* 데스크탑: 기존 나란히 레이아웃 */}
+      <div className="hidden xl:flex gap-4 flex-1 min-h-0">
         <PlannerCalendar
           selectedDate={selectedDate}
           scheduledTodos={scheduledTodos}
@@ -110,7 +168,7 @@ export function PlannerView() {
           onEdit={handleEdit}
           onToggle={handleToggle}
           togglingIds={togglingIds}
-          className="h-[55vh] lg:h-full lg:flex-[6]"
+          className="flex-[6]"
         />
         <PlannerPool
           todos={todos}
@@ -120,7 +178,7 @@ export function PlannerView() {
           poolRef={poolRef}
           onEdit={handleEdit}
           onCreateTodo={openCreate}
-          className="h-[40vh] lg:h-full lg:flex-[4]"
+          className="flex-[4]"
         />
       </div>
 
