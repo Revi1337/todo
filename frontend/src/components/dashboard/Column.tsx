@@ -7,6 +7,16 @@ import { Todo } from "@/types"
 import { TodoCard } from "./TodoCard"
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner"
 
+export function BlockedOverlay({ show, size = "lg" }: { show: boolean; size?: "sm" | "lg" }) {
+  if (!show) return null
+  return (
+    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 rounded-card bg-background/60 backdrop-blur-[4px]">
+      <Ban className={size === "lg" ? "w-8 h-8 text-red-400" : "w-6 h-6 text-red-400"} />
+      <span className={`font-bold text-red-400 ${size === "lg" ? "text-sm" : "text-xs"}`}>체크박스로 처리하세요</span>
+    </div>
+  )
+}
+
 interface ColumnProps {
   title: string
   id: string
@@ -26,12 +36,7 @@ export function Column({ title, id, todos, scrollable, draggingFromId, isLoading
         ) && snapshot.isDraggingOver
         return (
           <div className={`relative flex flex-col gap-4 bg-muted/40 rounded-card p-5 border h-full min-h-0 overflow-hidden transition-all duration-200 ${showBlocked ? "border-red-500/40" : "border-border/60"}`}>
-            {showBlocked && (
-              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 rounded-card bg-background/60 backdrop-blur-[4px]">
-                <Ban className="w-8 h-8 text-red-400" />
-                <span className="text-sm font-bold text-red-400">체크박스로 처리하세요</span>
-              </div>
-            )}
+            <BlockedOverlay show={showBlocked} />
             <div className="flex items-center justify-between px-1 shrink-0">
               <h3 className="font-semibold">{title}</h3>
               {!isLoading && <Badge variant="secondary" className="rounded-full bg-background/80">{todos.length}</Badge>}
