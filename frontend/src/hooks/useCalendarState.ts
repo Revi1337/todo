@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import dayjs from "dayjs"
 import type { Dayjs } from "dayjs"
 import { Todo } from "@/types"
@@ -21,9 +21,9 @@ export function useCalendarState(): CalendarState {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null)
 
-  const openCreate = () => { setEditingTodo(null); setDialogOpen(true) }
-  const openEdit = (todo: Todo) => { setEditingTodo(todo); setDialogOpen(true) }
-  const closeDialog = () => setDialogOpen(false)
+  const openCreate = useCallback(() => { setEditingTodo(null); setDialogOpen(true) }, [])
+  const openEdit = useCallback((todo: Todo) => { setEditingTodo(todo); setDialogOpen(true) }, [])
+  const closeDialog = useCallback(() => setDialogOpen(false), [])
 
   return {
     currentDate, setCurrentDate,

@@ -4,8 +4,7 @@ import { useState, useEffect } from "react"
 import { Loader2 } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Todo } from "@/types"
-import { ScheduledTodo } from "@/hooks/usePlannerTodos"
+import { Todo, ScheduledTodo } from "@/types"
 
 interface PlannerScheduleModalProps {
   open: boolean

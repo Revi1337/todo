@@ -10,8 +10,7 @@ import { PlannerCalendar } from "./PlannerCalendar"
 import { PlannerPool } from "./PlannerPool"
 import { PlannerScheduleModal } from "./PlannerScheduleModal"
 import { TodoFormDialog } from "@/components/dashboard/TodoFormDialog"
-import { ScheduledTodo } from "@/hooks/usePlannerTodos"
-import { Todo } from "@/types"
+import { Todo, ScheduledTodo } from "@/types"
 
 const KOREAN_DAYS = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"]
 

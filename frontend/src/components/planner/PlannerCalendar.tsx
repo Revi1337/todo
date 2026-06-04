@@ -10,7 +10,7 @@ import type { EventContentArg } from "@fullcalendar/core"
 import type { Dayjs } from "dayjs"
 import { Checkbox } from "@/components/ui/checkbox"
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner"
-import { ScheduledTodo } from "@/hooks/usePlannerTodos"
+import { ScheduledTodo } from "@/types"
 import { Todo } from "@/types"
 import { PRIORITY_META } from "@/constants/priority"
 

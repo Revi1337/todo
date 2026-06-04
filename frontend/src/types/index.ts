@@ -36,15 +36,6 @@ export interface Todo {
   position: number;
 }
 
-export interface TodoRequest {
-  title: string;
-  description?: string;
-  priority?: Priority;
-  dueDate?: string;
-  categoryId?: number;
-  tagIds?: number[];
-  completed?: boolean;
-}
 
 export interface TodoFilter {
   category?: number;
@@ -98,4 +89,10 @@ export interface ScheduleRequest {
 export interface ScheduleUpdateRequest {
   startTime: string;    // "HH:mm:ss"
   endTime: string;      // "HH:mm:ss"
+}
+
+export type ScheduledTodo = Todo & {
+  startTime: string
+  endTime: string
+  scheduleId: number
 }

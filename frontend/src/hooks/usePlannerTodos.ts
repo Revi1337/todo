@@ -1,5 +1,3 @@
-"use client"
-
 import { useCallback, useMemo, useState } from "react"
 import type { Dayjs } from "dayjs"
 import { toast } from "sonner"
@@ -8,13 +6,7 @@ import { useTodos } from "./useTodos"
 import { useTodoSchedules } from "./useTodoSchedules"
 import { useTodoMutations } from "./useTodoMutations"
 import { useLocalTodoSync } from "./useLocalTodoSync"
-import { Todo, TodoSchedule } from "@/types"
-
-export type ScheduledTodo = Todo & {
-  startTime: string
-  endTime: string
-  scheduleId: number
-}
+import { Todo, TodoSchedule, ScheduledTodo } from "@/types"
 
 interface UsePlannerTodosOptions {
   selectedDate: Dayjs
