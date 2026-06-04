@@ -225,13 +225,13 @@
 .fc-planner-wrap td,
 .fc-planner-wrap th {
   background: transparent !important;
-  border-color: oklch(0.922 0 0 / 30%) !important;
+  border-color: oklch(0.7 0 0 / 22%) !important;
 }
 
 .dark .fc-planner-wrap table,
 .dark .fc-planner-wrap td,
 .dark .fc-planner-wrap th {
-  border-color: oklch(1 0 0 / 15%) !important;
+  border-color: oklch(1 0 0 / 12%) !important;
 }
 
 /* 슬롯 높이 — 10분 단위 카드가 텍스트와 겹치지 않도록 */
@@ -247,8 +247,12 @@
 /* 시간 라벨 */
 .fc-planner-wrap .fc-timegrid-slot-label-cushion {
   font-size: 10px;
-  color: oklch(0.556 0 0 / 0.6);
+  color: oklch(0.42 0 0 / 0.65);
   padding: 2px 8px;
+}
+
+.dark .fc-planner-wrap .fc-timegrid-slot-label-cushion {
+  color: oklch(0.72 0 0 / 0.55);
 }
 
 /* FC 기본 이벤트 스타일 제거 — eventContent로 완전 커스텀
