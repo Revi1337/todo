@@ -23,8 +23,8 @@ export function WeeklyTrendChart({ weeklyTrend, className }: Props) {
     <div className={`bg-card/50 p-6 rounded-card border border-border/50 shadow-sm backdrop-blur-sm flex flex-col ${className || ""}`}>
       <h3 className="text-lg font-bold text-muted-foreground mb-6">이번 주 완료 추이</h3>
       <div className="flex-1 min-h-[220px] w-full">
-        <ResponsiveContainer width="99%" height="100%">
-          <BarChart data={weeklyTrend}>
+        <ResponsiveContainer width="99%" height="100%" className="focus:outline-none">
+          <BarChart data={weeklyTrend} style={{ outline: 'none' }}>
             <XAxis dataKey="day" axisLine={false} tickLine={false} fontSize={13} fontWeight={600} tickMargin={12} stroke="currentColor" opacity={0.6} tickFormatter={(v: string) => DAY_MAP[v] ?? v} />
             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             <Tooltip isAnimationActive={false} cursor={{ fill: 'var(--color-primary)', opacity: 0.05 }} content={WeeklyTooltip as any} />

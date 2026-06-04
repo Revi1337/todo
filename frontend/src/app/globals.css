@@ -134,6 +134,15 @@
   html {
     @apply font-sans;
   }
+
+  .recharts-wrapper,
+  .recharts-surface,
+  .recharts-wrapper:focus,
+  .recharts-surface:focus,
+  .recharts-wrapper *,
+  .recharts-surface * {
+    outline: none !important;
+  }
 }
 
 @layer utilities {

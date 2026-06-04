@@ -32,8 +32,8 @@ export function MonthlyTrendChart({ monthlyTrend }: Props) {
     <div className="bg-card/50 p-6 rounded-card border border-border/50 shadow-sm flex-1 backdrop-blur-sm">
       <h3 className="text-lg font-bold text-muted-foreground mb-6">이번 달 완료 추이</h3>
       <div className="h-[300px] w-full">
-        <ResponsiveContainer width="99%" height="100%">
-          <BarChart data={fullMonthlyTrend}>
+        <ResponsiveContainer width="99%" height="100%" className="focus:outline-none">
+          <BarChart data={fullMonthlyTrend} style={{ outline: 'none' }}>
             <XAxis
               dataKey="date"
               axisLine={false}
