@@ -157,8 +157,9 @@ export function FilterPanel({ filter, search, categories, tags, categoriesLoadin
           <PaginatedGrid rows={CAT_ROWS} cols={CAT_COLS} isLoading={categoriesLoading}>
             {pagedCategories.map(c => (
               <Button key={String(c.id)} variant={filter.category === c.id ? "default" : "ghost"} size="sm"
-                className="justify-start rounded-lg w-full px-1.5 text-xs overflow-hidden gap-1"
+                className="relative justify-start rounded-lg w-full px-1.5 text-xs overflow-hidden gap-1"
                 onClick={() => onFilterChange({ ...filter, category: c.id })}>
+                <span title={c.name} className="absolute inset-0" />
                 {c.color === "foreground"
                   ? <span className="w-2 h-2 rounded-full shrink-0 bg-foreground" />
                   : c.color && <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: c.color }} />
@@ -176,8 +177,9 @@ export function FilterPanel({ filter, search, categories, tags, categoriesLoadin
           <PaginatedGrid rows={TAG_ROWS} cols={TAG_COLS} isLoading={tagsLoading}>
             {pagedTags.map(t => (
               <Button key={t.id} variant={filter.tag === t.id ? "default" : "ghost"} size="sm"
-                className="justify-center rounded-lg w-full px-1 text-xs overflow-hidden"
+                className="relative justify-start rounded-lg w-full px-2 text-xs overflow-hidden"
                 onClick={() => onFilterChange({ ...filter, tag: filter.tag === t.id ? undefined : t.id })}>
+                <span title={t.name} className="absolute inset-0" />
                 <span className="truncate min-w-0">{t.name}</span>
               </Button>
             ))}
