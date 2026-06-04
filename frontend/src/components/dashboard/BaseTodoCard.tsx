@@ -17,6 +17,42 @@ interface BaseTodoCardProps {
   isToggling?: boolean
 }
 
+interface TodoMetaBadgesProps {
+  todo: Todo
+  showDueDate?: boolean
+}
+
+export function TodoMetaBadges({ todo, showDueDate = false }: TodoMetaBadgesProps) {
+  return (
+    <div className="flex items-center gap-2 shrink-0 ml-auto">
+      {todo.tags?.length > 0 && (
+        <div className="hidden sm:flex items-center gap-1">
+          {todo.tags.map(tag => (
+            <span key={tag.id} className="text-[10px] font-medium text-muted-foreground bg-muted/40 px-2 py-0.5 rounded-full border border-border/50">
+              #{tag.name}
+            </span>
+          ))}
+        </div>
+      )}
+      {todo.category && (
+        <div className="hidden sm:flex items-center gap-1 text-[10px] font-medium text-muted-foreground bg-muted/30 px-2 py-0.5 rounded-full">
+          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: todo.category.color }} />
+          {todo.category.name}
+        </div>
+      )}
+      {showDueDate && todo.dueDate && (
+        <Badge variant="outline" className="hidden sm:flex rounded-full px-2 py-0.5 text-[10px] text-muted-foreground bg-background/50 border-border/50 gap-1 items-center">
+          <Clock className="w-3 h-3" />
+          {dayjs(todo.dueDate).format("MM.DD")}
+        </Badge>
+      )}
+      <Badge variant="outline" className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${PRIORITY_META[todo.priority].badgeColor}`}>
+        {PRIORITY_META[todo.priority].label}
+      </Badge>
+    </div>
+  )
+}
+
 export function BaseTodoCard({ todo, index, onEdit, onToggle, compact = false, isToggling = false }: BaseTodoCardProps) {
   return (
     <Draggable draggableId={todo.id.toString()} index={index}>
@@ -48,34 +84,8 @@ export function BaseTodoCard({ todo, index, onEdit, onToggle, compact = false, i
               {PRIORITY_META[todo.priority].label}
             </Badge>
           ) : (
-            <div className="flex items-center gap-2 shrink-0 ml-auto">
-              {todo.tags?.length > 0 && (
-                <div className="hidden sm:flex items-center gap-1">
-                  {todo.tags.map(tag => (
-                    <span key={tag.id} className="text-[10px] font-medium text-muted-foreground bg-muted/40 px-2 py-0.5 rounded-full border border-border/50">
-                      #{tag.name}
-                    </span>
-                  ))}
-                </div>
-              )}
-              {todo.category && (
-                <div className="hidden sm:flex items-center gap-1 text-[10px] font-medium text-muted-foreground bg-muted/30 px-2 py-0.5 rounded-full">
-                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: todo.category.color }} />
-                  {todo.category.name}
-                </div>
-              )}
-              {todo.dueDate && (
-                <Badge variant="outline" className="hidden sm:flex rounded-full px-2 py-0.5 text-[10px] text-muted-foreground bg-background/50 border-border/50 gap-1 items-center">
-                  <Clock className="w-3 h-3" />
-                  {dayjs(todo.dueDate).format("MM.DD")}
-                </Badge>
-              )}
-              <Badge variant="outline" className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${PRIORITY_META[todo.priority].badgeColor}`}>
-                {PRIORITY_META[todo.priority].label}
-              </Badge>
-            </div>
+            <TodoMetaBadges todo={todo} showDueDate />
           )}
-
         </div>
       )}
     </Draggable>

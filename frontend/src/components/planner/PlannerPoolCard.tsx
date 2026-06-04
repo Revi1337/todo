@@ -1,9 +1,8 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Badge } from "@/components/ui/badge"
 import { Todo } from "@/types"
-import { PRIORITY_META } from "@/constants/priority"
+import { TodoMetaBadges } from "@/components/dashboard/BaseTodoCard"
 
 interface PlannerPoolCardProps {
   todo: Todo
@@ -37,26 +36,7 @@ export function PlannerPoolCard({ todo, isScheduled = false, onEdit }: PlannerPo
         {todo.title}
       </span>
 
-      <div className="flex items-center gap-2 shrink-0 ml-auto">
-        {todo.tags?.length > 0 && (
-          <div className="hidden sm:flex items-center gap-1">
-            {todo.tags.map(tag => (
-              <span key={tag.id} className="text-[10px] font-medium text-muted-foreground bg-muted/40 px-2 py-0.5 rounded-full border border-border/50">
-                #{tag.name}
-              </span>
-            ))}
-          </div>
-        )}
-        {todo.category && (
-          <div className="hidden sm:flex items-center gap-1 text-[10px] font-medium text-muted-foreground bg-muted/30 px-2 py-0.5 rounded-full">
-            <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: todo.category.color }} />
-            {todo.category.name}
-          </div>
-        )}
-        <Badge variant="outline" className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${PRIORITY_META[todo.priority].badgeColor}`}>
-          {PRIORITY_META[todo.priority].label}
-        </Badge>
-      </div>
+      <TodoMetaBadges todo={todo} />
     </motion.div>
   )
 }
