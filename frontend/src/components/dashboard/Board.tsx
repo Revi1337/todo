@@ -33,11 +33,10 @@ export function Board() {
 
   const queryParams = useMemo(
     () => buildQuery({
-      ...filter,
       dueDate: selectedDate.format("YYYY-MM-DD"),
       search: search || undefined,
     }),
-    [filter, search, selectedDate]
+    [search, selectedDate]
   )
 
   const { rawTodos, refetch, isLoading: todosLoading } = useTodos(queryParams)
@@ -53,8 +52,18 @@ export function Board() {
     reorderTodos,
   })
 
-  const activeTodos = useMemo(() => localTodos.filter(t => !t.completed), [localTodos])
-  const completedTodos = useMemo(() => localTodos.filter(t => t.completed), [localTodos])
+  const filteredTodos = useMemo(() => {
+    return localTodos.filter(t => {
+      if (filter.category !== undefined && t.category?.id !== filter.category) return false
+      if (filter.priority !== undefined && t.priority !== filter.priority) return false
+      if (filter.completed !== undefined && t.completed !== filter.completed) return false
+      if (filter.tag !== undefined && !t.tags.some(tag => tag.id === filter.tag)) return false
+      return true
+    })
+  }, [localTodos, filter])
+
+  const activeTodos = useMemo(() => filteredTodos.filter(t => !t.completed), [filteredTodos])
+  const completedTodos = useMemo(() => filteredTodos.filter(t => t.completed), [filteredTodos])
 
   const [togglingIds, setTogglingIds] = useState<Set<number>>(new Set())
 
