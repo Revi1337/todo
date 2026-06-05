@@ -120,7 +120,7 @@ export function CalendarGrid({
         </div>
       </div>
 
-      <div className="relative grid grid-cols-7 min-h-[360px] xl:flex-1 xl:min-h-0 border-t border-l border-border/40 rounded-lg overflow-hidden grid-rows-[auto_repeat(6,minmax(0,1fr))]">
+      <div className="calendar-grid-wrap relative grid grid-cols-7 min-h-[360px] xl:flex-1 xl:min-h-0 border-t border-l border-border/40 rounded-lg overflow-hidden grid-rows-[auto_repeat(6,minmax(0,1fr))]">
         {isLoading && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/50 backdrop-blur-[2px] rounded-lg">
             <LoadingSpinner />

@@ -175,6 +175,23 @@
 }
 
 /* ────────────────────────────────────────────────────────────
+   Calendar grid overrides
+   .calendar-grid-wrap 안에서만 적용되도록 스코프 제한
+──────────────────────────────────────────────────────────── */
+
+/* 격자 구분선 — 라이트 모드 */
+.calendar-grid-wrap,
+.calendar-grid-wrap > div {
+  border-color: oklch(0.7 0 0 / 20%) !important;
+}
+
+/* 격자 구분선 — 다크 모드 */
+.dark .calendar-grid-wrap,
+.dark .calendar-grid-wrap > div {
+  border-color: oklch(1 0 0 / 10%) !important;
+}
+
+/* ────────────────────────────────────────────────────────────
    FullCalendar planner overrides
    .fc-planner-wrap 안에서만 적용되도록 스코프 제한
 ──────────────────────────────────────────────────────────── */
