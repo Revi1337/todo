@@ -39,6 +39,11 @@ export function usePlannerTodos({ selectedDate }: UsePlannerTodosOptions) {
 
   const scheduledIds = useMemo(() => new Set(schedules.map(s => s.todoId)), [schedules])
 
+  const scheduledMap = useMemo(
+    () => new Map(schedules.map(s => [s.todoId, { startTime: s.startTime, endTime: s.endTime }])),
+    [schedules]
+  )
+
   const scheduledTodos = useMemo<ScheduledTodo[]>(() => {
     return schedules.flatMap(s => {
       const todo = localTodos.find(t => t.id === s.todoId)
@@ -193,6 +198,7 @@ export function usePlannerTodos({ selectedDate }: UsePlannerTodosOptions) {
     todos: localTodos,
     scheduledTodos,
     scheduledIds,
+    scheduledMap,
     unscheduledActive,
     unscheduledCompleted,
     isLoading,

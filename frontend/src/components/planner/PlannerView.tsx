@@ -44,6 +44,7 @@ export function PlannerView() {
     todos,
     scheduledTodos,
     scheduledIds,
+    scheduledMap,
     unscheduledActive,
     unscheduledCompleted,
     isLoading,
@@ -154,7 +155,7 @@ export function PlannerView() {
         ) : (
           <PlannerPool
             todos={todos}
-            scheduledIds={scheduledIds}
+            scheduledMap={scheduledMap}
             totalCount={todos.length}
             isLoading={isLoading}
             poolRef={poolRef}
@@ -183,7 +184,7 @@ export function PlannerView() {
         />
         <PlannerPool
           todos={todos}
-          scheduledIds={scheduledIds}
+          scheduledMap={scheduledMap}
           totalCount={todos.length}
           isLoading={isLoading}
           poolRef={poolRef}

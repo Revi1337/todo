@@ -11,7 +11,7 @@ import { PlannerPoolCard } from "./PlannerPoolCard"
 
 interface PlannerPoolProps {
   todos: Todo[]
-  scheduledIds: Set<number>
+  scheduledMap: Map<number, { startTime: string; endTime: string }>
   totalCount: number
   isLoading: boolean
   poolRef: React.RefObject<HTMLDivElement | null>
@@ -23,7 +23,7 @@ interface PlannerPoolProps {
 
 export function PlannerPool({
   todos,
-  scheduledIds,
+  scheduledMap,
   totalCount,
   isLoading,
   poolRef,
@@ -76,7 +76,7 @@ export function PlannerPool({
                 <PlannerPoolCard
                   key={todo.id}
                   todo={todo}
-                  isScheduled={scheduledIds.has(todo.id)}
+                  scheduledTime={scheduledMap.get(todo.id)}
                   onEdit={onEdit}
                 />
               ))}

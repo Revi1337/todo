@@ -1,16 +1,22 @@
 "use client"
 
 import { motion } from "framer-motion"
+import { Clock } from "lucide-react"
 import { Todo } from "@/types"
 import { TodoMetaBadges } from "@/components/dashboard/BaseTodoCard"
 
 interface PlannerPoolCardProps {
   todo: Todo
-  isScheduled?: boolean
+  scheduledTime?: { startTime: string; endTime: string }
   onEdit: (todo: Todo) => void
 }
 
-export function PlannerPoolCard({ todo, isScheduled = false, onEdit }: PlannerPoolCardProps) {
+function fmtTime(t: string) {
+  return t.slice(0, 5)
+}
+
+export function PlannerPoolCard({ todo, scheduledTime, onEdit }: PlannerPoolCardProps) {
+  const isScheduled = !!scheduledTime
   const eventData = JSON.stringify({
     title: todo.title,
     duration: "00:30",
@@ -32,9 +38,17 @@ export function PlannerPoolCard({ todo, isScheduled = false, onEdit }: PlannerPo
       data-event={eventData}
       onClick={() => onEdit(todo)}
     >
-      <span className={`flex-1 font-medium leading-tight truncate ${todo.completed ? "line-through text-muted-foreground" : ""}`}>
-        {todo.title}
-      </span>
+      <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+        <span className={`font-medium leading-tight truncate ${todo.completed ? "line-through text-muted-foreground" : ""}`}>
+          {todo.title}
+        </span>
+        {scheduledTime && (
+          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-primary/80 leading-none">
+            <Clock className="w-2.5 h-2.5 shrink-0" />
+            {fmtTime(scheduledTime.startTime)} ~ {fmtTime(scheduledTime.endTime)}
+          </span>
+        )}
+      </div>
 
       <TodoMetaBadges todo={todo} />
     </motion.div>
