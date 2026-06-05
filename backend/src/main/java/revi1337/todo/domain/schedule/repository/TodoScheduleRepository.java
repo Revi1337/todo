@@ -1,6 +1,7 @@
 package revi1337.todo.domain.schedule.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import revi1337.todo.domain.schedule.entity.TodoSchedule;
@@ -17,6 +18,10 @@ public interface TodoScheduleRepository extends JpaRepository<TodoSchedule, Long
     Optional<TodoSchedule> findByTodoId(Long todoId);
 
     boolean existsByTodoId(Long todoId);
+
+    @Modifying
+    @Query("DELETE FROM TodoSchedule s WHERE s.id = :id")
+    int deleteByIdReturningCount(@Param("id") Long id);
 
     @Query("SELECT COUNT(s) > 0 FROM TodoSchedule s " +
            "WHERE s.scheduleDate = :date " +

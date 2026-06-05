@@ -71,11 +71,10 @@ public class DefaultTodoScheduleCommandService implements TodoScheduleCommandSer
 
     @Override
     public void delete(Long id) {
-        if (!scheduleRepository.existsById(id)) {
+        int deleted = scheduleRepository.deleteByIdReturningCount(id);
+        if (deleted == 0) {
             throw new EntityNotFoundException("Schedule not found: " + id);
         }
-
-        scheduleRepository.deleteById(id);
     }
 
     private void validateTimeSlot(LocalTime startTime, LocalTime endTime) {
