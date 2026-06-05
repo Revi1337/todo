@@ -24,6 +24,8 @@ import java.time.LocalTime;
 @RequiredArgsConstructor
 public class DefaultTodoScheduleCommandService implements TodoScheduleCommandService {
 
+    private static final int TIME_SLOT_MINUTES = 10;
+
     private final TodoScheduleRepository scheduleRepository;
     private final TodoRepository todoRepository;
 
@@ -78,10 +80,10 @@ public class DefaultTodoScheduleCommandService implements TodoScheduleCommandSer
     }
 
     private void validateTimeSlot(LocalTime startTime, LocalTime endTime) {
-        if (startTime.getMinute() % 10 != 0 || startTime.getSecond() != 0) {
+        if (startTime.getMinute() % TIME_SLOT_MINUTES != 0 || startTime.getSecond() != 0) {
             throw new InvalidScheduleTimeException("시작 시간은 10분 단위여야 합니다.");
         }
-        if (endTime.getMinute() % 10 != 0 || endTime.getSecond() != 0) {
+        if (endTime.getMinute() % TIME_SLOT_MINUTES != 0 || endTime.getSecond() != 0) {
             throw new InvalidScheduleTimeException("종료 시간은 10분 단위여야 합니다.");
         }
         if (!startTime.isBefore(endTime)) {
