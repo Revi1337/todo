@@ -202,7 +202,6 @@ export function PlannerView() {
         onCreate={handleScheduleCreate}
         onUpdate={handleScheduleUpdate}
         onUnschedule={handleUnschedule}
-        onDelete={handleDelete}
       />
 
       <TodoFormDialog

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Loader2, Trash2, Clock } from "lucide-react"
+import { Loader2, Clock } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Todo, ScheduledTodo } from "@/types"
@@ -14,7 +14,6 @@ interface PlannerScheduleModalProps {
   onCreate: (todoId: number, startTime: string, endTime: string) => Promise<void>
   onUpdate: (scheduleId: number, startTime: string, endTime: string) => Promise<void>
   onUnschedule: (scheduleId: number) => Promise<void>
-  onDelete: (id: number) => Promise<void>
 }
 
 function toInputTime(timeStr: string): string {
@@ -33,7 +32,6 @@ export function PlannerScheduleModal({
   onCreate,
   onUpdate,
   onUnschedule,
-  onDelete,
 }: PlannerScheduleModalProps) {
   const [startTime, setStartTime] = useState("")
   const [endTime, setEndTime] = useState("")
@@ -76,20 +74,6 @@ export function PlannerScheduleModal({
     setLoading(true)
     try {
       await onUnschedule(scheduledTodo.scheduleId)
-      onClose()
-    } catch {
-      // 에러 toast는 훅 내부에서 처리, 모달 유지
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleDelete = async () => {
-    if (!todo) return
-    setLoadingText("삭제하고 있습니다...")
-    setLoading(true)
-    try {
-      await onDelete(todo.id)
       onClose()
     } catch {
       // 에러 toast는 훅 내부에서 처리, 모달 유지
@@ -158,16 +142,6 @@ export function PlannerScheduleModal({
             </div>
           ) : (
             <>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={handleDelete}
-                className="rounded-full px-4 text-destructive hover:text-destructive hover:bg-destructive/10 mr-auto"
-              >
-                <Trash2 className="w-4 h-4 mr-1" />
-                삭제
-              </Button>
               {isScheduled && (
                 <Button variant="outline" size="sm" onClick={handleUnschedule}>
                   일정 취소
