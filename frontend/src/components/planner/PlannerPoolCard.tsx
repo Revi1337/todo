@@ -19,7 +19,7 @@ export function PlannerPoolCard({ todo, scheduledTime, onEdit }: PlannerPoolCard
   const isScheduled = !!scheduledTime
   const eventData = JSON.stringify({
     title: todo.title,
-    duration: "00:30",
+    duration: "00:10",
     extendedProps: { todoId: todo.id },
   })
 
