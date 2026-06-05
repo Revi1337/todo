@@ -292,6 +292,7 @@ export function PlannerCalendar({
             snapDuration="00:10:00"
             editable={!disableDnd}
             droppable={!disableDnd}
+            eventOverlap={false}
             dragScroll={false}
             eventDragMinDistance={1}
             eventResizableFromStart
