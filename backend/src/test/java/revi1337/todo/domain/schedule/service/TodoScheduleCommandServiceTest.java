@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import revi1337.todo.common.exception.DuplicateScheduleException;
+import revi1337.todo.common.exception.InvalidScheduleTimeException;
+import revi1337.todo.common.exception.OverlappingScheduleException;
 import revi1337.todo.domain.schedule.service.dto.ScheduleRequest;
 import revi1337.todo.domain.schedule.service.dto.ScheduleResponse;
 import revi1337.todo.domain.schedule.service.dto.ScheduleUpdateRequest;
@@ -105,5 +107,156 @@ class TodoScheduleCommandServiceTest {
     void delete_notFound_throws() {
         assertThatThrownBy(() -> scheduleCommandService.delete(999L))
                 .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    // ── 10분 단위 검증 (create) ────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("create — 시작 시간이 10분 단위가 아니면 InvalidScheduleTimeException을 던진다")
+    void create_invalidStartTime_throws() {
+        LocalTime badStart = LocalTime.of(10, 7);
+
+        assertThatThrownBy(() -> scheduleCommandService.create(new ScheduleRequest(todo.getId(), badStart, END, DATE)))
+                .isInstanceOf(InvalidScheduleTimeException.class);
+    }
+
+    @Test
+    @DisplayName("create — 종료 시간이 10분 단위가 아니면 InvalidScheduleTimeException을 던진다")
+    void create_invalidEndTime_throws() {
+        LocalTime badEnd = LocalTime.of(11, 35);
+
+        assertThatThrownBy(() -> scheduleCommandService.create(new ScheduleRequest(todo.getId(), START, badEnd, DATE)))
+                .isInstanceOf(InvalidScheduleTimeException.class);
+    }
+
+    @Test
+    @DisplayName("create — 초가 0이 아니면 InvalidScheduleTimeException을 던진다")
+    void create_nonZeroSecond_throws() {
+        LocalTime badStart = LocalTime.of(10, 0, 30);
+
+        assertThatThrownBy(() -> scheduleCommandService.create(new ScheduleRequest(todo.getId(), badStart, END, DATE)))
+                .isInstanceOf(InvalidScheduleTimeException.class);
+    }
+
+    @Test
+    @DisplayName("create — 시작 시간이 종료 시간과 같으면 InvalidScheduleTimeException을 던진다")
+    void create_startEqualsEnd_throws() {
+        assertThatThrownBy(() -> scheduleCommandService.create(new ScheduleRequest(todo.getId(), START, START, DATE)))
+                .isInstanceOf(InvalidScheduleTimeException.class);
+    }
+
+    @Test
+    @DisplayName("create — 시작 시간이 종료 시간보다 늦으면 InvalidScheduleTimeException을 던진다")
+    void create_startAfterEnd_throws() {
+        assertThatThrownBy(() -> scheduleCommandService.create(new ScheduleRequest(todo.getId(), END, START, DATE)))
+                .isInstanceOf(InvalidScheduleTimeException.class);
+    }
+
+    // ── 오버랩 검증 (create) ──────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("create — 같은 날짜에 완전히 겹치는 일정이 있으면 OverlappingScheduleException을 던진다")
+    void create_fullyOverlapping_throws() {
+        Todo other = todoRepository.save(new Todo("다른 Todo", null, Priority.LOW, DATE, null, null, NOW));
+        scheduleCommandService.create(new ScheduleRequest(other.getId(), LocalTime.of(9, 0), LocalTime.of(11, 0), DATE));
+
+        Todo another = todoRepository.save(new Todo("또 다른 Todo", null, Priority.LOW, DATE, null, null, NOW));
+        assertThatThrownBy(() -> scheduleCommandService.create(new ScheduleRequest(another.getId(), LocalTime.of(9, 30), LocalTime.of(10, 30), DATE)))
+                .isInstanceOf(OverlappingScheduleException.class);
+    }
+
+    @Test
+    @DisplayName("create — 같은 날짜에 앞부분이 겹치는 일정이 있으면 OverlappingScheduleException을 던진다")
+    void create_partialOverlap_throws() {
+        Todo other = todoRepository.save(new Todo("다른 Todo", null, Priority.LOW, DATE, null, null, NOW));
+        scheduleCommandService.create(new ScheduleRequest(other.getId(), LocalTime.of(9, 0), LocalTime.of(10, 30), DATE));
+
+        Todo another = todoRepository.save(new Todo("또 다른 Todo", null, Priority.LOW, DATE, null, null, NOW));
+        assertThatThrownBy(() -> scheduleCommandService.create(new ScheduleRequest(another.getId(), LocalTime.of(10, 0), LocalTime.of(11, 0), DATE)))
+                .isInstanceOf(OverlappingScheduleException.class);
+    }
+
+    @Test
+    @DisplayName("create — 바로 이어지는 시간대는 겹치지 않으므로 성공한다")
+    void create_adjacentTime_success() {
+        Todo other = todoRepository.save(new Todo("다른 Todo", null, Priority.LOW, DATE, null, null, NOW));
+        scheduleCommandService.create(new ScheduleRequest(other.getId(), LocalTime.of(9, 0), LocalTime.of(10, 0), DATE));
+
+        Todo another = todoRepository.save(new Todo("또 다른 Todo", null, Priority.LOW, DATE, null, null, NOW));
+        ScheduleResponse result = scheduleCommandService.create(new ScheduleRequest(another.getId(), LocalTime.of(10, 0), LocalTime.of(11, 0), DATE));
+
+        assertThat(result.startTime()).isEqualTo(LocalTime.of(10, 0));
+    }
+
+    @Test
+    @DisplayName("create — 다른 날짜에 동일 시간대가 있어도 성공한다")
+    void create_sameTimeOnDifferentDate_success() {
+        Todo other = todoRepository.save(new Todo("다른 Todo", null, Priority.LOW, DATE, null, null, NOW));
+        scheduleCommandService.create(new ScheduleRequest(other.getId(), START, END, DATE));
+
+        Todo another = todoRepository.save(new Todo("또 다른 Todo", null, Priority.LOW, DATE, null, null, NOW));
+        ScheduleResponse result = scheduleCommandService.create(new ScheduleRequest(another.getId(), START, END, DATE.plusDays(1)));
+
+        assertThat(result.scheduleDate()).isEqualTo(DATE.plusDays(1));
+    }
+
+    // ── 10분 단위 검증 (update) ────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("update — 시작 시간이 10분 단위가 아니면 InvalidScheduleTimeException을 던진다")
+    void update_invalidStartTime_throws() {
+        ScheduleResponse created = scheduleCommandService.create(new ScheduleRequest(todo.getId(), START, END, DATE));
+
+        assertThatThrownBy(() -> scheduleCommandService.update(created.id(), new ScheduleUpdateRequest(LocalTime.of(10, 7), END)))
+                .isInstanceOf(InvalidScheduleTimeException.class);
+    }
+
+    @Test
+    @DisplayName("update — 시작 시간이 종료 시간보다 늦으면 InvalidScheduleTimeException을 던진다")
+    void update_startAfterEnd_throws() {
+        ScheduleResponse created = scheduleCommandService.create(new ScheduleRequest(todo.getId(), START, END, DATE));
+
+        assertThatThrownBy(() -> scheduleCommandService.update(created.id(), new ScheduleUpdateRequest(END, START)))
+                .isInstanceOf(InvalidScheduleTimeException.class);
+    }
+
+    // ── 오버랩 검증 (update) ──────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("update — 다른 일정과 겹치면 OverlappingScheduleException을 던진다")
+    void update_overlapsOther_throws() {
+        scheduleCommandService.create(new ScheduleRequest(todo.getId(), LocalTime.of(9, 0), LocalTime.of(10, 0), DATE));
+
+        Todo other = todoRepository.save(new Todo("다른 Todo", null, Priority.LOW, DATE, null, null, NOW));
+        ScheduleResponse other1 = scheduleCommandService.create(new ScheduleRequest(other.getId(), LocalTime.of(11, 0), LocalTime.of(12, 0), DATE));
+
+        // other를 9:30~10:30으로 resize → 기존 9:00~10:00과 겹침
+        assertThatThrownBy(() -> scheduleCommandService.update(other1.id(), new ScheduleUpdateRequest(LocalTime.of(9, 30), LocalTime.of(10, 30))))
+                .isInstanceOf(OverlappingScheduleException.class);
+    }
+
+    @Test
+    @DisplayName("update — 자기 자신과 시간이 겹쳐도 (동일 시간 재설정) 성공한다")
+    void update_sameTimeAsSelf_success() {
+        ScheduleResponse created = scheduleCommandService.create(new ScheduleRequest(todo.getId(), START, END, DATE));
+
+        ScheduleResponse result = scheduleCommandService.update(created.id(), new ScheduleUpdateRequest(START, END));
+
+        assertThat(result.startTime()).isEqualTo(START);
+        assertThat(result.endTime()).isEqualTo(END);
+    }
+
+    @Test
+    @DisplayName("update — 다른 일정과 바로 이어지는 시간대로 변경하면 성공한다")
+    void update_adjacentToOther_success() {
+        scheduleCommandService.create(new ScheduleRequest(todo.getId(), LocalTime.of(9, 0), LocalTime.of(10, 0), DATE));
+
+        Todo other = todoRepository.save(new Todo("다른 Todo", null, Priority.LOW, DATE, null, null, NOW));
+        ScheduleResponse other1 = scheduleCommandService.create(new ScheduleRequest(other.getId(), LocalTime.of(11, 0), LocalTime.of(12, 0), DATE));
+
+        // 10:00~11:00으로 변경 → 양쪽에 붙어있지만 겹치지 않음
+        ScheduleResponse result = scheduleCommandService.update(other1.id(), new ScheduleUpdateRequest(LocalTime.of(10, 0), LocalTime.of(11, 0)));
+
+        assertThat(result.startTime()).isEqualTo(LocalTime.of(10, 0));
     }
 }

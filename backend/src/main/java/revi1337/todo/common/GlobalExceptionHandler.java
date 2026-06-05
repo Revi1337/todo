@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import revi1337.todo.common.exception.DuplicateScheduleException;
+import revi1337.todo.common.exception.InvalidScheduleTimeException;
+import revi1337.todo.common.exception.OverlappingScheduleException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -30,6 +32,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DuplicateScheduleException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiResponse<Void> handleDuplicateSchedule(DuplicateScheduleException ex) {
+        return ApiResponse.error(ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidScheduleTimeException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiResponse<Void> handleInvalidScheduleTime(InvalidScheduleTimeException ex) {
+        return ApiResponse.error(ex.getMessage());
+    }
+
+    @ExceptionHandler(OverlappingScheduleException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiResponse<Void> handleOverlappingSchedule(OverlappingScheduleException ex) {
         return ApiResponse.error(ex.getMessage());
     }
 

@@ -101,4 +101,90 @@ class TodoScheduleRepositoryTest {
         assertThat(updated.getStartTime()).isEqualTo(newStart);
         assertThat(updated.getEndTime()).isEqualTo(newEnd);
     }
+
+    // ── existsOverlapping ──────────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("existsOverlapping — 완전히 포함되는 경우 true를 반환한다")
+    void existsOverlapping_fullyContained_returnsTrue() {
+        scheduleRepository.save(new TodoSchedule(todo, LocalTime.of(9, 0), LocalTime.of(11, 0), DATE, NOW));
+
+        // 기존 9:00~11:00 안에 9:30~10:30 이 완전히 포함됨
+        boolean result = scheduleRepository.existsOverlapping(DATE, LocalTime.of(9, 30), LocalTime.of(10, 30), 0L);
+
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    @DisplayName("existsOverlapping — 앞부분이 겹치는 경우 true를 반환한다")
+    void existsOverlapping_partialOverlapFront_returnsTrue() {
+        scheduleRepository.save(new TodoSchedule(todo, LocalTime.of(9, 0), LocalTime.of(10, 0), DATE, NOW));
+
+        // 기존 9:00~10:00 과 9:30~10:30 이 겹침
+        boolean result = scheduleRepository.existsOverlapping(DATE, LocalTime.of(9, 30), LocalTime.of(10, 30), 0L);
+
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    @DisplayName("existsOverlapping — 뒷부분이 겹치는 경우 true를 반환한다")
+    void existsOverlapping_partialOverlapBack_returnsTrue() {
+        scheduleRepository.save(new TodoSchedule(todo, LocalTime.of(10, 0), LocalTime.of(11, 0), DATE, NOW));
+
+        // 기존 10:00~11:00 과 9:00~10:30 이 겹침
+        boolean result = scheduleRepository.existsOverlapping(DATE, LocalTime.of(9, 0), LocalTime.of(10, 30), 0L);
+
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    @DisplayName("existsOverlapping — 바로 앞에 붙어있는 경우 false를 반환한다")
+    void existsOverlapping_adjacentBefore_returnsFalse() {
+        scheduleRepository.save(new TodoSchedule(todo, LocalTime.of(10, 0), LocalTime.of(11, 0), DATE, NOW));
+
+        // 기존 10:00~11:00 바로 앞 8:00~10:00 → 접점만 있고 겹치지 않음
+        boolean result = scheduleRepository.existsOverlapping(DATE, LocalTime.of(8, 0), LocalTime.of(10, 0), 0L);
+
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @DisplayName("existsOverlapping — 바로 뒤에 붙어있는 경우 false를 반환한다")
+    void existsOverlapping_adjacentAfter_returnsFalse() {
+        scheduleRepository.save(new TodoSchedule(todo, LocalTime.of(9, 0), LocalTime.of(10, 0), DATE, NOW));
+
+        // 기존 9:00~10:00 바로 뒤 10:00~11:00 → 접점만 있고 겹치지 않음
+        boolean result = scheduleRepository.existsOverlapping(DATE, LocalTime.of(10, 0), LocalTime.of(11, 0), 0L);
+
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @DisplayName("existsOverlapping — 다른 날짜는 false를 반환한다")
+    void existsOverlapping_differentDate_returnsFalse() {
+        scheduleRepository.save(new TodoSchedule(todo, START, END, DATE, NOW));
+
+        boolean result = scheduleRepository.existsOverlapping(DATE.plusDays(1), START, END, 0L);
+
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @DisplayName("existsOverlapping — excludeId로 자기 자신은 제외된다")
+    void existsOverlapping_excludeSelf_returnsFalse() {
+        TodoSchedule schedule = scheduleRepository.save(new TodoSchedule(todo, START, END, DATE, NOW));
+
+        // 동일 시간대지만 자기 자신을 제외하면 충돌 없음
+        boolean result = scheduleRepository.existsOverlapping(DATE, START, END, schedule.getId());
+
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @DisplayName("existsOverlapping — 스케줄이 없으면 false를 반환한다")
+    void existsOverlapping_noSchedules_returnsFalse() {
+        boolean result = scheduleRepository.existsOverlapping(DATE, START, END, 0L);
+
+        assertThat(result).isFalse();
+    }
 }
