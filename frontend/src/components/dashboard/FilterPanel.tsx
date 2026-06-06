@@ -86,7 +86,7 @@ function PaginatedGrid({ rows, cols, isLoading, children }: {
   )
 }
 
-export function FilterPanel({ filter, search, categories, tags, categoriesLoading, tagsLoading, onFilterChange, onSearchChange, onReset, onCreateTodo, asSheet }: FilterPanelProps) {
+export function FilterPanel({ filter, search, categories, tags, categoriesLoading, tagsLoading, onFilterChange, onSearchChange, onReset, asSheet }: FilterPanelProps) {
   const [tagPage, setTagPage] = useState(0)
   const [catPage, setCatPage] = useState(0)
 
