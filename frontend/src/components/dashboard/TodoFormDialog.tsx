@@ -125,7 +125,7 @@ function DynamicTagSelector({ tags, selectedNames, onToggle, disabled, onDropdow
           )}
         </Combobox.InputGroup>
 
-        {!disabled && !maxReached && (
+        {!disabled && !maxReached && filtered.length > 0 && (
           <Combobox.Portal>
             <Combobox.Positioner side="bottom" align="start" sideOffset={4} className="z-50">
               <Combobox.Popup className="w-[var(--anchor-width)] rounded-lg border border-border bg-card shadow-lg max-h-44 overflow-y-auto">
