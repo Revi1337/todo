@@ -1,9 +1,11 @@
 "use client"
 
+import { useRef, useState } from "react"
+import { Combobox } from "@base-ui/react/combobox"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Trash2 } from "lucide-react"
+import { Trash2, X } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -40,33 +42,109 @@ function PrioritySelector({ priority, onChange, disabled }: {
   )
 }
 
-function TagSelector({ tags, selectedTagIds, onToggle, disabled }: {
+function DynamicTagSelector({ tags, selectedNames, onToggle, disabled, onDropdownChange }: {
   tags: Tag[]
-  selectedTagIds: number[]
-  onToggle: (id: number) => void
+  selectedNames: string[]
+  onToggle: (name: string) => void
   disabled: boolean
+  onDropdownChange?: (open: boolean) => void
 }) {
-  if (tags.length === 0) return null
+  const [inputValue, setInputValue] = useState("")
+  const [highlightedValue, setHighlightedValue] = useState<string | undefined>(undefined)
+
+  const maxReached = selectedNames.length >= 5
+  const trimmed = inputValue.trim()
+  const filtered = tags.filter(
+    t => !selectedNames.includes(t.name) && t.name.toLowerCase().includes(inputValue.toLowerCase())
+  )
+  const handleValueChange = (newValue: string[] | null) => {
+    const next = (newValue ?? []).slice(0, 5)
+    const prev = selectedNames
+    next.filter(n => !prev.includes(n)).forEach(n => onToggle(n))
+    prev.filter(n => !next.includes(n)).forEach(n => onToggle(n))
+  }
+
+  const addTagFromInput = () => {
+    if (!trimmed || maxReached || selectedNames.some(n => n.toLowerCase() === trimmed.toLowerCase())) return
+    const existing = tags.find(t => t.name.toLowerCase() === trimmed.toLowerCase())
+    onToggle(existing ? existing.name : trimmed)
+    setInputValue("")
+  }
+
   return (
     <div className="flex flex-col gap-1.5">
       <Label className="text-sm font-semibold">태그</Label>
-      <div className="flex flex-wrap gap-2">
-        {tags.map(tag => (
-          <button
-            key={tag.id}
-            type="button"
-            onClick={(e) => { e.preventDefault(); onToggle(tag.id) }}
-            disabled={disabled}
-            className={`px-3 py-1 rounded-full border text-xs font-semibold transition-all disabled:opacity-80 disabled:cursor-not-allowed ${
-              selectedTagIds.includes(tag.id)
-                ? "bg-primary text-primary-foreground border-primary"
-                : "bg-background/50 text-muted-foreground border-border/50 hover:border-primary/50"
-            }`}
-          >
-            {tag.name}
-          </button>
-        ))}
-      </div>
+
+      <Combobox.Root
+        multiple={true}
+        value={selectedNames}
+        onValueChange={handleValueChange}
+        inputValue={inputValue}
+        onInputValueChange={setInputValue}
+        onOpenChange={onDropdownChange}
+        onItemHighlighted={(val) => setHighlightedValue(val as string | undefined)}
+      >
+        <Combobox.InputGroup className="flex flex-wrap items-center gap-1.5 min-h-[28px]">
+          <Combobox.Chips className="contents">
+            {selectedNames.map(name => (
+              <Combobox.Chip
+                key={name}
+                className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/30"
+              >
+                #{name}
+                {!disabled && (
+                  <Combobox.ChipRemove
+                    className="flex items-center justify-center opacity-50 hover:opacity-100 cursor-pointer"
+                    aria-label={`${name} 제거`}
+                  >
+                    <X className="w-3 h-3" />
+                  </Combobox.ChipRemove>
+                )}
+              </Combobox.Chip>
+            ))}
+          </Combobox.Chips>
+
+          {!disabled && !maxReached && (
+            <div className="flex items-center gap-0.5">
+              <span className="text-sm text-muted-foreground select-none">#</span>
+              <Combobox.Input
+                placeholder="태그입력"
+                className="bg-transparent text-sm text-muted-foreground placeholder:text-muted-foreground/60 outline-none w-16 focus:w-32 transition-all"
+                onKeyDown={(e) => {
+                  if (e.nativeEvent.isComposing) return
+                  if (e.key === "Enter") {
+                    e.preventDefault()
+                    if (!highlightedValue) addTagFromInput()
+                  }
+                }}
+              />
+            </div>
+          )}
+          {!disabled && maxReached && (
+            <span className="text-xs text-muted-foreground/50">최대 5개</span>
+          )}
+        </Combobox.InputGroup>
+
+        {!disabled && !maxReached && (
+          <Combobox.Portal>
+            <Combobox.Positioner side="bottom" align="start" sideOffset={4} className="z-50">
+              <Combobox.Popup className="w-[var(--anchor-width)] rounded-lg border border-border bg-card shadow-lg max-h-44 overflow-y-auto">
+                <Combobox.List>
+                  {filtered.map(tag => (
+                    <Combobox.Item
+                      key={tag.id}
+                      value={tag.name}
+                      className="flex items-center w-full px-3 py-2 text-sm cursor-pointer data-[highlighted]:bg-accent outline-none"
+                    >
+                      {tag.name}
+                    </Combobox.Item>
+                  ))}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        )}
+      </Combobox.Root>
     </div>
   )
 }
@@ -91,12 +169,14 @@ export function TodoFormDialog({ open, onClose, todo, defaultDueDate, onSaved, o
     priority, setPriority,
     dueDate, setDueDate,
     categoryId,
-    selectedTagIds,
+    selectedTagNames,
     loading, error,
     handleSubmit,
     toggleTag,
     handleCategoryChange,
   } = useTodoForm(open, todo, defaultDueDate, onClose, onSaved)
+
+  const tagDropdownOpenRef = useRef(false)
 
   const isReadOnly = mode === "view"
 
@@ -107,7 +187,7 @@ export function TodoFormDialog({ open, onClose, todo, defaultDueDate, onSaved, o
   }
 
   return (
-    <Dialog open={open} onOpenChange={v => !v && onClose()}>
+    <Dialog open={open} onOpenChange={v => { if (!v && tagDropdownOpenRef.current) return; if (!v) onClose() }}>
       <DialogContent className="sm:max-w-lg bg-card/95 backdrop-blur-xl border-border/60 rounded-2xl shadow-2xl" initialFocus={false}>
         <DialogHeader>
           <DialogTitle className="text-xl font-bold tracking-tight">
@@ -182,7 +262,13 @@ export function TodoFormDialog({ open, onClose, todo, defaultDueDate, onSaved, o
             </div>
           </div>
 
-          <TagSelector tags={tags} selectedTagIds={selectedTagIds} onToggle={toggleTag} disabled={isReadOnly} />
+          <DynamicTagSelector
+            tags={tags}
+            selectedNames={selectedTagNames}
+            onToggle={toggleTag}
+            disabled={isReadOnly}
+            onDropdownChange={(isOpen) => { tagDropdownOpenRef.current = isOpen }}
+          />
 
           <div className="flex justify-end gap-2 pt-1">
             {mode === "view" ? (

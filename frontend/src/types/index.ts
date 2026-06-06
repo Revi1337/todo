@@ -14,7 +14,6 @@ export interface Category {
 export interface Tag {
   id: number;
   name: string;
-  color: string;
 }
 
 export type Priority = "HIGH" | "MEDIUM" | "LOW";

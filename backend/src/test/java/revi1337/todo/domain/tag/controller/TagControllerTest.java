@@ -44,11 +44,11 @@ class TagControllerTest {
     @Test
     @DisplayName("POST /api/tags — Tag를 생성하고 201을 반환한다")
     void create() throws Exception {
-        given(tagCommandService.save(any(), any())).willReturn(new TagResponse(1L, "JPA", "#94a3b8"));
+        given(tagCommandService.save(any())).willReturn(new TagResponse(1L, "JPA"));
 
         mockMvc.perform(post("/api/tags").session(authSession())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new TagCreateRequest("JPA", "#94a3b8"))))
+                        .content(objectMapper.writeValueAsString(new TagCreateRequest("JPA"))))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.name").value("JPA"));
@@ -59,7 +59,7 @@ class TagControllerTest {
     void create_blankName_returns400() throws Exception {
         mockMvc.perform(post("/api/tags").session(authSession())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new TagCreateRequest("", null))))
+                        .content(objectMapper.writeValueAsString(new TagCreateRequest(""))))
                 .andExpect(status().isBadRequest());
     }
 
@@ -67,8 +67,8 @@ class TagControllerTest {
     @DisplayName("GET /api/tags — 전체 목록을 반환한다")
     void findAll() throws Exception {
         given(tagQueryService.findAll()).willReturn(List.of(
-                new TagResponse(1L, "JPA", "#94a3b8"),
-                new TagResponse(2L, "Spring", "#6366f1")));
+                new TagResponse(1L, "JPA"),
+                new TagResponse(2L, "Spring")));
 
         mockMvc.perform(get("/api/tags"))
                 .andExpect(status().isOk())
@@ -79,12 +79,12 @@ class TagControllerTest {
     @Test
     @DisplayName("PUT /api/tags/{id} — Tag를 수정하고 200을 반환한다")
     void update() throws Exception {
-        given(tagCommandService.update(eq(1L), any(), any()))
-                .willReturn(new TagResponse(1L, "Kotlin", "#6366f1"));
+        given(tagCommandService.update(eq(1L), any()))
+                .willReturn(new TagResponse(1L, "Kotlin"));
 
         mockMvc.perform(put("/api/tags/1").session(authSession())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new TagUpdateRequest("Kotlin", "#6366f1"))))
+                        .content(objectMapper.writeValueAsString(new TagUpdateRequest("Kotlin"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.name").value("Kotlin"));
     }
@@ -92,12 +92,12 @@ class TagControllerTest {
     @Test
     @DisplayName("PUT /api/tags/{id} — 존재하지 않으면 404를 반환한다")
     void update_notFound_returns404() throws Exception {
-        given(tagCommandService.update(eq(999L), any(), any()))
+        given(tagCommandService.update(eq(999L), any()))
                 .willThrow(new EntityNotFoundException("Tag not found: 999"));
 
         mockMvc.perform(put("/api/tags/999").session(authSession())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new TagUpdateRequest("Kotlin", "#6366f1"))))
+                        .content(objectMapper.writeValueAsString(new TagUpdateRequest("Kotlin"))))
                 .andExpect(status().isNotFound());
     }
 

@@ -1,8 +1,6 @@
 package revi1337.todo.domain.tag.controller;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +29,7 @@ public class TagController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<TagResponse> create(@RequestBody @Valid TagCreateRequest request) {
-        return ApiResponse.ok(tagCommandService.save(request.name(), request.color()));
+        return ApiResponse.ok(tagCommandService.save(request.name()));
     }
 
     @GetMapping
@@ -41,7 +39,7 @@ public class TagController {
 
     @PutMapping("/{id}")
     public ApiResponse<TagResponse> update(@PathVariable Long id, @RequestBody @Valid TagUpdateRequest request) {
-        return ApiResponse.ok(tagCommandService.update(id, request.name(), request.color()));
+        return ApiResponse.ok(tagCommandService.update(id, request.name()));
     }
 
     @DeleteMapping("/{id}")

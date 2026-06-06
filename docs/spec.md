@@ -116,7 +116,6 @@ categories ──< todos >──< todo_tags >── tags
 |------|------|------|------|
 | id | BIGSERIAL | PK | |
 | name | VARCHAR | NOT NULL, UNIQUE | 태그 이름 |
-| color | VARCHAR | DEFAULT '#94a3b8' | HEX 색상 코드 |
 
 **todos**
 | 컬럼 | 타입 | 제약 | 설명 |
@@ -262,7 +261,7 @@ AuthFilter — 세션에 authenticated=true ? → 통과
   "priority": "HIGH",          // optional, default: MEDIUM
   "dueDate": "2026-06-01",     // optional
   "categoryId": 1,             // optional
-  "tagIds": [1, 2]             // optional
+  "tagNames": ["업무", "JPA"]   // optional — 없는 태그는 자동 생성됨
 }
 ```
 **201** 생성된 Todo 객체 / **400** 유효성 검사 실패
@@ -305,8 +304,8 @@ Todo 순서 일괄 변경.
 | Method | Path | 설명 | 응답 |
 |--------|------|------|------|
 | GET | `/api/tags` | 전체 목록 | 200 |
-| POST | `/api/tags` | 생성 (name, color) | 201 |
-| PUT | `/api/tags/{id}` | 수정 (name, color) | 200 |
+| POST | `/api/tags` | 생성 (name) | 201 |
+| PUT | `/api/tags/{id}` | 수정 (name) | 200 |
 | DELETE | `/api/tags/{id}` | 삭제 | 204 |
 
 ---

@@ -12,7 +12,7 @@ public record TodoRequest(
         Priority priority,
         LocalDate dueDate,
         Long categoryId,
-        List<Long> tagIds,
+        List<String> tagNames,
         Boolean completed
 ) {
 }

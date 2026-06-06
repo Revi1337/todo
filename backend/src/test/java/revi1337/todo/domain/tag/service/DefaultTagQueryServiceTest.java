@@ -23,20 +23,19 @@ class DefaultTagQueryServiceTest {
     private DefaultTagQueryService defaultTagQueryService;
 
     @Test
-    @DisplayName("name과 color로 Tag를 저장한다")
+    @DisplayName("name으로 Tag를 저장한다")
     void save() {
-        TagResponse result = tagCommandService.save("JPA", "#94a3b8");
+        TagResponse result = tagCommandService.save("JPA");
 
         assertThat(result.id()).isNotNull();
         assertThat(result.name()).isEqualTo("JPA");
-        assertThat(result.color()).isEqualTo("#94a3b8");
     }
 
     @Test
     @DisplayName("전체 Tag 목록을 ID 내림차순으로 반환한다")
     void findAll() {
-        TagResponse first = tagCommandService.save("JPA", null);
-        TagResponse second = tagCommandService.save("Spring", null);
+        TagResponse first = tagCommandService.save("JPA");
+        TagResponse second = tagCommandService.save("Spring");
 
         List<TagResponse> result = defaultTagQueryService.findAll();
 
@@ -47,27 +46,26 @@ class DefaultTagQueryServiceTest {
     }
 
     @Test
-    @DisplayName("Tag의 name과 color를 수정한다")
+    @DisplayName("Tag의 name을 수정한다")
     void update() {
-        TagResponse saved = tagCommandService.save("JPA", "#94a3b8");
+        TagResponse saved = tagCommandService.save("JPA");
 
-        TagResponse result = tagCommandService.update(saved.id(), "Kotlin", "#6366f1");
+        TagResponse result = tagCommandService.update(saved.id(), "Kotlin");
 
         assertThat(result.name()).isEqualTo("Kotlin");
-        assertThat(result.color()).isEqualTo("#6366f1");
     }
 
     @Test
     @DisplayName("존재하지 않는 Tag 수정 시 예외를 던진다")
     void update_notFound_throws() {
-        assertThatThrownBy(() -> tagCommandService.update(999L, "Kotlin", "#6366f1"))
+        assertThatThrownBy(() -> tagCommandService.update(999L, "Kotlin"))
                 .isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
     @DisplayName("ID로 Tag를 삭제하면 DB에서 사라진다")
     void deleteById() {
-        TagResponse saved = tagCommandService.save("JPA", null);
+        TagResponse saved = tagCommandService.save("JPA");
         tagCommandService.deleteById(saved.id());
 
         assertThat(defaultTagQueryService.findAll()).isEmpty();

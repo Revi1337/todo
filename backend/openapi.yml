@@ -621,10 +621,6 @@ components:
       properties:
         name:
           type: string
-        color:
-          type: string
-          nullable: true
-          example: "#94a3b8"
 
     TagUpdateRequest:
       type: object
@@ -632,10 +628,6 @@ components:
       properties:
         name:
           type: string
-        color:
-          type: string
-          nullable: true
-          example: "#94a3b8"
 
     TagResponse:
       type: object
@@ -644,8 +636,6 @@ components:
           type: integer
           format: int64
         name:
-          type: string
-        color:
           type: string
 
     TodoPatchRequest:
@@ -690,11 +680,10 @@ components:
           type: integer
           format: int64
           nullable: true
-        tagIds:
+        tagNames:
           type: array
           items:
-            type: integer
-            format: int64
+            type: string
           nullable: true
         completed:
           type: boolean

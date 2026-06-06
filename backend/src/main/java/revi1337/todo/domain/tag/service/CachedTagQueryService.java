@@ -32,4 +32,9 @@ public class CachedTagQueryService implements TagQueryService {
         log.debug("태그 캐시 히트: {}건", cache.size());
         return cache;
     }
+
+    public synchronized void invalidateCache() {
+        this.cache = null;
+        log.debug("태그 캐시 무효화");
+    }
 }

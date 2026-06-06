@@ -42,7 +42,7 @@ class TodoRepositoryTest {
     @BeforeEach
     void setUp() {
         category = categoryRepository.save(new Category("개발", "#6366f1", NOW));
-        tag = tagRepository.save(new Tag("JPA", "#94a3b8"));
+        tag = tagRepository.save(new Tag("JPA"));
     }
 
     @Test

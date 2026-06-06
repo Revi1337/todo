@@ -87,13 +87,13 @@ git init
 > **도메인 의존성**: Tag도 다른 도메인에 의존하지 않는 독립 도메인.
 
 #### Tasks
-- [x] `Tag` Entity 작성 (id/name/color)
+- [x] `Tag` Entity 작성 (id/name)
 - [x] `TagRepository` 작성
 - [x] `TagService` 작성
 - [x] `TagController` 작성
   - GET `/api/tags` — 전체 조회
-  - POST `/api/tags` — 생성 (name, color)
-  - PUT `/api/tags/{id}` — 수정 (name, color)
+  - POST `/api/tags` — 생성 (name)
+  - PUT `/api/tags/{id}` — 수정 (name)
   - DELETE `/api/tags/{id}` — 삭제
 
 ---

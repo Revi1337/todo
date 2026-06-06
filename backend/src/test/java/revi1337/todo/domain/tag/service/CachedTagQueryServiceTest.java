@@ -24,8 +24,8 @@ class CachedTagQueryServiceTest {
     private CachedTagQueryService sut;
 
     private static final List<TagResponse> SAMPLE = List.of(
-            new TagResponse(1L, "JPA", "#94a3b8"),
-            new TagResponse(2L, "Spring", "#6366f1")
+            new TagResponse(1L, "JPA"),
+            new TagResponse(2L, "Spring")
     );
 
     @BeforeEach
@@ -76,5 +76,33 @@ class CachedTagQueryServiceTest {
         sut.findAll();
 
         verify(delegate, times(1)).findAll();
+    }
+
+    @Test
+    @DisplayName("invalidateCache 호출 후 다시 조회하면 delegate를 재호출한다")
+    void invalidateCache_causesReloadOnNextCall() {
+        given(delegate.findAll()).willReturn(SAMPLE);
+
+        sut.findAll();
+        sut.invalidateCache();
+        sut.findAll();
+
+        verify(delegate, times(2)).findAll();
+    }
+
+    @Test
+    @DisplayName("invalidateCache 후 다음 findAll은 새 목록을 반환한다")
+    void invalidateCache_nextCallReturnsUpdatedList() {
+        List<TagResponse> initial = List.of(new TagResponse(1L, "JPA"));
+        List<TagResponse> updated = List.of(new TagResponse(1L, "JPA"), new TagResponse(2L, "Kotlin"));
+
+        given(delegate.findAll()).willReturn(initial).willReturn(updated);
+
+        sut.findAll();
+        sut.invalidateCache();
+        List<TagResponse> result = sut.findAll();
+
+        assertThat(result).hasSize(2);
+        assertThat(result).extracting(TagResponse::name).containsExactlyInAnyOrder("JPA", "Kotlin");
     }
 }

@@ -18,7 +18,7 @@ export function useTodoForm(
   const [priority, setPriority] = useState<Priority>("MEDIUM")
   const [dueDate, setDueDate] = useState("")
   const [categoryId, setCategoryId] = useState<string>("")
-  const [selectedTagIds, setSelectedTagIds] = useState<number[]>([])
+  const [selectedTagNames, setSelectedTagNames] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
@@ -31,7 +31,7 @@ export function useTodoForm(
       setPriority(todo.priority)
       setDueDate(todo.dueDate ? dayjs(todo.dueDate).format("YYYY-MM-DD") : "")
       setCategoryId(todo.category ? String(todo.category.id) : "")
-      setSelectedTagIds(todo.tags.map(t => t.id))
+      setSelectedTagNames(todo.tags.map(t => t.name))
     } else {
       setMode("create")
       setTitle("")
@@ -39,7 +39,7 @@ export function useTodoForm(
       setPriority("MEDIUM")
       setDueDate(defaultDueDate || "")
       setCategoryId("")
-      setSelectedTagIds([])
+      setSelectedTagNames([])
     }
     setError("")
   }, [open, todo, defaultDueDate])
@@ -56,7 +56,7 @@ export function useTodoForm(
         priority,
         dueDate: dueDate || (mode === "create" ? dayjs().format("YYYY-MM-DD") : undefined),
         categoryId: categoryId ? Number(categoryId) : undefined,
-        tagIds: selectedTagIds,
+        tagNames: selectedTagNames,
       }
       if (todo) {
         await updateTodo(todo.id, { ...payload, completed: todo.completed })
@@ -72,8 +72,10 @@ export function useTodoForm(
     }
   }
 
-  const toggleTag = (id: number) =>
-    setSelectedTagIds(prev => prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id])
+  const toggleTag = (name: string) =>
+    setSelectedTagNames(prev =>
+      prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]
+    )
 
   const handleCategoryChange = (v: string | null) =>
     setCategoryId(v === "none" ? "" : (v || ""))
@@ -85,7 +87,7 @@ export function useTodoForm(
     priority, setPriority,
     dueDate, setDueDate,
     categoryId,
-    selectedTagIds,
+    selectedTagNames,
     loading, error,
     handleSubmit,
     toggleTag,
