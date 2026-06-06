@@ -211,6 +211,35 @@ class TodoServiceTest {
     }
 
     @Test
+    @DisplayName("update — 태그가 완전히 교체된다")
+    void update_replacesAllTags() {
+        TodoResponse created = todoCommandService.create(
+                new TodoRequest("태그 테스트", null, null, null, null, List.of("tagA", "tagB"), null));
+        entityManager.flush();
+        entityManager.clear();
+
+        TodoResponse result = todoCommandService.update(created.id(),
+                new TodoRequest("태그 테스트", null, null, null, null, List.of("tagC"), null));
+
+        assertThat(result.tags()).hasSize(1);
+        assertThat(result.tags()).extracting(tag -> tag.name()).containsExactly("tagC");
+    }
+
+    @Test
+    @DisplayName("update — tagNames가 비어있으면 기존 태그가 전부 삭제된다")
+    void update_clearsTags_whenTagNamesEmpty() {
+        TodoResponse created = todoCommandService.create(
+                new TodoRequest("태그 있는 Todo", null, null, null, null, List.of("tagX"), null));
+        entityManager.flush();
+        entityManager.clear();
+
+        TodoResponse result = todoCommandService.update(created.id(),
+                new TodoRequest("태그 있는 Todo", null, null, null, null, null, null));
+
+        assertThat(result.tags()).isEmpty();
+    }
+
+    @Test
     @DisplayName("dueDateFrom ~ dueDateTo 범위로 필터링한다")
     void findAll_dueDateRange() {
         todoCommandService.create(new TodoRequest("6월 1일", null, null, LocalDate.of(2026, 6, 1), null, null, null));

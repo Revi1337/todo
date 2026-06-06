@@ -23,6 +23,11 @@ public class Tag {
         this.name = Objects.requireNonNull(name, "name must not be null");
     }
 
+    public Tag(Long id, String name) {
+        this.id = Objects.requireNonNull(id, "id must not be null");
+        this.name = Objects.requireNonNull(name, "name must not be null");
+    }
+
     public void update(String name) {
         this.name = Objects.requireNonNull(name, "name must not be null");
     }

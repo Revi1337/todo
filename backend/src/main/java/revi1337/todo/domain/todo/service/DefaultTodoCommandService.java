@@ -7,11 +7,14 @@ import org.springframework.util.ObjectUtils;
 import revi1337.todo.domain.category.entity.Category;
 import revi1337.todo.domain.category.repository.CategoryRepository;
 import revi1337.todo.domain.tag.entity.Tag;
+import revi1337.todo.domain.tag.repository.TagJdbcRepository;
 import revi1337.todo.domain.tag.repository.TagRepository;
 import revi1337.todo.domain.tag.service.CachedTagQueryService;
 import revi1337.todo.domain.todo.entity.Todo;
 import revi1337.todo.domain.todo.repository.TodoJdbcRepository;
 import revi1337.todo.domain.todo.repository.TodoRepository;
+import revi1337.todo.domain.todo.repository.TodoTagJdbcRepository;
+import revi1337.todo.domain.todo.repository.TodoTagRepository;
 import revi1337.todo.domain.todo.service.dto.ReorderRequest;
 import revi1337.todo.domain.todo.service.dto.TodoPatchRequest;
 import revi1337.todo.domain.todo.service.dto.TodoRequest;
@@ -32,17 +35,24 @@ public class DefaultTodoCommandService implements TodoCommandService {
 
     private final TodoRepository todoRepository;
     private final TodoJdbcRepository todoJdbcRepository;
+    private final TodoTagRepository todoTagRepository;
+    private final TodoTagJdbcRepository todoTagJdbcRepository;
     private final CategoryRepository categoryRepository;
     private final TagRepository tagRepository;
+    private final TagJdbcRepository tagJdbcRepository;
     private final CachedTagQueryService cachedTagQueryService;
 
     public DefaultTodoCommandService(TodoRepository todoRepository, TodoJdbcRepository todoJdbcRepository,
+            TodoTagRepository todoTagRepository, TodoTagJdbcRepository todoTagJdbcRepository,
             CategoryRepository categoryRepository, TagRepository tagRepository,
-            CachedTagQueryService cachedTagQueryService) {
+            TagJdbcRepository tagJdbcRepository, CachedTagQueryService cachedTagQueryService) {
         this.todoRepository = todoRepository;
         this.todoJdbcRepository = todoJdbcRepository;
+        this.todoTagRepository = todoTagRepository;
+        this.todoTagJdbcRepository = todoTagJdbcRepository;
         this.categoryRepository = categoryRepository;
         this.tagRepository = tagRepository;
+        this.tagJdbcRepository = tagJdbcRepository;
         this.cachedTagQueryService = cachedTagQueryService;
     }
 
@@ -53,9 +63,14 @@ public class DefaultTodoCommandService implements TodoCommandService {
         incrementPositions(false, request.dueDate());
         Todo todo = todoRepository.save(new Todo(
                 request.title(), request.description(), request.priority(),
-                request.dueDate(), category, tags, LocalDateTime.now()));
+                request.dueDate(), category, LocalDateTime.now()));
 
-        return TodoResponse.from(todo);
+        if (!tags.isEmpty()) {
+            List<Long> tagIds = tags.stream().map(Tag::getId).toList();
+            todoTagJdbcRepository.bulkInsert(todo.getId(), tagIds);
+        }
+
+        return TodoResponse.from(todo, tags);
     }
 
     @Override
@@ -65,10 +80,17 @@ public class DefaultTodoCommandService implements TodoCommandService {
         Category category = resolveCategory(request.categoryId());
         Set<Tag> tags = resolveTags(request.tagNames());
         boolean completed = request.completed() != null && request.completed();
-        todo.update(request.title(), request.description(), request.priority(),
-                request.dueDate(), category, tags, completed, LocalDateTime.now());
 
-        return TodoResponse.from(todo);
+        todo.update(request.title(), request.description(), request.priority(),
+                request.dueDate(), category, completed, LocalDateTime.now());
+
+        todoTagRepository.deleteAllByTodoId(id);
+        if (!tags.isEmpty()) {
+            List<Long> tagIds = tags.stream().map(Tag::getId).toList();
+            todoTagJdbcRepository.bulkInsert(id, tagIds);
+        }
+
+        return TodoResponse.from(todo, tags);
     }
 
     @Override
@@ -86,17 +108,6 @@ public class DefaultTodoCommandService implements TodoCommandService {
         decrementPositionsAfter(!newCompleted, oldPosition, dueDate);
         todo.toggleCompleted(newCompleted, LocalDateTime.now());
         todo.updatePosition(0);
-    }
-
-    private Todo lockGroupAndGetTodo(Long id) {
-        List<Todo> locked = todoRepository.lockGroupByTodoId(id);
-        if (locked.isEmpty()) {
-            locked = todoRepository.lockNullDueDateGroup();
-        }
-        return locked.stream()
-                .filter(t -> t.getId().equals(id))
-                .findFirst()
-                .orElseThrow(() -> new EntityNotFoundException("Todo not found: " + id));
     }
 
     @Override
@@ -119,26 +130,11 @@ public class DefaultTodoCommandService implements TodoCommandService {
         }
     }
 
-    private void incrementPositions(boolean completed, LocalDate dueDate) {
-        if (dueDate != null) {
-            todoRepository.incrementPositions(completed, dueDate);
-        } else {
-            todoRepository.incrementPositionsNullDueDate(completed);
-        }
-    }
-
-    private void decrementPositionsAfter(boolean completed, int afterPosition, LocalDate dueDate) {
-        if (dueDate != null) {
-            todoRepository.decrementPositionsAfter(completed, afterPosition, dueDate);
-        } else {
-            todoRepository.decrementPositionsAfterNullDueDate(completed, afterPosition);
-        }
-    }
-
     private Category resolveCategory(Long categoryId) {
         if (ObjectUtils.isEmpty(categoryId)) {
             return null;
         }
+
         return categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new EntityNotFoundException("Category not found: " + categoryId));
     }
@@ -150,6 +146,7 @@ public class DefaultTodoCommandService implements TodoCommandService {
         List<String> normalized = normalizeTagNames(tagNames);
         Map<String, Tag> tagByName = findExistingTagsByName(normalized);
         createAndRegisterMissingTags(normalized, tagByName);
+
         return new HashSet<>(tagByName.values());
     }
 
@@ -165,17 +162,46 @@ public class DefaultTodoCommandService implements TodoCommandService {
         Map<String, Tag> tagByName = new HashMap<>();
         tagRepository.findAllByNameIn(names)
                 .forEach(tag -> tagByName.put(tag.getName(), tag));
+
         return tagByName;
     }
 
     private void createAndRegisterMissingTags(List<String> normalized, Map<String, Tag> tagByName) {
-        List<Tag> toCreate = normalized.stream()
+        List<String> newNames = normalized.stream()
                 .filter(name -> !tagByName.containsKey(name))
-                .map(Tag::new)
                 .toList();
-        if (!toCreate.isEmpty()) {
-            tagRepository.saveAll(toCreate).forEach(tag -> tagByName.put(tag.getName(), tag));
+        if (!newNames.isEmpty()) {
+            tagJdbcRepository.bulkInsert(newNames)
+                    .forEach(tag -> tagByName.put(tag.getName(), tag));
             cachedTagQueryService.invalidateCache();
+        }
+    }
+
+    private Todo lockGroupAndGetTodo(Long id) {
+        List<Todo> locked = todoRepository.lockGroupByTodoId(id);
+        if (locked.isEmpty()) {
+            locked = todoRepository.lockNullDueDateGroup();
+        }
+
+        return locked.stream()
+                .filter(t -> t.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Todo not found: " + id));
+    }
+
+    private void incrementPositions(boolean completed, LocalDate dueDate) {
+        if (dueDate != null) {
+            todoRepository.incrementPositions(completed, dueDate);
+        } else {
+            todoRepository.incrementPositionsNullDueDate(completed);
+        }
+    }
+
+    private void decrementPositionsAfter(boolean completed, int afterPosition, LocalDate dueDate) {
+        if (dueDate != null) {
+            todoRepository.decrementPositionsAfter(completed, afterPosition, dueDate);
+        } else {
+            todoRepository.decrementPositionsAfterNullDueDate(completed, afterPosition);
         }
     }
 }
