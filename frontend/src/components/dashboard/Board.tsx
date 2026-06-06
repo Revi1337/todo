@@ -111,7 +111,6 @@ export function Board() {
     onFilterChange: setFilter,
     onSearchChange: setSearch,
     onReset: resetFilter,
-    onCreateTodo: openCreate,
   }
 
   return (
@@ -139,7 +138,7 @@ export function Board() {
           <TodoActionsProvider onToggle={handleToggle} onEdit={openEdit} togglingIds={togglingIds}>
             <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
               <div className="flex-1 grid grid-rows-2 gap-6 min-h-0 overflow-hidden">
-                <Column title="할 일" id="ACTIVE" todos={activeTodos} isLoading={todosLoading} scrollable draggingFromId={draggingFromId} />
+                <Column title="할 일" id="ACTIVE" todos={activeTodos} isLoading={todosLoading} scrollable draggingFromId={draggingFromId} onCreateTodo={openCreate} />
                 <Column title="완료됨" id="COMPLETED" todos={completedTodos} isLoading={todosLoading} scrollable draggingFromId={draggingFromId} />
               </div>
             </DragDropContext>

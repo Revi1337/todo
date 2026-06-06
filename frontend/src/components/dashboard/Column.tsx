@@ -2,7 +2,7 @@
 
 import { Droppable } from "@hello-pangea/dnd"
 import { Badge } from "@/components/ui/badge"
-import { Ban } from "lucide-react"
+import { Ban, Plus } from "lucide-react"
 import { Todo } from "@/types"
 import { TodoCard } from "./TodoCard"
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner"
@@ -24,9 +24,10 @@ interface ColumnProps {
   scrollable?: boolean
   draggingFromId?: string | null
   isLoading?: boolean
+  onCreateTodo?: () => void
 }
 
-export function Column({ title, id, todos, scrollable, draggingFromId, isLoading }: ColumnProps) {
+export function Column({ title, id, todos, scrollable, draggingFromId, isLoading, onCreateTodo }: ColumnProps) {
   return (
     <Droppable droppableId={id}>
       {(provided, snapshot) => {
@@ -39,7 +40,17 @@ export function Column({ title, id, todos, scrollable, draggingFromId, isLoading
             <BlockedOverlay show={showBlocked} />
             <div className="flex items-center justify-between px-1 shrink-0">
               <h3 className="font-semibold">{title}</h3>
-              {!isLoading && <Badge variant="secondary" className="rounded-full bg-background/80">{todos.length}</Badge>}
+              <div className="flex items-center gap-2">
+                {onCreateTodo && (
+                  <button
+                    onClick={onCreateTodo}
+                    className="p-0.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                )}
+                {!isLoading && <Badge variant="secondary" className="rounded-full bg-background/80">{todos.length}</Badge>}
+              </div>
             </div>
 
             <div className={`flex-1 min-h-0 p-1 -m-1 ${scrollable ? "overflow-y-auto scrollbar-hide" : "overflow-visible"}`}>

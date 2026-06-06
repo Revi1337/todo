@@ -3,7 +3,7 @@
 import React, { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus, Search, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight } from "lucide-react"
 import { Category, Priority, Tag, TodoFilter } from "@/types"
 import { PRIORITY_META } from "@/constants/priority"
 
@@ -25,7 +25,6 @@ interface FilterPanelProps {
   onFilterChange: (filter: TodoFilter) => void
   onSearchChange: (search: string) => void
   onReset: () => void
-  onCreateTodo: () => void
   asSheet?: boolean
 }
 
@@ -110,9 +109,6 @@ export function FilterPanel({ filter, search, categories, tags, categoriesLoadin
             필터 초기화
           </button>
         </div>
-        <Button onClick={onCreateTodo} className="w-full justify-start gap-2 rounded-full" size="lg">
-          <Plus className="w-5 h-5" /> 새 작업 추가
-        </Button>
       </div>
 
       <div className="space-y-4">
