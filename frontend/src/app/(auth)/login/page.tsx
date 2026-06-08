@@ -45,7 +45,7 @@ export default function LoginPage() {
         </Button>
       )}
       <div className="flex items-center justify-center min-h-screen px-4 bg-transparent">
-        <div className="w-full max-w-md p-8 bg-card/80 backdrop-blur-md rounded-[24px] shadow-2xl border border-border/50 hover:shadow-primary/5 transition-all">
+        <div className="w-full max-w-md p-8 bg-card/80 backdrop-blur-md rounded-[24px] shadow-2xl border border-border/50">
           <div className="flex flex-col items-center mb-8">
             <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center mb-4">
               <CheckSquare className="w-6 h-6 text-primary" />
