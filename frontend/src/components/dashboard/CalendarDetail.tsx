@@ -39,7 +39,7 @@ export function CalendarDetail({
   const completedTodos = useMemo(() => selectedTodos.filter(t => t.completed), [selectedTodos])
 
   return (
-    <div className="w-full xl:flex-[1] bg-muted/20 rounded-card p-6 shadow-sm border border-border/50 xl:h-full flex flex-col xl:min-h-0">
+    <div className="w-full xl:flex-[1] xl:min-w-0 bg-muted/20 rounded-card p-6 shadow-sm border border-border/50 xl:h-full flex flex-col xl:min-h-0">
       <div className="flex items-start justify-between mb-6 shrink-0">
         <div>
           <h3 className="text-lg font-bold mb-1 tracking-tight">

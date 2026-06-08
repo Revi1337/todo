@@ -107,7 +107,7 @@ export function CalendarGrid({
   const calendarDays = buildCalendarDays(currentDate)
 
   return (
-    <div className="bg-card rounded-card p-6 shadow-sm border border-border/50 xl:flex-[2] xl:h-full flex flex-col xl:min-h-0 xl:overflow-hidden">
+    <div className="bg-card rounded-card p-6 shadow-sm border border-border/50 xl:flex-[2] xl:min-w-0 xl:h-full flex flex-col xl:min-h-0 xl:overflow-hidden">
       <div className="flex items-center justify-between mb-6 shrink-0">
         <h2 className="text-2xl font-bold tracking-tight">{currentDate.format("YYYY년 MM월")}</h2>
         <div className="flex gap-2">
