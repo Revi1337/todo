@@ -51,6 +51,7 @@ function DynamicTagSelector({ tags, selectedNames, onToggle, disabled, onDropdow
 }) {
   const [inputValue, setInputValue] = useState("")
   const [highlightedValue, setHighlightedValue] = useState<string | undefined>(undefined)
+  const [isOpen, setIsOpen] = useState(false)
 
   const maxReached = selectedNames.length >= 5
   const trimmed = inputValue.trim()
@@ -77,11 +78,15 @@ function DynamicTagSelector({ tags, selectedNames, onToggle, disabled, onDropdow
 
       <Combobox.Root
         multiple={true}
+        open={isOpen}
+        onOpenChange={(nextOpen) => {
+          setIsOpen(nextOpen)
+          if (onDropdownChange) onDropdownChange(nextOpen)
+        }}
         value={selectedNames}
         onValueChange={handleValueChange}
         inputValue={inputValue}
         onInputValueChange={setInputValue}
-        onOpenChange={onDropdownChange}
         onItemHighlighted={(val) => setHighlightedValue(val as string | undefined)}
       >
         <Combobox.InputGroup className="flex flex-wrap items-center gap-1.5 min-h-[28px]">
@@ -125,7 +130,7 @@ function DynamicTagSelector({ tags, selectedNames, onToggle, disabled, onDropdow
           )}
         </Combobox.InputGroup>
 
-        {!disabled && !maxReached && filtered.length > 0 && (
+        {!disabled && !maxReached && isOpen && filtered.length > 0 && (
           <Combobox.Portal>
             <Combobox.Positioner side="bottom" align="start" sideOffset={4} className="z-50">
               <Combobox.Popup className="w-[var(--anchor-width)] rounded-lg border border-border bg-card shadow-lg max-h-44 overflow-y-auto">
@@ -267,7 +272,15 @@ export function TodoFormDialog({ open, onClose, todo, defaultDueDate, onSaved, o
             selectedNames={selectedTagNames}
             onToggle={toggleTag}
             disabled={isReadOnly}
-            onDropdownChange={(isOpen) => { tagDropdownOpenRef.current = isOpen }}
+            onDropdownChange={(isOpen) => {
+              if (isOpen) {
+                tagDropdownOpenRef.current = true
+              } else {
+                setTimeout(() => {
+                  tagDropdownOpenRef.current = false
+                }, 100)
+              }
+            }}
           />
 
           <div className="flex justify-end gap-2 pt-1">
