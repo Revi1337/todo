@@ -99,6 +99,69 @@ Base URL: `/api`
 | Stats | `GET /api/stats` |
 | Auth | `POST /api/auth/login` · `POST /api/auth/logout` · `GET /api/auth/me` |
 
+## 배포 전략
+
+`main` 브랜치에 push 시 변경된 경로에 따라 배포 파이프라인이 독립적으로 실행된다.
+
+```
+git push origin main
+        │
+        ├─────────────────────────────────────────────────────────┐
+        │                                                         │
+        │ paths: backend/**                                       │ paths: frontend/** (any)
+        ▼                                                         ▼
+┌───────────────────┐                                   ┌───────────────────┐
+│  GitHub Actions   │                                   │      Vercel       │
+│  deploy-backend   │                                   │   Build Triggered │
+└───────────────────┘                                   └───────────────────┘
+        │                                                         │
+        ▼                                                         ▼
+┌───────────────────┐                                   ┌───────────────────┐
+│  ubuntu-latest    │                                   │  Ignore Command   │
+│  JDK 17 (temurin) │                                   │  git diff         │
+└───────────────────┘                                   │  PREV_SHA..HEAD   │
+        │                                               │  -- frontend/     │
+        ▼                                               └───────────────────┘
+┌───────────────────┐                                             │
+│  Gradle Build     │                               exit 0        │        exit 1
+│  ./gradlew build  │                         (no changes)        │    (has changes)
+│  -x test          │                                ┌────────────┴────────────┐
+└───────────────────┘                                ▼                         ▼
+        │                                  ┌──────────────┐        ┌───────────────────┐
+        ▼                                  │ BUILD SKIPPED│        │  Install deps     │
+┌───────────────────┐                      └──────────────┘        │  npm install      │
+│  SSH Setup        │                                              └───────────────────┘
+│  GCP_PRIVATE_KEY  │                                                        │
+└───────────────────┘                                                        ▼
+        │                                                          ┌───────────────────┐
+        ▼                                                          │  Next.js Build    │
+┌───────────────────┐                                             │  next build       │
+│  SCP Upload       │                                              └───────────────────┘
+│  todo.jar →       │                                                        │
+│  GCP VM ~/todo    │                                                        ▼
+│  application-prd  │                                              ┌───────────────────┐
+└───────────────────┘                                              │  Deploy to CDN    │
+        │                                                          │  Vercel Edge      │
+        ▼                                                          │  (sfo1)           │
+┌───────────────────┐                                              └───────────────────┘
+│  Kill PID :8080   │
+│  (ss -tlnp)       │
+└───────────────────┘
+        │
+        ▼
+┌───────────────────┐
+│  Start Spring     │
+│  nohup java -jar  │
+│  --profile=prd    │
+│  GCP VM (oregon)  │
+└───────────────────┘
+```
+
+| 영역 | 플랫폼 | 트리거 |
+|---|---|---|
+| 백엔드 | GCP VM (oregon) | `backend/**` 변경 시 GitHub Actions |
+| 프론트엔드 | Vercel Edge (sfo1) | `frontend/**` 변경 시 Vercel Ignore Command |
+
 ## 개발 환경
 
 **IDE**
