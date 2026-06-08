@@ -43,9 +43,9 @@ public class DefaultTodoCommandService implements TodoCommandService {
     private final CachedTagQueryService cachedTagQueryService;
 
     public DefaultTodoCommandService(TodoRepository todoRepository, TodoJdbcRepository todoJdbcRepository,
-            TodoTagRepository todoTagRepository, TodoTagJdbcRepository todoTagJdbcRepository,
-            CategoryRepository categoryRepository, TagRepository tagRepository,
-            TagJdbcRepository tagJdbcRepository, CachedTagQueryService cachedTagQueryService) {
+                                     TodoTagRepository todoTagRepository, TodoTagJdbcRepository todoTagJdbcRepository,
+                                     CategoryRepository categoryRepository, TagRepository tagRepository,
+                                     TagJdbcRepository tagJdbcRepository, CachedTagQueryService cachedTagQueryService) {
         this.todoRepository = todoRepository;
         this.todoJdbcRepository = todoJdbcRepository;
         this.todoTagRepository = todoTagRepository;
@@ -64,11 +64,7 @@ public class DefaultTodoCommandService implements TodoCommandService {
         Todo todo = todoRepository.save(new Todo(
                 request.title(), request.description(), request.priority(),
                 request.dueDate(), category, LocalDateTime.now()));
-
-        if (!tags.isEmpty()) {
-            List<Long> tagIds = tags.stream().map(Tag::getId).toList();
-            todoTagJdbcRepository.bulkInsert(todo.getId(), tagIds);
-        }
+        saveTodoTagsIfNecessary(tags, todo.getId());
 
         return TodoResponse.from(todo, tags);
     }
@@ -85,10 +81,7 @@ public class DefaultTodoCommandService implements TodoCommandService {
                 request.dueDate(), category, completed, LocalDateTime.now());
 
         todoTagRepository.deleteAllByTodoId(id);
-        if (!tags.isEmpty()) {
-            List<Long> tagIds = tags.stream().map(Tag::getId).toList();
-            todoTagJdbcRepository.bulkInsert(id, tagIds);
-        }
+        saveTodoTagsIfNecessary(tags, id);
 
         return TodoResponse.from(todo, tags);
     }
@@ -160,8 +153,7 @@ public class DefaultTodoCommandService implements TodoCommandService {
 
     private Map<String, Tag> findExistingTagsByName(List<String> names) {
         Map<String, Tag> tagByName = new HashMap<>();
-        tagRepository.findAllByNameIn(names)
-                .forEach(tag -> tagByName.put(tag.getName(), tag));
+        tagRepository.findAllByNameIn(names).forEach(tag -> tagByName.put(tag.getName(), tag));
 
         return tagByName;
     }
@@ -170,10 +162,16 @@ public class DefaultTodoCommandService implements TodoCommandService {
         List<String> newNames = normalized.stream()
                 .filter(name -> !tagByName.containsKey(name))
                 .toList();
+
         if (!newNames.isEmpty()) {
-            tagJdbcRepository.bulkInsert(newNames)
-                    .forEach(tag -> tagByName.put(tag.getName(), tag));
+            tagJdbcRepository.bulkInsert(newNames).forEach(tag -> tagByName.put(tag.getName(), tag));
             cachedTagQueryService.invalidateCache();
+        }
+    }
+
+    private void saveTodoTagsIfNecessary(Set<Tag> tags, Long todo) {
+        if (!tags.isEmpty()) {
+            todoTagJdbcRepository.bulkInsert(todo, Tag.extractIds(tags));
         }
     }
 
