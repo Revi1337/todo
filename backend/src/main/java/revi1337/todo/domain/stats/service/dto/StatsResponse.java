@@ -1,4 +1,4 @@
-package revi1337.todo.domain.stats.controller.dto;
+package revi1337.todo.domain.stats.service.dto;
 
 import java.util.List;
 

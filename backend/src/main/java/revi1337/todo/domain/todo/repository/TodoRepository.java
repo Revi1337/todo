@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import revi1337.todo.domain.stats.controller.dto.StatsResponse.CategoryStat;
+import revi1337.todo.domain.stats.service.dto.CategoryStatResult;
 import revi1337.todo.domain.todo.entity.Todo;
 
 import java.time.LocalDate;
@@ -25,7 +25,7 @@ public interface TodoRepository extends JpaRepository<Todo, Long>, JpaSpecificat
     long countByCompleted(boolean completed);
 
     @Query("""
-            SELECT new revi1337.todo.domain.stats.controller.dto.StatsResponse$CategoryStat(
+            SELECT new revi1337.todo.domain.stats.service.dto.CategoryStatResult(
                 c.name,
                 COUNT(t),
                 SUM(CASE WHEN t.completed = true THEN 1 ELSE 0 END)
@@ -33,7 +33,7 @@ public interface TodoRepository extends JpaRepository<Todo, Long>, JpaSpecificat
             FROM Todo t JOIN t.category c
             GROUP BY c.id, c.name
             """)
-    List<CategoryStat> findCategoryStats();
+    List<CategoryStatResult> findCategoryStats();
 
     @Query(value = """
             SELECT completed_at::date AS date, COUNT(*) AS count

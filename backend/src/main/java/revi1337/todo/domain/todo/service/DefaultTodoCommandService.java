@@ -1,15 +1,14 @@
 package revi1337.todo.domain.todo.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import revi1337.todo.domain.category.entity.Category;
 import revi1337.todo.domain.category.repository.CategoryRepository;
 import revi1337.todo.domain.tag.entity.Tag;
-import revi1337.todo.domain.tag.repository.TagJdbcRepository;
-import revi1337.todo.domain.tag.repository.TagRepository;
-import revi1337.todo.domain.tag.service.CachedTagQueryService;
+import revi1337.todo.domain.tag.service.TagResolver;
 import revi1337.todo.domain.todo.entity.Todo;
 import revi1337.todo.domain.todo.repository.TodoJdbcRepository;
 import revi1337.todo.domain.todo.repository.TodoRepository;
@@ -22,8 +21,6 @@ import revi1337.todo.domain.todo.service.dto.TodoResponse;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,6 +28,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class DefaultTodoCommandService implements TodoCommandService {
 
     private final TodoRepository todoRepository;
@@ -38,28 +36,12 @@ public class DefaultTodoCommandService implements TodoCommandService {
     private final TodoTagRepository todoTagRepository;
     private final TodoTagJdbcRepository todoTagJdbcRepository;
     private final CategoryRepository categoryRepository;
-    private final TagRepository tagRepository;
-    private final TagJdbcRepository tagJdbcRepository;
-    private final CachedTagQueryService cachedTagQueryService;
-
-    public DefaultTodoCommandService(TodoRepository todoRepository, TodoJdbcRepository todoJdbcRepository,
-                                     TodoTagRepository todoTagRepository, TodoTagJdbcRepository todoTagJdbcRepository,
-                                     CategoryRepository categoryRepository, TagRepository tagRepository,
-                                     TagJdbcRepository tagJdbcRepository, CachedTagQueryService cachedTagQueryService) {
-        this.todoRepository = todoRepository;
-        this.todoJdbcRepository = todoJdbcRepository;
-        this.todoTagRepository = todoTagRepository;
-        this.todoTagJdbcRepository = todoTagJdbcRepository;
-        this.categoryRepository = categoryRepository;
-        this.tagRepository = tagRepository;
-        this.tagJdbcRepository = tagJdbcRepository;
-        this.cachedTagQueryService = cachedTagQueryService;
-    }
+    private final TagResolver tagResolver;
 
     @Override
     public TodoResponse create(TodoRequest request) {
         Category category = resolveCategory(request.categoryId());
-        Set<Tag> tags = resolveTags(request.tagNames());
+        Set<Tag> tags = tagResolver.resolve(request.tagNames());
         incrementPositions(false, request.dueDate());
         Todo todo = todoRepository.save(new Todo(
                 request.title(), request.description(), request.priority(),
@@ -74,7 +56,7 @@ public class DefaultTodoCommandService implements TodoCommandService {
         Todo todo = todoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Todo not found: " + id));
         Category category = resolveCategory(request.categoryId());
-        Set<Tag> tags = resolveTags(request.tagNames());
+        Set<Tag> tags = tagResolver.resolve(request.tagNames());
         boolean completed = request.completed() != null && request.completed();
 
         todo.update(request.title(), request.description(), request.priority(),
@@ -132,46 +114,9 @@ public class DefaultTodoCommandService implements TodoCommandService {
                 .orElseThrow(() -> new EntityNotFoundException("Category not found: " + categoryId));
     }
 
-    private Set<Tag> resolveTags(List<String> tagNames) {
-        if (ObjectUtils.isEmpty(tagNames)) {
-            return new HashSet<>();
-        }
-        List<String> normalized = normalizeTagNames(tagNames);
-        Map<String, Tag> tagByName = findExistingTagsByName(normalized);
-        createAndRegisterMissingTags(normalized, tagByName);
-
-        return new HashSet<>(tagByName.values());
-    }
-
-    private List<String> normalizeTagNames(List<String> tagNames) {
-        return tagNames.stream()
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .distinct()
-                .toList();
-    }
-
-    private Map<String, Tag> findExistingTagsByName(List<String> names) {
-        Map<String, Tag> tagByName = new HashMap<>();
-        tagRepository.findAllByNameIn(names).forEach(tag -> tagByName.put(tag.getName(), tag));
-
-        return tagByName;
-    }
-
-    private void createAndRegisterMissingTags(List<String> normalized, Map<String, Tag> tagByName) {
-        List<String> newNames = normalized.stream()
-                .filter(name -> !tagByName.containsKey(name))
-                .toList();
-
-        if (!newNames.isEmpty()) {
-            tagJdbcRepository.bulkInsert(newNames).forEach(tag -> tagByName.put(tag.getName(), tag));
-            cachedTagQueryService.invalidateCache();
-        }
-    }
-
-    private void saveTodoTagsIfNecessary(Set<Tag> tags, Long todo) {
+    private void saveTodoTagsIfNecessary(Set<Tag> tags, Long todoId) {
         if (!tags.isEmpty()) {
-            todoTagJdbcRepository.bulkInsert(todo, Tag.extractIds(tags));
+            todoTagJdbcRepository.bulkInsert(todoId, Tag.extractIds(tags));
         }
     }
 
