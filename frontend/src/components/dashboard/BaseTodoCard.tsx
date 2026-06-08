@@ -27,7 +27,7 @@ export function TodoMetaBadges({ todo, showDueDate = false }: TodoMetaBadgesProp
     <div className="flex items-center gap-2 shrink-0 ml-auto">
       {todo.tags?.length > 0 && (
         <div className="hidden sm:flex items-center gap-1">
-          {todo.tags.map(tag => (
+          {[...todo.tags].sort((a, b) => a.name.localeCompare(b.name)).map(tag => (
             <span key={tag.id} className="text-[10px] font-medium text-muted-foreground bg-muted/40 px-2 py-0.5 rounded-full border border-border/50">
               #{tag.name}
             </span>

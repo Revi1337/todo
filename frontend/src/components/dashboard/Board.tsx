@@ -105,8 +105,10 @@ export function Board() {
 
   const { open: filterSheetOpen, setOpen: setFilterSheetOpen } = useFilterSheet()
 
+  const sortedTags = useMemo(() => [...(tags ?? [])].sort((a, b) => a.name.localeCompare(b.name)), [tags])
+
   const filterPanelProps = {
-    filter, search, categories, tags,
+    filter, search, categories, tags: sortedTags,
     categoriesLoading, tagsLoading,
     onFilterChange: setFilter,
     onSearchChange: setSearch,

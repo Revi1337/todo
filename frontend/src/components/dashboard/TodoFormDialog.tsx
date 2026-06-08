@@ -55,9 +55,9 @@ function DynamicTagSelector({ tags, selectedNames, onToggle, disabled, onDropdow
 
   const maxReached = selectedNames.length >= 5
   const trimmed = inputValue.trim()
-  const filtered = tags.filter(
-    t => !selectedNames.includes(t.name) && t.name.toLowerCase().includes(inputValue.toLowerCase())
-  )
+  const filtered = tags
+    .filter(t => !selectedNames.includes(t.name) && t.name.toLowerCase().includes(inputValue.toLowerCase()))
+    .sort((a, b) => a.name.localeCompare(b.name))
   const handleValueChange = (newValue: string[] | null) => {
     const next = (newValue ?? []).slice(0, 5)
     const prev = selectedNames
