@@ -135,7 +135,7 @@ git push origin main
 └───────────────────┘                                                        ▼
         │                                                          ┌───────────────────┐
         ▼                                                          │  Next.js Build    │
-┌───────────────────┐                                             │  next build       │
+┌───────────────────┐                                              │  next build       │
 │  SCP Upload       │                                              └───────────────────┘
 │  todo.jar →       │                                                        │
 │  GCP VM ~/todo    │                                                        ▼
