@@ -22,10 +22,11 @@ export function useEasterEgg(apiPath: string) {
     clearTimeout(timer.current!)
     clickCount.current = 0
 
-    const faviconUrl = '/favicon.ico'
-    await fetch(faviconUrl, { cache: 'no-store' })
+    // Vercel Edge 캐시 테스트를 위해 public 폴더에 실제로 존재하는 초경량 파일(385 Byte)을 호출
+    const targetStaticFile = '/window.svg'
+    await fetch(targetStaticFile, { cache: 'no-store' })
     const entry = performance.getEntriesByName(
-      location.origin + faviconUrl
+      location.origin + targetStaticFile
     ).at(-1) as PerformanceResourceTiming | undefined
     const browserVercel = entry ? Math.round(entry.responseStart - entry.requestStart) : 0
 
