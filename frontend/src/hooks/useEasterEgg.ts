@@ -30,8 +30,13 @@ export function useEasterEgg(apiPath: string) {
     ).at(-1) as PerformanceResourceTiming | undefined
     const browserVercel = entry ? Math.round(entry.responseStart - entry.requestStart) : 0
 
-    const res = await fetch(`/api/timing?path=${encodeURIComponent(apiPath)}`)
-    const { vercelGcp, gcpSupabase } = await res.json()
+    // apiPath를 직접 호출 (Vercel Edge Function을 거치지 않고 rewrites()로 GCP까지 프록시)
+    const start = performance.now()
+    const res = await fetch(apiPath, { cache: 'no-store' })
+    const totalFetchTime = Math.round(performance.now() - start)
+
+    const gcpSupabase = parseFloat(res.headers.get('X-Db-Timing') ?? '0') || 0
+    const vercelGcp = Math.max(0, totalFetchTime - gcpSupabase)
 
     setLatency({ browserVercel, vercelGcp, gcpSupabase })
     setVisible(true)

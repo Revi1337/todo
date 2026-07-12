@@ -22,7 +22,6 @@ public class ServerTimingFilter extends OncePerRequestFilter {
             chain.doFilter(request, wrapper);
             long dbTime = QueryTimingHolder.get();
             if (dbTime > 0) {
-                wrapper.addHeader("Server-Timing", "db;desc=\"GCP-Supabase\";dur=" + dbTime);
                 wrapper.addHeader("X-Db-Timing", String.valueOf(dbTime));
             }
         } finally {
