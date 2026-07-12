@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
 import javax.sql.DataSource;
+import revi1337.todo.common.timing.ConnectionLifecycleTimingListener;
 import revi1337.todo.common.timing.QueryTimingListener;
 
 @Configuration
@@ -27,6 +28,7 @@ public class DataSourceConfig {
         return ProxyDataSourceBuilder
                 .create(actual)
                 .listener(new QueryTimingListener())
+                .methodListener(new ConnectionLifecycleTimingListener())
                 .build();
     }
 }
