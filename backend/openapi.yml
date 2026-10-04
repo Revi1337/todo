@@ -5,10 +5,14 @@ info:
   version: 1.0.0
 
 servers:
+  - url: https://todo-api.revi1337.com
+    description: Production server
   - url: http://localhost:8080
     description: Local development server
 
 tags:
+  - name: docs
+    description: OpenAPI specification
   - name: todos
     description: Todo management
   - name: categories
@@ -25,6 +29,19 @@ tags:
     description: Server health check
 
 paths:
+  /docs:
+    get:
+      tags: [docs]
+      summary: OpenAPI specification
+      description: Returns the OpenAPI 3.0 specification in YAML format.
+      responses:
+        "200":
+          description: OpenAPI specification
+          content:
+            text/plain:
+              schema:
+                type: string
+
   /api/todos:
     post:
       tags: [todos]
