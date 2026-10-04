@@ -47,6 +47,17 @@ class TodoServiceTest {
     }
 
     @Test
+    @DisplayName("Todo 생성 시 dueDate가 null이면 오늘 날짜로 기본 설정된다")
+    void create_nullDueDate_defaultsToToday() {
+        TodoRequest request = new TodoRequest("마감일 미지정 할일", null, Priority.LOW,
+                null, null, null, null);
+
+        TodoResponse result = todoCommandService.create(request);
+
+        assertThat(result.dueDate()).isEqualTo(LocalDate.now());
+    }
+
+    @Test
     @DisplayName("Todo 생성 시 기존 active todos의 position이 +1 밀리고 새 todo는 position 0이 된다")
     void create_shiftsExistingActiveTodosAndInsertsAtTop() {
         TodoResponse first = todoCommandService.create(new TodoRequest("첫번째", null, null, null, null, null, null));

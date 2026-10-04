@@ -40,12 +40,13 @@ public class DefaultTodoCommandService implements TodoCommandService {
 
     @Override
     public TodoResponse create(TodoRequest request) {
+        LocalDate dueDate = request.dueDate() != null ? request.dueDate() : LocalDate.now();
         Category category = resolveCategory(request.categoryId());
         Set<Tag> tags = tagResolver.resolve(request.tagNames());
-        incrementPositions(false, request.dueDate());
+        incrementPositions(false, dueDate);
         Todo todo = todoRepository.save(new Todo(
                 request.title(), request.description(), request.priority(),
-                request.dueDate(), category, LocalDateTime.now()));
+                dueDate, category, LocalDateTime.now()));
         saveTodoTagsIfNecessary(tags, todo.getId());
 
         return TodoResponse.from(todo, tags);
