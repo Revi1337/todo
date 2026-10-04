@@ -525,13 +525,73 @@ paths:
     get:
       tags: [health]
       summary: Health check
+      description: Returns health status with todos and triggers database query for latency measurement.
+      parameters:
+        - name: category
+          in: query
+          description: Filter by category ID
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: tag
+          in: query
+          description: Filter by tag ID
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: priority
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/Priority"
+        - name: completed
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: search
+          in: query
+          description: Keyword search on title and description
+          required: false
+          schema:
+            type: string
+        - name: dueDate
+          in: query
+          description: Filter by due date (ISO 8601 date) — exact match
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: dueDateFrom
+          in: query
+          description: Filter todos with dueDate >= this date (ISO 8601 date, used for calendar month range)
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: dueDateTo
+          in: query
+          description: Filter todos with dueDate <= this date (ISO 8601 date, used for calendar month range)
+          required: false
+          schema:
+            type: string
+            format: date
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApiResponseBase"
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponseBase"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/TodoResponse"
 
   /api/stats:
     get:
