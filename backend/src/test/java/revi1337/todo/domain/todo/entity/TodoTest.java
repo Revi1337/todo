@@ -27,6 +27,15 @@ class TodoTest {
     }
 
     @Test
+    @DisplayName("completed=true로 Todo를 생성하면 completedAt이 설정된다")
+    void create_completedTrue_setsCompletedAt() {
+        Todo todo = new Todo("스프링 공부", null, null, null, null, true, NOW);
+
+        assertThat(todo.isCompleted()).isTrue();
+        assertThat(todo.getCompletedAt()).isEqualTo(NOW);
+    }
+
+    @Test
     @DisplayName("priority가 null이면 MEDIUM이 기본값이다")
     void create_nullPriority_defaultsMedium() {
         Todo todo = new Todo("스프링 공부", null, null, null, null, null, NOW);

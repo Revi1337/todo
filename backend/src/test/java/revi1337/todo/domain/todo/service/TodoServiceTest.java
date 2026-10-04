@@ -71,6 +71,33 @@ class TodoServiceTest {
     }
 
     @Test
+    @DisplayName("Todo 생성 시 completed=true로 전달하면 완료 상태 및 completedAt이 설정된다")
+    void create_completedTrue() {
+        TodoRequest request = new TodoRequest("완료된 할일", "설명", Priority.HIGH,
+                LocalDate.of(2026, 6, 1), null, null, true);
+
+        TodoResponse result = todoCommandService.create(request);
+
+        assertThat(result.completed()).isTrue();
+        assertThat(result.completedAt()).isNotNull();
+        assertThat(result.position()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("완료 상태 Todo 생성 시 기존 completed todos의 position이 +1 밀리고 새 todo는 position 0이 된다")
+    void create_shiftsExistingCompletedTodosAndInsertsAtTop() {
+        LocalDate date = LocalDate.of(2026, 6, 1);
+        TodoResponse first = todoCommandService.create(new TodoRequest("완료1", null, null, date, null, null, true));
+        TodoResponse second = todoCommandService.create(new TodoRequest("완료2", null, null, date, null, null, true));
+        TodoResponse third = todoCommandService.create(new TodoRequest("완료3", null, null, date, null, null, true));
+        entityManager.clear();
+
+        assertThat(todoQueryService.findById(third.id()).position()).isEqualTo(0);
+        assertThat(todoQueryService.findById(second.id()).position()).isEqualTo(1);
+        assertThat(todoQueryService.findById(first.id()).position()).isEqualTo(2);
+    }
+
+    @Test
     @DisplayName("필터 없이 전체 목록을 조회한다")
     void findAll_noFilter() {
         todoCommandService.create(new TodoRequest("Todo1", null, null, null, null, null, null));

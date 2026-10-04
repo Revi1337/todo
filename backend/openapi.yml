@@ -46,6 +46,7 @@ paths:
     post:
       tags: [todos]
       summary: Create a todo
+      description: 새로운 Todo를 생성합니다. dueDate 미입력 시 오늘 날짜로 자동 설정되며, completed를 true로 전달 시 완료 상태(completedAt 포함)로 즉시 생성되어 완료 그룹의 0번 위치에 배치됩니다. (미입력 시 기본값 false)
       requestBody:
         required: true
         content:
@@ -161,6 +162,7 @@ paths:
     put:
       tags: [todos]
       summary: Update a todo
+      description: Todo 정보를 수정합니다. completed 상태 변경 시 completedAt 및 그룹(완료/미완료) 내 position이 갱신됩니다.
       parameters:
         - $ref: "#/components/parameters/IdPath"
       requestBody:
@@ -755,6 +757,7 @@ components:
           type: string
           format: date
           nullable: true
+          description: 마감일 (YYYY-MM-DD). 생성 시 미입력 시 오늘 날짜로 자동 설정됩니다.
         categoryId:
           type: integer
           format: int64
@@ -767,6 +770,8 @@ components:
         completed:
           type: boolean
           nullable: true
+          default: false
+          description: 완료 여부 (기본값 false). 생성 시 true 입력 시 즉시 완료 처리되며 completedAt이 설정되고 완료 그룹의 0번 위치에 배치됩니다.
 
     TodoResponse:
       type: object

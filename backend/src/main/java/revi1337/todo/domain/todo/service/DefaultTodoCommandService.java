@@ -43,10 +43,11 @@ public class DefaultTodoCommandService implements TodoCommandService {
         LocalDate dueDate = request.dueDate() != null ? request.dueDate() : LocalDate.now();
         Category category = resolveCategory(request.categoryId());
         Set<Tag> tags = tagResolver.resolve(request.tagNames());
-        incrementPositions(false, dueDate);
+        boolean completed = Boolean.TRUE.equals(request.completed());
+        incrementPositions(completed, dueDate);
         Todo todo = todoRepository.save(new Todo(
                 request.title(), request.description(), request.priority(),
-                dueDate, category, LocalDateTime.now()));
+                dueDate, category, completed, LocalDateTime.now()));
         saveTodoTagsIfNecessary(tags, todo.getId());
 
         return TodoResponse.from(todo, tags);

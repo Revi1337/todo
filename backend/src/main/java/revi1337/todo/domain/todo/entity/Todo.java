@@ -68,14 +68,27 @@ public class Todo {
     }
 
     public Todo(String title, String description, Priority priority, LocalDate dueDate,
-            Category category, LocalDateTime createdAt) {
+                Category category, Set<Tag> tags, boolean completed, LocalDateTime createdAt) {
+        this(title, description, priority, dueDate, category, completed, createdAt);
+        applyTags(tags);
+    }
+
+    public Todo(String title, String description, Priority priority, LocalDate dueDate,
+            Category category, boolean completed, LocalDateTime createdAt) {
         this.title = Objects.requireNonNull(title, "title must not be null");
         this.description = description;
         this.priority = resolvePriority(priority);
         this.dueDate = dueDate;
         this.category = category;
+        this.completed = completed;
+        this.completedAt = completed ? createdAt : null;
         this.createdAt = Objects.requireNonNull(createdAt, "createdAt must not be null");
         this.updatedAt = createdAt;
+    }
+
+    public Todo(String title, String description, Priority priority, LocalDate dueDate,
+            Category category, LocalDateTime createdAt) {
+        this(title, description, priority, dueDate, category, false, createdAt);
     }
 
     public void update(String title, String description, Priority priority, LocalDate dueDate,
