@@ -424,6 +424,7 @@ paths:
     post:
       tags: [schedules]
       summary: Create a schedule
+      description: Creates a schedule for a todo. startTime and endTime must be in 10-minute increments with 00 seconds (e.g. 10:00:00, 10:10:00), and startTime must be before endTime. Returns 400 if invalid, or 409 if overlapping/duplicate.
       requestBody:
         required: true
         content:
@@ -453,6 +454,7 @@ paths:
     put:
       tags: [schedules]
       summary: Update schedule time
+      description: Updates schedule time. startTime and endTime must be in 10-minute increments with 00 seconds, and startTime must be before endTime. Returns 400 if invalid, or 409 if overlapping.
       parameters:
         - $ref: "#/components/parameters/IdPath"
       requestBody:
@@ -817,10 +819,12 @@ components:
         startTime:
           type: string
           format: time
+          description: Start time (HH:mm:ss). Must be in 10-minute increments with 00 seconds (e.g. 10:00:00, 10:10:00) and before endTime.
           example: "10:00:00"
         endTime:
           type: string
           format: time
+          description: End time (HH:mm:ss). Must be in 10-minute increments with 00 seconds (e.g. 10:10:00, 11:00:00) and after startTime.
           example: "11:00:00"
         scheduleDate:
           type: string
@@ -834,10 +838,12 @@ components:
         startTime:
           type: string
           format: time
+          description: Start time (HH:mm:ss). Must be in 10-minute increments with 00 seconds and before endTime.
           example: "14:00:00"
         endTime:
           type: string
           format: time
+          description: End time (HH:mm:ss). Must be in 10-minute increments with 00 seconds and after startTime.
           example: "15:30:00"
 
     ScheduleResponse:
